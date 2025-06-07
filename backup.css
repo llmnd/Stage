@@ -173,3 +173,48 @@ section:nth-child(even) {
   outline: 2px solid var(--btn-bg);
   outline-offset: 2px;
 }
+@media screen and (max-width: 768px) {
+  header {
+    padding: 2rem 1rem;
+    background-attachment: scroll; /* évite les bugs sur certains mobiles */
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+  }
+
+  header p {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    display: block;
+    margin: 0.5rem auto;
+    width: 80%;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  .feature {
+    padding: 1.5rem 1rem;
+  }
+
+  .clickable-section {
+    padding: 2rem 1rem;
+    margin: 1rem;
+  }
+
+  .section-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .footer {
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+}
