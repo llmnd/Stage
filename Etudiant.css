@@ -1,0 +1,189 @@
+:root {
+  --bg: #ffffff;
+  --text: #1a1a1a;
+  --accent: #007bff;
+  --card-bg: #f5f5f5;
+  --border: #dddddd;
+}
+
+body.dark {
+  --bg: #0d1117;
+  --text: #e6edf3;
+  --accent: #58a6ff;
+  --card-bg: #161b22;
+  --border: #30363d;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  padding: 1rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.profil {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+}
+
+#upload-avatar {
+  margin-top: 0.5rem;
+}
+
+.info input,
+#bio {
+  display: block;
+  width: 100%;
+  margin: 0.3rem 0;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+textarea#bio {
+  resize: vertical;
+  height: 80px;
+}
+
+.cv-skills {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+}
+
+#cv-upload {
+  display: block;
+  margin: 0.7rem 0 1rem;
+}
+
+#skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tag {
+  background: var(--accent);
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+#add-skill {
+  border: 1px dashed var(--accent);
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.portfolio {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+#post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 2rem;
+}
+
+#post-form textarea {
+  resize: vertical;
+  min-height: 80px;
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+#post-form input[type="file"] {
+  color: var(--text);
+}
+
+#post-form button {
+  align-self: flex-start;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#posts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.post {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: var(--bg);
+}
+
+.post img,
+.post video {
+  max-width: 100%;
+  border-radius: 0.7rem;
+  margin-top: 0.7rem;
+}

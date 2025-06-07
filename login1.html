@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion</title>
+  <link rel="stylesheet" href="login.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      height: 100vh;
+      background: linear-gradient(to bottom, #682864, #51264f);
+      font-family: 'Times new roman', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 2em;
+    }
+    .btn-group {
+      margin-top: 10px;
+    }
+    .btn {
+      background-color: white;
+      color: #1a237e;
+      padding: 8px 16px;
+      margin: 0 5px;
+      text-decoration: none;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 40px 30px;
+      text-align: center;
+      color: white;
+      width: 320px;
+      margin-top: 40px;
+    }
+    .avatar {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .avatar img {
+      width: 100%;
+      height: auto;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      color: black;
+      background-color: #ffffffcc;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: transparent;
+      border: 2px solid white;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .login-btn:hover {
+      background-color: white;
+      color: #1a237e;
+    }
+    .create-account {
+      margin-top: 15px;
+      font-size: 12px;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .background-decor {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+    }
+    .background-decor .shape {
+      position: absolute;
+      background: #1a237e;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    .shape.one { width: 100px; height: 100px; top: 30%; left: 10%; }
+    .shape.two { width: 150px; height: 150px; bottom: 10%; right: 20%; }
+    .shape.three { width: 80px; height: 80px; top: 10%; right: 10%; }
+  </style>
+</head>
+<body>
+  <div class="background-decor">
+    <div class="shape one"></div>
+    <div class="shape two"></div>
+    <div class="shape three"></div>
+  </div>
+    </div>
+  </header>
+
+  <div class="login-container">
+    <div class="avatar">
+      <img src="e.jpg" alt="avatar">
+    </div>
+    <h2>Connexion</h2>
+    <input type="text" id="login-name" placeholder="Nom d'utilisateur" />
+    <input type="password" id="login-password" placeholder="Mot de passe" />
+    <button class="login-btn" onclick="login()">Se connecter</button>
+    <p>Pas encore de compte ? <a href="register.html" style="color:white;text-decoration:underline;">Créer un compte</a></p>
+  </div>
+
+  <script>
+    function login() {
+      const name = document.getElementById('login-name').value;
+      const password = document.getElementById('login-password').value;
+
+      const storedName = localStorage.getItem('username');
+      const storedPassword = localStorage.getItem('password');
+
+      if (name === storedName && password === storedPassword) {
+        window.location.href = 'index.html';
+      } else {
+        alert('Nom ou mot de passe incorrect.');
+      }
+    }
+  </script>
+</body>
+</html>
