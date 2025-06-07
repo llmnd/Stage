@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plateforme de Stages - Espace Entreprise</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Entreprise.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                <span>Espace Entreprise</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#"><i class="fas fa-home"></i> Accueil</a>
+                <a href="#" class="active"><i class="fas fa-briefcase"></i> Offres</a>
+                <a href="#"><i class="fas fa-search"></i> Candidats</a>
+                <a href="#"><i class="fas fa-chart-line"></i> Statistiques</a>
+            </nav>
+            <div class="user-actions">
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+                <div class="user-dropdown">
+                    <button class="user-btn">
+                        <i class="fas fa-user-tie"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#"><i class="fas fa-user-cog"></i> Profil</a>
+                        <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+                        <a href="#"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Offres actives</h3>
+                        <p id="active-offers">12</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Candidatures</h3>
+                        <p id="total-applications">84</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>En attente</h3>
+                        <p id="pending-applications">23</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-danger">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Top candidats</h3>
+                        <p id="top-candidates">5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="main-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-plus-circle"></i> Créer une nouvelle offre</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="offer-form">
+                                <div class="form-group">
+                                    <label for="offer-title">Titre du poste</label>
+                                    <input type="text" id="offer-title" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="offer-type">Type de stage</label>
+                                        <select id="offer-type" required>
+                                            <option value="">Sélectionner</option>
+                                            <option value="PFE">Projet de Fin d'Études</option>
+                                            <option value="Summer">Stage d'été</option>
+                                            <option value="Ouvrier">Stage ouvrier</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="offer-duration">Durée (mois)</label>
+                                        <input type="number" id="offer-duration" min="1" max="12" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="offer-description">Description</label>
+                                    <textarea id="offer-description" rows="4" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="offer-skills">Compétences requises</label>
+                                    <div class="tags-input">
+                                        <ul id="skills-tags"></ul>
+                                        <input type="text" id="offer-skills" placeholder="Ajouter une compétence">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Publier l'offre
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-bell"></i> Dernières candidatures</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="application-list" id="recent-applications">
+                                <!-- Dynamically filled by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="Entreprise.js"></script>
+</body>
+</html>
