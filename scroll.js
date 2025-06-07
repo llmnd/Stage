@@ -60,5 +60,34 @@ window.addEventListener('scroll', revealOnScroll);
 
 // Trigger au chargement au cas où les éléments sont déjà visibles
 window.addEventListener('load', revealOnScroll);
+// scroll.js
+  const featureDetails = {
+    matching: "Notre IA analyse les compétences, expériences et préférences de l'étudiant pour effectuer un alignement intelligent avec les offres disponibles, en se basant sur une analyse sémantique avancée.",
+    comportement: "Le système observe vos interactions avec la plateforme pour améliorer ses suggestions au fil du temps, selon votre comportement réel.",
+    suivi: "Les recommandations évoluent selon votre progression académique et vos retours, pour un accompagnement dynamique et personnalisé."
+  };
+
+  const features = document.querySelectorAll('.feature');
+
+  features.forEach(feature => {
+    feature.addEventListener('click', () => {
+      const isAlreadyOpen = feature.classList.contains('expanded');
+      
+      // Ferme toutes les cartes
+      features.forEach(f => {
+        f.classList.remove('expanded');
+        f.querySelector('.feature-content').innerHTML = '';
+      });
+
+      // Si elle n'était pas déjà ouverte, on l'ouvre
+      if (!isAlreadyOpen) {
+        feature.classList.add('expanded');
+        const key = feature.dataset.feature;
+        const content = feature.querySelector('.feature-content');
+        content.innerHTML = `<p>${featureDetails[key]}</p>`;
+      }
+    });
+  });
+
 
 
