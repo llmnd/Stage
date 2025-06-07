@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil Étudiant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Panel principal -->
+    <div class="main-panel">
+
+      <!-- Profil avec image et info -->
+      <div class="profile">
+        <label for="profile-pic">
+          <img src="e.jpg" id="profile-image" alt="Photo de profil"/>
+        </label>
+        <input type="file" id="profile-pic" accept="image/*" style="display: none" />
+
+        <div class="info">
+          <h2 id="nom"></h2>
+          <p id="email"></p>
+          <p id="tel"></p>      
+          <p id="description">
+            <span id="ecole">ESP Dakar</span><br>
+            <span id="filiere">DSTI</span> <span id="annee">2</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Bio modifiable -->
+      <div class="go">
+        <h2 class="mabio">Bio</h2>
+        <p id="bio">
+          Passionné par les nouvelles technologies et le développement logiciel, je poursuis mes études à l'ESP Dakar...
+        </p>
+        <textarea id="bio-edit" style="display: none;"></textarea>
+      </div>
+
+      <!-- Boutons modification -->
+      <div class="box">
+        <h3>⚙️ Modifier mes infos</h3>
+        <button id="edit-profile">Modifier</button>
+        <button id="save-profile" style="display: none;">Enregistrer</button>
+      </div>
+
+      <!-- CV -->
+      <div class="box">
+        <h3>📄 Mon CV</h3>
+        <input type="file" id="upload-cv" accept=".pdf,.doc,.docx"/>
+        <p id="file-name" style="margin-top: 0.5rem; color: #444;"></p>
+        <button onclick="uploadCV()">Téléverser</button>
+      </div>
+
+      <!-- Réalisations -->
+      <div class="box">
+        <h3>🎥 Réalisations (TP, projets, etc.)</h3>
+        <input type="file" id="media-upload" accept="image/*,video/*" multiple/>
+        <div id="gallery" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1rem;"></div>
+      </div>
+    </div>
+
+    <!-- Panel latéral -->
+    <div class="side-panel">
+
+      <div class="box">
+        <h3>💡 Offres suggérées</h3>
+        <ul id="suggestions-offres">
+          <li>Développeur front-end - Orange</li>
+          <li>Stage DevOps - Sonatel</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h3>🏢 Entreprises</h3>
+        <button onclick="fetchEntreprises()">Voir</button>
+      </div>
+
+      <div class="box">
+        <h3>📌 Candidatures</h3>
+        <ul id="historique-candidatures">
+          <li>Backend - Atos (en cours)</li>
+          <li>IA - Wave (accepté)</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h3>✉️ Messagerie</h3>
+        <button onclick="ouvrirMessagerie()">Accéder</button>
+      </div>
+
+      <div class="box">
+        <h3>📊 Évaluation de stage</h3>
+        <a href="evaluation.html">Voir</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

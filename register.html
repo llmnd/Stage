@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un compte</title>
+  <link rel="stylesheet" href="login.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      text-decoration: none;
+    }
+    body {
+      height: 100vh;
+     background: linear-gradient(to bottom, #682864, #51264f);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+    }
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 40px 30px;
+      text-align: center;
+      color: white;
+      width: 320px;
+      margin-top: 80px;
+    }
+    .avatar {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .avatar img {
+      width: 100%;
+      height: auto;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      color: black;
+      background-color: #feffffe8;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: transparent;
+      border: 2px solid white;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .login-btn:hover {
+      background-color: white;
+      color: #1a237e;
+    }
+    .create-account {
+      margin-top: 15px;
+      font-size: 12px;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .background-decor {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+    }
+    .background-decor .shape {
+      position: absolute;
+      background: #1a237e;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    .shape.one { width: 100px; height: 100px; top: 30%; left: 10%; }
+    .shape.two { width: 150px; height: 150px; bottom: 10%; right: 20%; }
+    .shape.three { width: 80px; height: 80px; top: 10%; right: 10%; }
+  </style>
+</head>
+<body>
+  <div class="background-decor">
+    <div class="shape one"></div>
+    <div class="shape two"></div>
+    <div class="shape three"></div>
+  </div>
+
+  <div class="login-container">
+    <div class="avatar">
+      <img src="e.jpg" alt="avatar">
+    </div>
+    <h2>Créer un compte</h2>
+    <input type="text" id="register-name" placeholder="Nom d'utilisateur" />
+    <input type="password" id="register-password" placeholder="Mot de passe" />
+    <button class="login-btn" onclick="register()">Créer le compte</button>
+    <p>Déjà inscrit ? <a href="login1.html" style="color:white;text-decoration:underline;">Se connecter</a></p>
+  </div>
+
+  <script>
+    function register() {
+      const name = document.getElementById('register-name').value;
+      const password = document.getElementById('register-password').value;
+
+      if (name && password) {
+        localStorage.setItem('username', name);
+        localStorage.setItem('password', password);
+        alert('Compte créé avec succès.');
+        window.location.href = 'login1.html';
+      } else {
+        alert('Veuillez remplir tous les champs.');
+      }
+    }
+  </script>
+</body>
+</html>

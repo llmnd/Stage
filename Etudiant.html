@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profil Étudiant - ESP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="accueil.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .profile-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: var(--bg);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .bio {
+      margin-top: 1rem;
+    }
+
+    .bio textarea {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid #ccc;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .btn-save {
+      margin-top: 1rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 1rem;
+      cursor: pointer;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-label {
+      display: inline-block;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mon Profil</h1>
+    <p>Gérez votre identité et vos informations personnelles</p>
+  </header>
+
+  <main>
+    <div class="profile-container">
+      <img id="preview" src="default-avatar.png" alt="Photo de profil" class="profile-pic" />
+      <label for="upload" class="upload-label"><i data-lucide="upload-cloud" class="icon"></i> Changer la photo</label>
+      <input type="file" id="upload" accept="image/*" />
+
+      <div class="bio">
+        <h3>Ma bio</h3>
+        <textarea id="bio" rows="4" placeholder="Présente-toi en quelques lignes..."></textarea>
+        <button class="btn-save" onclick="saveBio()">Enregistrer</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2025 ESP Dakar. Tous droits réservés.
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Afficher l'image sélectionnée
+    document.getElementById('upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('preview').src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Sauvegarder la bio localement (localStorage pour l'exemple)
+    function saveBio() {
+      const bioText = document.getElementById('bio').value.trim();
+      if (bioText) {
+        localStorage.setItem('studentBio', bioText);
+        alert('Bio enregistrée !');
+      }
+    }
+
+    // Charger la bio enregistrée si présente
+    window.onload = function() {
+      const storedBio = localStorage.getItem('studentBio');
+      if (storedBio) {
+        document.getElementById('bio').value = storedBio;
+      }
+    };
+  </script>
+</body>
+</html>
