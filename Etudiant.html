@@ -1,123 +1,264 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Profil Étudiant - ESP</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="accueil.css" />
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    .profile-container {
-      max-width: 600px;
-      margin: 2rem auto;
-      background: var(--bg);
-      padding: 2rem;
-      border-radius: 1.5rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      text-align: center;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon Profil - Plateforme de Stages</title>
 
-    .profile-pic {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--primary);
-      margin-bottom: 1rem;
-    }
+    <!-- Icônes & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-    .bio {
-      margin-top: 1rem;
-    }
-
-    .bio textarea {
-      width: 100%;
-      padding: 1rem;
-      border-radius: 1rem;
-      border: 1px solid #ccc;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .btn-save {
-      margin-top: 1rem;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 1rem;
-      cursor: pointer;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .upload-label {
-      display: inline-block;
-      margin-top: 0.5rem;
-      cursor: pointer;
-      color: var(--primary);
-      font-weight: 600;
-    }
-  </style>
+    <!-- Feuille de style principale -->
+    <link rel="stylesheet" href="Etudiant.css" />
 </head>
 <body>
-  <header>
-    <h1>Mon Profil</h1>
-    <p>Gérez votre identité et vos informations personnelles</p>
-  </header>
+    <!-- En-tête -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Stage</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#"><i class="fas fa-home"></i> Accueil</a>
+                <a href="#"><i class="fas fa-briefcase"></i> Offres</a>
+                <a href="#" class="active"><i class="fas fa-user"></i> Mon Profil</a>
+                <a href="#"><i class="fas fa-building"></i> Entreprises</a>
+                <a href="#"><i class="fas fa-file-alt"></i> Documents</a>
+            </nav>
+            <div class="user-actions">
+                <button class="notification-btn"><i class="fas fa-bell"></i></button>
+                <button class="user-btn"><i class="fas fa-user"></i></button>
+            </div>
+        </div>
+    </header>
 
-  <main>
-    <div class="profile-container">
-      <img id="preview" src="default-avatar.png" alt="Photo de profil" class="profile-pic" />
-      <label for="upload" class="upload-label"><i data-lucide="upload-cloud" class="icon"></i> Changer la photo</label>
-      <input type="file" id="upload" accept="image/*" />
+    <!-- Contenu principal -->
+    <div class="container">
+        <div class="profile-container">
+            <!-- Barre latérale -->
+            <aside class="sidebar">
+                <div class="profile-header">
+                    <div class="profile-pic"><i class="fas fa-user"></i></div>
+                    <div class="profile-name">Modou Sarr</div>
+                    <div class="profile-title">Master Informatique - Spécialisation IA</div>
+                    <div class="profile-score">
+                        <i class="fas fa-star"></i> Profil complété à 85%
+                    </div>
+                </div>
 
-      <div class="bio">
-        <h3>Ma bio</h3>
-        <textarea id="bio" rows="4" placeholder="Présente-toi en quelques lignes..."></textarea>
-        <button class="btn-save" onclick="saveBio()">Enregistrer</button>
-      </div>
+                <div class="profile-details">
+                    <div class="detail-item"><i class="fas fa-envelope"></i> modous@edu.ucad.sn</div>
+                    <div class="detail-item"><i class="fas fa-phone"></i> 784666912</div>
+                    <div class="detail-item"><i class="fas fa-map-marker-alt"></i> Dakar, Liberté 6</div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="section-title">
+                        <span>Complétion du profil</span>
+                        <span>85%</span>
+                    </div>
+
+                    <!-- Progression des sections -->
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Informations personnelles</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Compétences</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 90%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Préférences</span>
+                            <span>70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Documents</span>
+                            <span>80%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 80%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-download"></i> Télécharger mon CV
+                </button>
+            </aside>
+
+            <!-- Contenu principal -->
+            <main class="main-content">
+                <!-- Carte compétences -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Mes Compétences</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-outline"><i class="fas fa-sync-alt"></i> Actualiser</button>
+                        </div>
+                    </div>
+
+                    <div class="skills-container">
+                        <div class="skill-tag">Python <i class="fas fa-check-circle"></i></div>
+                        <div class="skill-tag">Machine Learning <i class="fas fa-check-circle"></i></div>
+                        <div class="skill-tag">SQL <i class="fas fa-check-circle"></i></div>
+                        <div class="skill-tag">Deep Learning <i class="fas fa-check-circle"></i></div>
+                        <div class="skill-tag">Cloud Computing <i class="fas fa-plus-circle"></i></div>
+                    </div>
+
+                    <div class="add-skill">
+                        <input type="text" placeholder="Ajouter une compétence..." />
+                        <button class="btn btn-primary">Ajouter</button>
+                    </div>
+                </section>
+
+                <!-- Offres recommandées -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Offres Recommandées</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-outline"><i class="fas fa-filter"></i> Filtrer</button>
+                        </div>
+                    </div>
+
+                    <div class="match-grid">
+                        <!-- Carte offre 1 -->
+                        <article class="match-card">
+                            <header class="match-header">
+                                <h3 class="match-title">Data Scientist Junior</h3>
+                                <p class="match-subtitle">TechInnov - Senegal</p>
+                            </header>
+                            <div class="match-body">
+                                <div class="match-stats">
+                                    <span>Match TIA</span>
+                                    <span class="match-percentage">92%</span>
+                                </div>
+                                <div class="match-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div class="match-actions">
+                                    <button class="btn btn-outline"><i class="far fa-eye"></i> Voir</button>
+                                    <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> Postuler</button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte offre 2 -->
+                        <article class="match-card">
+                            <header class="match-header">
+                                <h3 class="match-title">Stagiaire en IA</h3>
+                                <p class="match-subtitle">AI Solutions - Lyon</p>
+                            </header>
+                            <div class="match-body">
+                                <div class="match-stats">
+                                    <span>Match TIA</span>
+                                    <span class="match-percentage">87%</span>
+                                </div>
+                                <div class="match-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 87%"></div>
+                                    </div>
+                                </div>
+                                <div class="match-actions">
+                                    <button class="btn btn-outline"><i class="far fa-eye"></i> Voir</button>
+                                    <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> Postuler</button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Carte offre 3 -->
+                        <article class="match-card">
+                            <header class="match-header">
+                                <h3 class="match-title">Assistant Data Analyst</h3>
+                                <p class="match-subtitle">FinTech Group - Nantes</p>
+                            </header>
+                            <div class="match-body">
+                                <div class="match-stats">
+                                    <span>Match TIA</span>
+                                    <span class="match-percentage">85%</span>
+                                </div>
+                                <div class="match-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div class="match-actions">
+                                    <button class="btn btn-outline"><i class="far fa-eye"></i> Voir</button>
+                                    <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> Postuler</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Candidatures -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Mes Candidatures</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-outline"><i class="fas fa-history"></i> Historique</button>
+                        </div>
+                    </div>
+
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">15 Juin 2023</div>
+                                <div class="timeline-title">Data Science Intern - TechInnov</div>
+                                <div class="status review">En cours d'évaluation</div>
+                                <p>Votre candidature a été examinée par le service RH</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">10 Juin 2023</div>
+                                <div class="timeline-title">AI Research Assistant - NeuroTech</div>
+                                <div class="status accepted">Acceptée!</div>
+                                <p>Entretien prévu le 25 Juin à 14h</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">5 Juin 2023</div>
+                                <div class="timeline-title">Machine Learning Intern - DataForge</div>
+                                <div class="status pending">En attente de réponse</div>
+                                <p>Votre CV a été consulté par le responsable technique</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
-  </main>
 
-  <footer class="footer">
-    &copy; 2025 ESP Dakar. Tous droits réservés.
-  </footer>
-
-  <script>
-    lucide.createIcons();
-
-    // Afficher l'image sélectionnée
-    document.getElementById('upload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById('preview').src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Sauvegarder la bio localement (localStorage pour l'exemple)
-    function saveBio() {
-      const bioText = document.getElementById('bio').value.trim();
-      if (bioText) {
-        localStorage.setItem('studentBio', bioText);
-        alert('Bio enregistrée !');
-      }
-    }
-
-    // Charger la bio enregistrée si présente
-    window.onload = function() {
-      const storedBio = localStorage.getItem('studentBio');
-      if (storedBio) {
-        document.getElementById('bio').value = storedBio;
-      }
-    };
-  </script>
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 </html>
