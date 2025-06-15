@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Supprimer l'offre</title>
+</head>
+<body>
+  <h1>Supprimer l'offre : "{{ offre.titre }}"</h1>
+  <p>Es-tu sûr de vouloir supprimer cette offre ? Cette action est irréversible.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Oui, supprimer</button>
+    <a href="{% url 'profil_entreprise' %}">Annuler</a>
+  </form>
+</body>
+</html>

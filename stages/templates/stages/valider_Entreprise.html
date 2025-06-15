@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends "base.html" %}
+{% block content %}
+  <h2>Entreprises à valider</h2>
+  {% if entreprises %}
+    <ul>
+      {% for entreprise in entreprises %}
+        <li>
+          {{ entreprise.username }} ({{ entreprise.email }})
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ entreprise.id }}">
+            <button type="submit">Valider</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Aucune entreprise à valider.</p>
+  {% endif %}
+{% endblock %}
+
+</body>
+</html>

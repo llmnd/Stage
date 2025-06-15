@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Postuler à {{ offre.titre }}{% endblock %}
+
+{% block content %}
+  <h2>Postuler à l'offre : {{ offre.titre }}</h2>
+  <p><strong>Entreprise :</strong> {{ offre.entreprise.nom_entreprise }}</p>
+  <p><strong>Description :</strong> {{ offre.description }}</p>
+  
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    
+    <div class="mb-3">
+      <label for="{{ form.message.id_for_label }}" class="form-label">Message (optionnel)</label>
+      {{ form.message }}
+      {% for error in form.message.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.cv.id_for_label }}" class="form-label">CV (optionnel)</label>
+      {{ form.cv }}
+      {% for error in form.cv.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Envoyer la candidature</button>
+  </form>
+{% endblock %}

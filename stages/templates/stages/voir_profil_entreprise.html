@@ -1,0 +1,608 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil de {{ entreprise.nom_entreprise }} | Plateforme de Stages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Profil complet de l'entreprise {{ entreprise.nom_entreprise }} - Secteur {{ entreprise.secteur }} - {{ entreprise.ville }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2e1168;
+            --primary-light: #4a1da8;
+            --secondary: #8e2de2;
+            --accent: #ff4e50;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Header Époustouflant */
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 5rem 2rem 8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            clip-path: ellipse(100% 100% at 50% 0%);
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .entreprise-title {
+            font-family: 'Times New Roman', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .entreprise-secteur {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Logo Magnifique */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -80px;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .logo-wrapper {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            padding: 8px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(142, 45, 226, 0.3);
+            transition: var(--transition);
+        }
+
+        .logo-wrapper:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(142, 45, 226, 0.4);
+        }
+
+        .logo {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--white);
+            display: block;
+            background-color: var(--light);
+        }
+
+        /* Contenu Principal */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        /* Cartes d'Informations */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--secondary);
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .card-title i {
+            color: var(--secondary);
+        }
+
+        .info-item {
+            margin-bottom: 1.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .info-item strong {
+            color: var(--dark);
+            font-weight: 500;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-item span, .info-item a {
+            flex: 1;
+            color: var(--gray);
+        }
+
+        .info-item a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            word-break: break-all;
+        }
+
+        .info-item a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Réseaux Sociaux */
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(142, 45, 226, 0.1);
+            color: var(--secondary);
+            border-radius: 50px;
+            text-decoration: none;
+            transition: var(--transition);
+            border: 1px solid rgba(142, 45, 226, 0.2);
+        }
+
+        .social-link:hover {
+            background: var(--secondary);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.2);
+        }
+
+        /* Sections de Contenu */
+        .content-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            text-decoration: none;
+        }
+
+        .section-title {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.8rem;
+            text-decoration: none;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .section-content {
+            line-height: 1.8;
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .section-content p {
+            margin-bottom: 1rem;
+            text-decoration: none;
+        }
+
+        /* Offres de Stage */
+        .offres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .offre-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .offre-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .offre-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            display: block;
+            font-weight: 600;
+        }
+
+        .offre-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .offre-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* État Vide */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Boutons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(142, 45, 226, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(142, 45, 226, 0.4);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        /* Pied de Page */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Bouton Retour */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            color: var(--secondary);
+            transform: translateX(-5px);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        [data-scroll] {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        [data-scroll].visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: 4rem 1.5rem 6rem;
+                clip-path: ellipse(120% 100% at 50% 0%);
+            }
+
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .main-container {
+                padding: 0 1.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Époustouflant -->
+    <header class="hero-header">
+        <div class="hero-content">
+            <h1 class="entreprise-title">{{ entreprise.nom_entreprise }}</h1>
+            <p class="entreprise-secteur">{{ entreprise.secteur }} • {{ entreprise.ville }}, {{ entreprise.pays }}</p>
+        </div>
+    </header>
+
+    <!-- Logo Centré Magnifique -->
+    {% if entreprise.logo_url %}
+    <div class="logo-container" data-scroll>
+        <div class="logo-wrapper">
+            <img src="{{ entreprise.logo_url }}" 
+                 alt="Logo de {{ entreprise.nom_entreprise }}" 
+                 class="logo"
+                 loading="lazy"
+                 width="160"
+                 height="160">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="main-container">
+        <!-- Grille d'Informations -->
+        <div class="info-grid">
+            <!-- Carte Contact -->
+            <div class="info-card" data-scroll>
+                <h3 class="card-title"><i class="fas fa-envelope"></i> Contact</h3>
+                <div class="info-item">
+                    <strong><i class="fas fa-map-marker-alt"></i> Adresse</strong>
+                    <span>{{ entreprise.adresse }}, {{ entreprise.ville }}, {{ entreprise.pays }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-phone"></i> Téléphone</strong>
+                    <a href="tel:{{ entreprise.telephone }}">{{ entreprise.telephone }}</a>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-envelope"></i> Email</strong>
+                    <a href="mailto:{{ entreprise.email_contact }}">{{ entreprise.email_contact }}</a>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-globe"></i> Site web</strong>
+                    {% if entreprise.site_web %}
+                        <a href="{{ entreprise.site_web }}" target="_blank" rel="noopener noreferrer">
+                            {{ entreprise.site_web|truncatechars:25 }}
+                        </a>
+                    {% else %}
+                        <span>Non renseigné</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Entreprise -->
+            <div class="info-card" data-scroll>
+                <h3 class="card-title"><i class="fas fa-building"></i> Entreprise</h3>
+                <div class="info-item">
+                    <strong><i class="fas fa-users"></i> Taille</strong>
+                    <span>{{ entreprise.taille }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-user-tie"></i> Employés</strong>
+                    <span>{{ entreprise.nombre_employes }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-calendar-alt"></i> Création</strong>
+                    <span>{{ entreprise.date_creation|date:"d/m/Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-gavel"></i> Statut</strong>
+                    <span>{{ entreprise.statut_juridique }}</span>
+                </div>
+            </div>
+
+            <!-- Carte Réseaux Sociaux -->
+            <div class="info-card" data-scroll>
+                <h3 class="card-title"><i class="fas fa-share-alt"></i> Réseaux</h3>
+                {% if entreprise.reseaux_sociaux %}
+                    <div class="social-links">
+                        {% for lien in entreprise.reseaux_sociaux|split:"," %}
+                            {% with lien_clean=lien|trim %}
+                            <a href="{{ lien_clean }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="social-link">
+                                {% if "facebook" in lien_clean %}
+                                    <i class="fab fa-facebook-f"></i> Facebook
+                                {% elif "twitter" in lien_clean %}
+                                    <i class="fab fa-twitter"></i> Twitter
+                                {% elif "linkedin" in lien_clean %}
+                                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                                {% elif "instagram" in lien_clean %}
+                                    <i class="fab fa-instagram"></i> Instagram
+                                {% else %}
+                                    <i class="fas fa-globe"></i> Réseau
+                                {% endif %}
+                            </a>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: var(--gray);">Aucun réseau social renseigné</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section À Propos -->
+        <div class="content-section" data-scroll>
+            <h2 class="section-title">À propos</h2>
+            <div class="section-content">
+                {{ entreprise.description|linebreaks|default:"<p style='color:var(--gray);'>Aucune description fournie.</p>" }}
+            </div>
+        </div>
+
+        <!-- Section Réalisations -->
+        <div class="content-section" data-scroll>
+            <h2 class="section-title">Réalisations</h2>
+            <div class="section-content">
+                {{ entreprise.realisations|linebreaks|default:"<p style='color:var(--gray);'>Aucune réalisation renseignée.</p>" }}
+            </div>
+        </div>
+
+        <!-- Section Offres -->
+        <div class="content-section" data-scroll>
+            <h2 class="section-title">Offres disponibles</h2>
+            {% if offres %}
+                <div class="offres-grid">
+                    {% for offre in offres %}
+                        <a href="{% url 'detail_offre' offre.id %}" class="offre-card" data-scroll>
+                            <h3 class="offre-title">{{ offre.titre }}</h3>
+                            <p>{{ offre.description|truncatewords:20 }}</p>
+                            <div class="offre-meta">
+                                <span><i class="fas fa-tag"></i> {{ offre.domaine }}</span>
+                                <span><i class="far fa-calendar-alt"></i> {{ offre.date_publication|date:"d/m/Y" }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state" data-scroll>
+                    <i class="far fa-folder-open"></i>
+                    <p>Aucune offre disponible pour le moment</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-bell"></i> M'alerter des nouvelles offres
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bouton Retour -->
+        <a href="javascript:history.back()" class="back-btn" data-scroll>
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    <!-- Pied de Page -->
+    <footer class="footer" data-scroll>
+        Plateforme de Stages ESP – © {% now "Y" %}
+    </footer>
+
+    <script>
+        // Animation d'apparition au défilement
+        document.addEventListener('DOMContentLoaded', function() {
+            const animateOnScroll = () => {
+                const elements = document.querySelectorAll('[data-scroll]');
+                const windowHeight = window.innerHeight;
+                
+                elements.forEach(el => {
+                    const elementPosition = el.getBoundingClientRect().top;
+                    const index = el.dataset.index || 0;
+                    const delay = index * 100;
+                    
+                    if (elementPosition < windowHeight - 100) {
+                        setTimeout(() => {
+                            el.classList.add('visible');
+                        }, delay);
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', animateOnScroll);
+            window.addEventListener('load', animateOnScroll);
+        });
+    </script>
+</body>
+</html>
