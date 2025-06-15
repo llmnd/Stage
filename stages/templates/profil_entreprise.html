@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ entreprise.nom_entreprise }}</h2>
+<p>Secteur : {{ entreprise.secteur }}</p>
+<p>Description : {{ entreprise.description }}</p>
+
+<h3>Offres de stage</h3>
+<ul>
+{% for offre in offres %}
+    <li>
+        <a href="{% url 'detail_offre' offre.id %}">{{ offre.titre }}</a>
+        - {{ offre.domaine }}
+    </li>
+{% empty %}
+    <li>Aucune offre disponible</li>
+{% endfor %}
+</ul>
+{% endblock %}
+</body>
+</html>
