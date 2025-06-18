@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ entreprise.nom_entreprise }} | Profil Entreprise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Profil de l'entreprise {{ entreprise.nom_entreprise }} - Gestion des offres et candidatures">
+  
+  <!-- Préchargement des ressources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
+  
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  </noscript>
+  
+  <style>
+    /* Variables CSS */
+    :root {
+      --primary: #200a45;
+      --primary-light: #3a1d7a;
+      --secondary: #007BFF;
+      --secondary-light: #e6f2ff;
+      --success: #28a745;
+      --success-light: #e6f7eb;
+      --warning: #ffc107;
+      --warning-light: #fff8e6;
+      --danger: #dc3545;
+      --danger-light: #fce8ea;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --gray: #6c757d;
+      --gray-light: #e9ecef;
+      --white: #ffffff;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+
+    /* Reset et base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Times New Roman', sans-serif;
+      background: #d7d4ec;
+      color: var(--dark);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: var(--primary);
+      color: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background-image: url('{{ entreprise.logo_url }}');
+      background-size: cover;
+      background-position: center;
+      border: 5px solid var(--white);
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    /* Layout principal */
+    .container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Cartes */
+    .card {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--box-shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Grille d'informations */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .info-item {
+      padding: 1.2rem;
+      background: var(--light);
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--secondary);
+      transition: var(--transition);
+    }
+
+    .info-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--box-shadow);
+    }
+
+    /* Candidatures */
+    .candidatures-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .candidature-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: var(--transition);
+      border-left: 3px solid var(--secondary);
+      flex-wrap: wrap;
+    }
+
+    .candidature-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .candidature-content {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .candidature-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* Boutons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-primary {
+      background-color: var(--secondary);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background-color: #0069d9;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: var(--white);
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-warning {
+      background-color: var(--warning);
+      color: var(--dark);
+    }
+
+    /* États */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .status-en-attente {
+      background-color: var(--warning-light);
+      color: #856404;
+    }
+
+    .status-en-cours {
+      background-color: var(--secondary-light);
+      color: #004085;
+    }
+
+    .status-acceptee {
+      background-color: var(--success-light);
+      color: #155724;
+    }
+
+    .status-refusee {
+      background-color: var(--danger-light);
+      color: #721c24;
+    }
+
+    .status-verified {
+      background-color: var(--success-light);
+      color: var(--success);
+    }
+
+    .status-pending {
+      background-color: var(--warning-light);
+      color: var(--warning);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .candidature-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .candidature-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .logo {
+        width: 70px;
+        height: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>{{ entreprise.nom_entreprise }}</span>
+  <div class="logo" aria-label="Logo de l'entreprise"></div>
+  <a href="{% url 'modifier_profil_entreprise' %}" class="btn btn-warning btn-sm">
+    <i class="fas fa-edit" aria-hidden="true"></i> 
+    <span>Modifier le profil</span>
+  </a>
+</header>
+
+<main class="container">
+  <!-- Section Informations Entreprise -->
+  <section class="card info" data-scroll>
+    <div class="card-header">
+      <h2><i class="fas fa-building" aria-hidden="true"></i> Profil de l'entreprise</h2>
+      <span class="status-badge {% if entreprise.est_valide %}status-verified{% else %}status-pending{% endif %}">
+        {% if entreprise.est_valide %}
+          <i class="fas fa-check-circle" aria-hidden="true"></i> Verifiée
+        {% else %}
+          <i class="fas fa-clock" aria-hidden="true"></i> En attente
+        {% endif %}
+      </span>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-item">
+        <strong><i class="fas fa-signature" aria-hidden="true"></i> Nom de l'entreprise</strong>
+        <p>{{ entreprise.nom_entreprise }}</p>
+      </div>
+      
+      <div class="info-item">
+        <strong><i class="fas fa-envelope" aria-hidden="true"></i> Email de contact</strong>
+        <p>
+          {% if entreprise.email_contact %}
+            <a href="mailto:{{ entreprise.email_contact }}">{{ entreprise.email_contact }}</a>
+          {% else %}
+            <span class="text-muted">Non renseigné</span>
+          {% endif %}
+        </p>
+      </div>
+      
+      <div class="info-item">
+        <strong><i class="fas fa-industry" aria-hidden="true"></i> Secteur d'activité</strong>
+        <p>{{ entreprise.secteur|default:"<span class='text-muted'>Non renseigné</span>" }}</p>
+      </div>
+      
+      <div class="info-item">
+        <strong><i class="fas fa-phone" aria-hidden="true"></i> Téléphone</strong>
+        <p>{{ entreprise.telephone|default:"<span class='text-muted'>Non renseigné</span>" }}</p>
+      </div>
+      
+      <div class="info-item">
+        <strong><i class="fas fa-globe" aria-hidden="true"></i> Site web</strong>
+        <p>
+          {% if entreprise.site_web %}
+            <a href="{{ entreprise.site_web }}" target="_blank" rel="noopener noreferrer">{{ entreprise.site_web }}</a>
+          {% else %}
+            <span class="text-muted">Non renseigné</span>
+          {% endif %}
+        </p>
+      </div>
+      
+      <div class="info-item">
+        <strong><i class="fas fa-users" aria-hidden="true"></i> Taille</strong>
+        <p>{{ entreprise.taille|default:"<span class='text-muted'>Non renseigné</span>" }}</p>
+      </div>
+      
+      <div class="info-item">
+        <strong><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Localisation</strong>
+        <p>
+          {% if entreprise.ville or entreprise.pays %}
+            {{ entreprise.ville }}{% if entreprise.ville and entreprise.pays %}, {% endif %}{{ entreprise.pays }}
+          {% else %}
+            <span class="text-muted">Non renseigné</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <article class="description-section">
+      <h3 class="description-title"><i class="fas fa-align-left" aria-hidden="true"></i> Description de l'entreprise</h3>
+      <div class="description-content">
+        {% if entreprise.description %}
+          {{ entreprise.description|linebreaks }}
+        {% else %}
+          <p class="text-muted">Aucune description fournie</p>
+        {% endif %}
+      </div>
+    </article>
+
+    {% if entreprise.realisations %}
+    <article class="description-section">
+      <h3 class="description-title"><i class="fas fa-trophy" aria-hidden="true"></i> Réalisations</h3>
+      <div class="description-content">
+        {{ entreprise.realisations|linebreaks }}
+      </div>
+    </article>
+    {% endif %}
+  </section>
+
+  <!-- Section Candidatures -->
+  <section class="card" data-scroll>
+    <div class="card-header">
+      <h2><i class="fas fa-users" aria-hidden="true"></i> Candidatures reçues</h2>
+      <span class="badge">{{ candidatures.count }} candidature(s)</span>
+    </div>
+    
+    <div class="candidatures-list">
+      {% for candidature in candidatures %}
+        <article class="candidature-item">
+          <div class="candidature-content">
+            <div class="candidature-header">
+              <span class="status-badge status-{{ candidature.statut|lower }}">{{ candidature.get_statut_display }}</span>
+            </div>
+            <div class="candidature-meta">
+              <span><i class="fas fa-briefcase" aria-hidden="true"></i> {{ candidature.offre.titre }}</span>
+              <span><i class="far fa-calendar-alt" aria-hidden="true"></i> {{ candidature.date_postulation|date:"d/m/Y" }}</span>
+            </div>
+            {% if candidature.message %}
+              <blockquote class="candidature-message">
+                <i class="fas fa-quote-left" aria-hidden="true"></i> {{ candidature.message|truncatewords:20 }}
+              </blockquote>
+            {% endif %}
+          </div>
+          
+          <div class="candidature-actions">
+            <a href="{% url 'detail_candidature' candidature.id %}" class="btn btn-primary btn-sm">
+              <i class="fas fa-eye" aria-hidden="true"></i> <span>Détails</span>
+            </a>
+            
+            <form method="post" action="{% url 'detail_candidature' candidature.id %}" class="delete-form">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?');">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i> <span>Supprimer</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      {% empty %}
+        <div class="empty-state">
+          <i class="fas fa-user-times" aria-hidden="true"></i>
+          <h3>Aucune candidature reçue</h3>
+          <p>Les candidatures pour vos offres apparaîtront ici</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animation au défilement
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('[data-scroll]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      elements.forEach(el => observer.observe(el));
+    };
+
+    // Gestion des confirmations de suppression
+    const setupDeleteConfirmations = () => {
+      document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+          if (!confirm('Cette action est irréversible. Confirmez-vous la suppression ?')) {
+            e.preventDefault();
+          }
+        });
+      });
+    };
+
+    // Initialisation
+    animateOnScroll();
+    setupDeleteConfirmations();
+
+    // Chargement des polices
+    if ('fonts' in document) {
+      document.fonts.load('1rem "Poppins"');
+    }
+  });
+</script>
+
+</body>
+</html>
