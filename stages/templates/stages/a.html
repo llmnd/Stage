@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ entreprise.nom_entreprise }} | Interface Holographique</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interface holographique de {{ entreprise.nom_entreprise }} - Technologie de pointe">
+  
+  <!-- Préchargement optimisé -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Montserrat:wght@300;400;600&display=swap" as="style">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  
+  <style>
+    :root {
+      --primary: #6e45e2;
+      --primary-light: #88d3ce;
+      --secondary: #79cbd1;
+      --secondary-alpha: rgba(0, 240, 255, 0.1);
+      --accent: #6d0f4e;
+      --accent-alpha: rgba(255, 0, 170, 0.1);
+      --success: #00ff88;
+      --danger: #791831;
+      --text: #e0e0e0;
+      --text-light: #ffffff;
+      --text-dark: #121212;
+      --bg: radial-gradient(circle at 10% 20%, #82607d 0%, #8a7488 50%, #6a469a 100%);
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-highlight: rgba(255, 255, 255, 0.2);
+      --border-radius: 16px;
+      --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      --neon-glow: 0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 30px var(--secondary-alpha);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    @font-face {
+      font-family: 'Times New Roman';
+      font-style: normal;
+      font-weight: 400;
+      src: url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+    }
+
+    body {
+      font-family: 'Times New Roman', sans-serif;
+      background: rgba(10, 13, 74, 0.721);
+      color: var(--text-light);
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-attachment: fixed;
+      perspective: 1000px;
+    }
+
+    h1, h2, h3, .font-futuriste {
+      font-family: 'Times New Roman', sans-serif;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* Effets de particules */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      background: var(--secondary);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float infinite linear;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      50% { opacity: 0.5; }
+      100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+    }
+
+    /* Header holographique */
+    header {
+      background: linear-gradient(135deg, rgba(211, 190, 95, 0.082) 0%, rgba(177, 177, 76, 0.119) 100%);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--secondary-alpha);
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      text-decoration: none;
+    }
+
+    .logo-container {
+      position: relative;
+    }
+
+    .logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background-image: url('{{ entreprise.logo_url }}');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        transparent 0%,
+        rgb(224, 145, 199) 50%,
+        transparent 100%
+      );
+      transform: rotate(30deg);
+      animation: shine 3s infinite linear;
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 50%;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      100% { transform: translateX(100%) rotate(30deg); }
+    }
+    
+    
+
+    @keyframes neonFlicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        text-shadow: 
+          0 0 5px var(--secondary),
+          0 0 10px var(--secondary),
+          0 0 20px var(--secondary-alpha),
+          0 0 40px var(--accent-alpha);
+      }
+      20%, 24%, 55% {        
+        text-shadow: none;
+      }
+    }
+
+    /* Container principal */
+    .container {
+      padding: 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      
+    }
+
+    /* Cartes en verre holographiques */
+    .card {
+      background: linear-gradient(135deg, rgba(167, 176, 88, 0) 0%, rgba(184, 184, 103, 0.011) 100%);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: var(--border-radius);
+      border: 1px solid var(--glass-border);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      box-shadow: var(--box-shadow);
+      opacity: 0;
+      transform: translateY(30px) rotateX(5deg);
+      
+      position: relative;
+      overflow: hidden;
+     
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      
+      transform: translateX(-100%);
+      transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+      z-index: -1;
+    }
+
+    .card:hover {
+      transform: translateY(-5px) rotateX(0deg);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4),
+                  0 0 30px var(--secondary-alpha);
+    }
+
+    .card:hover::before {
+      transform: translateX(100%);
+    }
+
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0) rotateX(0deg);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--glass-highlight);
+      position: relative;
+    }
+
+    .card-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--secondary), var(--accent));
+      border-radius: 2px;
+    }
+
+    .card h2 {
+      color: var(--secondary);
+      font-size: 1.8rem;
+      font-weight: 500;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Grille d'informations */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .info-item {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      border: 1px solid var(--glass-border);
+      padding: 1.8rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .info-item:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4),
+                  0 0 20px var(--secondary-alpha);
+      border-color: var(--secondary);
+    }
+
+    .info-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        var(--secondary-alpha) 50%,
+        transparent 100%
+      );
+      transform: translateX(-100%);
+      transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .info-item:hover::before {
+      transform: translateX(100%);
+    }
+
+    .info-item strong {
+      display: block;
+      color: var(--secondary);
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      letter-spacing: 1px;
+      font-family: 'Times New Roman', sans-serif;
+    }
+
+    .info-item p {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      transition: color 0.3s ease;
+    }
+
+    .info-item:hover p {
+      color: white;
+    }
+
+    /* Candidatures */
+    .candidatures-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .candidature-item {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      border: 1px solid var(--glass-border);
+      padding: 1.8rem;
+      transition: var(--transition);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      transform-style: preserve-3d;
+    }
+
+    .candidature-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4),
+                  0 0 20px var(--secondary-alpha);
+    }
+
+    .candidature-content {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .candidature-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .status-badge {
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      transition: var(--transition);
+    }
+
+    .status-badge:hover {
+      transform: scale(1.05);
+    }
+
+    .status-en-attente {
+      background: linear-gradient(135deg, #ff9500, #ffcc00);
+      color: var(--text-dark);
+      animation: pulse 2s infinite;
+    }
+
+    .status-en-cours {
+      background: linear-gradient(135deg, #0088ff, #00aaff);
+      color: var(--text-light);
+      animation: pulse 2s infinite;
+    }
+
+    .status-acceptee {
+      background: linear-gradient(135deg, #00cc66, #00ff88);
+      color: var(--text-dark);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+    }
+
+    .status-refusee {
+      background: linear-gradient(135deg, #ff0033, #ff3366);
+      color: var(--text-light);
+      box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+    }
+
+    .candidature-meta {
+      display: flex;
+      gap: 2rem;
+      color: var(--text-light);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .candidature-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .candidature-item:hover .candidature-meta span {
+      color: white;
+    }
+
+    .candidature-message {
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.7);
+      border-left: 2px solid var(--secondary);
+      padding-left: 1rem;
+      margin-top: 1rem;
+      transition: var(--transition);
+    }
+
+    .candidature-item:hover .candidature-message {
+      color: white;
+      border-left-color: var(--accent);
+    }
+
+    /* Boutons futuristes */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 50px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      transform-style: preserve-3d;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, currentColor 0%, transparent 100%);
+      opacity: 0.2;
+      z-index: -1;
+      transition: var(--transition);
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+      );
+      transform: rotate(30deg);
+      animation: shine 3s infinite linear;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn:hover::before {
+      opacity: 0.4;
+    }
+
+    .btn:hover::after {
+      opacity: 0.6;
+    }
+
+    .btn-sm {
+      padding: 0.6rem 1.4rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--secondary), #0088ff);
+      color: var(--text-dark);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #ff0033);
+      color: var(--text-light);
+      box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 0 30px rgba(255, 51, 102, 0.6);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, var(--accent), #ff0099);
+      color: var(--text-light);
+      box-shadow: 0 0 15px rgba(255, 0, 170, 0.4);
+      text-decoration: none;
+    }
+
+    .btn-warning:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 0 30px rgba(255, 0, 170, 0.6);
+    }
+
+    /* Section description */
+    .description-box {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      border-left: 3px solid var(--secondary);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .description-box:hover {
+      border-left-color: var(--accent);
+      box-shadow: 0 0 30px var(--secondary-alpha);
+    }
+
+    .description-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        var(--secondary-alpha) 50%,
+        transparent 100%
+      );
+      transform: translateX(-100%);
+      transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .description-box:hover::before {
+      transform: translateX(100%);
+    }
+    
+
+    @media (max-width: 768px) {
+      header {
+        padding: 1.2rem;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      
+      .logo {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .card {
+        padding: 1.8rem;
+      }
+      
+      .candidature-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+      
+      .candidature-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Effets visuels -->
+<div class="particles" id="particles"></div>
+<div class="scan-line"></div>
+
+<header class="animate__animated animate__fadeInDown">
+  <h1 class="neon-text">{{ entreprise.nom_entreprise }}</h1>
+  <div class="logo-container">
+    <div class="logo pulse"></div>
+  </div>
+  <a href="{% url 'modifier_profil_entreprise' %}" class="btn btn-warning btn-sm">
+    <i class="fas fa-edit"></i> 
+    <span>Modifier</span>
+  </a>     
+</header>
+
+<main class="container">
+  <!-- Section Informations Entreprise -->
+  <section class="card info animate__animated" data-scroll>
+    <div class="card-header">
+      <h2 class="neon-text"><i class="fas fa-building"></i> Profil Entreprise</h2>
+      <span class="status-badge {% if entreprise.est_valide %}status-acceptee{% else %}status-en-attente{% endif %}">
+        {% if entreprise.est_valide %}
+          <i class="fas fa-check-circle"></i> Verifiée
+        {% else %}
+          <i class="fas fa-clock"></i> En attente
+        {% endif %}
+      </span>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-signature"></i> Nom</strong>
+        <p>{{ entreprise.nom_entreprise }}</p>
+      </div>
+      
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-envelope"></i> Email</strong>
+        <p>
+          {% if entreprise.email_contact %}
+            <a href="mailto:{{ entreprise.email_contact }}" class="neon-link">{{ entreprise.email_contact }}</a>
+          {% else %}
+            <span class="text-muted">Non renseigné</span>
+          {% endif %}
+        </p>
+      </div>
+      
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-industry"></i> Secteur</strong>
+        <p>{{ entreprise.secteur|default:"<span class='text-muted'>Non renseigné</span>" }}</p>
+      </div>
+      
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-phone"></i> Téléphone</strong>
+        <p>{{ entreprise.telephone|default:"<span class='text-muted'>Non renseigné</span>" }}</p>
+      </div>
+      
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-globe"></i> Site web</strong>
+        <p>
+          {% if entreprise.site_web %}
+            <a href="{{ entreprise.site_web }}" target="_blank" class="neon-link">{{ entreprise.site_web }}</a>
+          {% else %}
+            <span class="text-muted">Non renseigné</span>
+          {% endif %}
+        </p>
+      </div>
+      
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-users"></i> Taille</strong>
+        <p>{{ entreprise.taille|default:"<span class='text-muted'>Non renseigné</span>" }}</p>
+      </div>
+      
+      <div class="info-item animate__animated" data-scroll>
+        <strong><i class="fas fa-map-marker-alt"></i> Localisation</strong>
+        <p>
+          {% if entreprise.ville or entreprise.pays %}
+            {{ entreprise.ville }}{% if entreprise.ville and entreprise.pays %}, {% endif %}{{ entreprise.pays }}
+          {% else %}
+            <span class="text-muted">Non renseigné</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <article class="animate__animated" data-scroll style="margin-top: 3rem;">
+      <h3 class="neon-text" style="font-size: 1.4rem; margin-bottom: 1.5rem;">
+        <i class="fas fa-align-left"></i> Description
+      </h3>
+      <div class="description-box">
+        {% if entreprise.description %}
+          {{ entreprise.description|linebreaks }}
+        {% else %}
+          <p class="text-muted">Aucune description fournie</p>
+        {% endif %}
+      </div>
+    </article>
+
+    {% if entreprise.realisations %}
+    <article class="animate__animated" data-scroll style="margin-top: 3rem;">
+      <h3 class="neon-text" style="font-size: 1.4rem; margin-bottom: 1.5rem;">
+        <i class="fas fa-trophy"></i> Réalisations
+      </h3>
+      <div class="description-box" style="border-left-color: var(--accent);">
+        {{ entreprise.realisations|linebreaks }}
+      </div>
+    </article>
+    {% endif %}
+  </section>
+
+  <!-- Section Candidatures -->
+  <section class="card animate__animated" data-scroll>
+    <div class="card-header">
+      <h2 class="neon-text"><i class="fas fa-users"></i> Candidatures</h2>
+      <span class="status-badge" style="background: var(--glass); color: var(--text-light);">
+        {{ candidatures.count }} candidature(s)
+      </span>
+    </div>
+    
+    <div class="candidatures-list">
+      {% for candidature in candidatures %}
+        <article class="candidature-item animate__animated" data-scroll>
+          <div class="candidature-content">
+            <div class="candidature-header">
+              <span class="status-badge status-{{ candidature.statut|lower }}">
+                {{ candidature.get_statut_display }}
+              </span>
+            </div>
+            <div class="candidature-meta">
+              <span><i class="fas fa-briefcase"></i> {{ candidature.offre.titre }}</span>
+              <span><i class="far fa-calendar-alt"></i> {{ candidature.date_postulation|date:"d/m/Y" }}</span>
+            </div>
+            {% if candidature.message %}
+              <blockquote class="candidature-message">
+                <i class="fas fa-quote-left"></i> {{ candidature.message|truncatewords:20 }}
+              </blockquote>
+            {% endif %}
+          </div>
+          
+          <div class="candidature-actions">
+            <a href="{% url 'detail_candidature' candidature.id %}" class="btn btn-primary btn-sm">
+              <i class="fas fa-eye"></i> <span>Détails</span>
+            </a>
+            
+            <form method="post" action="{% url 'detail_candidature' candidature.id %}" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer cette candidature ?');">
+                <i class="fas fa-trash-alt"></i> <span>Supprimer</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      {% empty %}
+        <div class="animate__animated animate__fadeIn" style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.7);">
+          <i class="fas fa-user-times" style="font-size: 3rem; margin-bottom: 1rem; color: var(--secondary);"></i>
+          <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Aucune candidature</h3>
+          <p>Les candidatures apparaîtront ici</p>
+        </div>
+      {% endfor %}
+       <a href="{% url 'logout' %}" class="btn btn-warning btn-sm animate__animated animate__fadeIn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Se déconnecter</span>
+       </a>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Création des particules
+  function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      
+      // Taille aléatoire entre 1px et 3px
+      const size = Math.random() * 2 + 1;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      // Position aléatoire
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      
+      // Animation avec durée aléatoire
+      const duration = Math.random() * 20 + 10;
+      particle.style.animationDuration = `${duration}s`;
+      particle.style.animationDelay = `${Math.random() * 5}s`;
+      
+      particlesContainer.appendChild(particle);
+    }
+  }
+
+  // Animation au défilement
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        entry.target.classList.add('animate__fadeInUp');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('[data-scroll]').forEach(el => observer.observe(el));
+
+  // Effet de saisie pour le titre
+  const title = document.querySelector('header h1');
+  if (title) {
+    const text = title.textContent;
+    title.textContent = '';
+    
+    text.split('').forEach((char, i) => {
+      setTimeout(() => {
+        title.textContent += char;
+        // Ajoute un effet de flash aléatoire
+        if (Math.random() > 0.7) {
+          title.style.textShadow = '0 0 20px var(--accent)';
+          setTimeout(() => {
+            title.style.textShadow = '0 0 10px var(--secondary)';
+          }, 100);
+        }
+      }, 100 * i);
+    });
+  }
+
+  // Initialisation
+  document.addEventListener('DOMContentLoaded', () => {
+    createParticles();
+    
+    // Effet de survol sur les liens
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        link.style.transform = 'translateY(-2px)';
+      });
+      link.addEventListener('mouseleave', () => {
+        link.style.transform = '';
+      });
+    });
+    
+    // Effet de clic sur les cartes
+    const cards = document.querySelectorAll('.card, .info-item');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        card.style.transform = 'translateY(-5px) scale(1.01)';
+        setTimeout(() => {
+          card.style.transform = '';
+        }, 200);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
