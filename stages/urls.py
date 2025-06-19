@@ -8,6 +8,7 @@ from stages import views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import mes_candidatures
+from .views import voir_recommandations
 
 from stages.views import (
     RegisterView,
@@ -89,6 +90,30 @@ urlpatterns = [
          name='modifier_statut_candidature'),
          path('mes-candidatures/', mes_candidatures, name='mes_candidatures'),
 
+          path('offre/<int:offre_id>/recommandations/', views.recommander_candidats, name='recommandations_ia'),
+    path('offre/<int:offre_id>/evaluer-candidatures/', views.evaluer_candidatures_ia, name='evaluer_candidatures_ia'),
+    path('api/offre/<int:offre_id>/analyse-candidatures/', views.api_candidatures_analyse, name='api_analyse_candidatures'),
+    
+    # Conventions
+    path('candidature/<int:candidature_id>/convention/', views.creer_convention, name='creer_convention'),
+    path('convention/<int:convention_id>/', views.detail_convention, name='detail_convention'),
+    path('convention/<int:convention_id>/valider/', views.valider_convention, name='valider_convention'),
+    
+    # Suivi
+    path('convention/<int:convention_id>/suivi/ajouter/', views.ajouter_suivi, name='ajouter_suivi'),
+    
+    # Mémoires
+    path('memoires/deposer/', views.deposer_memoire, name='deposer_memoire'),
+    path('memoires/mes-memoires/', views.mes_memoires, name='mes_memoires'),
+    path('memoire/<int:memoire_id>/evaluer/', views.evaluer_memoire, name='evaluer_memoire'),
+    
+    # Enseignants
+    path('register/enseignant/', views.register_enseignant, name='register_enseignant'),
+    path('enseignant/dashboard/', views.enseignant_dashboard, name='enseignant_dashboard'),
+     path('offre/<int:offre_id>/candidatures/', views.candidatures_offre, name='candidature_offre'),
+     path('offre/<int:offre_id>/candidatures/', views.liste_candidatures_offre, name='candidatures_offre'),
+    path('offre/<int:offre_id>/evaluer-candidatures/', views.evaluer_candidatures_ia, name='evaluer_candidatures'),
+    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
