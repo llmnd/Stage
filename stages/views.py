@@ -8,6 +8,13 @@ from .models import OffreDeStage, Entreprise, Candidature, Etudiant
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, FileResponse
+from .models import ConventionDeStage, SuiviStage, Memoire, EvaluationStage
+from .forms import (ConventionStageForm, SuiviStageForm, MemoireForm, 
+                   EvaluationStageForm, EnseignantSignupForm)
+from .ia.recommendation import RecommandationIA
+from django.conf import settings
+import os
+from django.http import JsonResponse
 
 
 
@@ -231,30 +238,40 @@ def voir_profil_entreprise(request, id):
 @login_required
 def profil_entreprise(request, id):
     entreprise = get_object_or_404(Entreprise, id=id)
-
-    # Empêche les étudiants ou autres entreprises d'accéder
+    
     if not hasattr(request.user, 'entreprise') or request.user.entreprise.id != entreprise.id:
         return redirect('voir_profil_entreprise', id=entreprise.id)
 
     offres = OffreDeStage.objects.filter(entreprise=entreprise)
     candidatures = Candidature.objects.filter(offre__entreprise=entreprise)
-
-    if request.method == 'POST':
-        form = OffreDeStageForm(request.POST)
-        if form.is_valid():
-            offre = form.save(commit=False)
-            offre.entreprise = entreprise
-            offre.save()
-            return redirect('profil_entreprise', id=entreprise.id)
-    else:
-        form = OffreDeStageForm()
+    
+    # Récupérer les offres actives
+    offres_actives = OffreDeStage.objects.filter(
+        entreprise=entreprise,
+        date_debut__gte=timezone.now()
+    )
+    
+    # Obtenir les meilleures recommandations
+    top_recommandations = []
+    ia = RecommandationIA()
+    
+    for offre in offres_actives:
+        recommandations = ia.recommander_candidats(offre.id)
+        if recommandations:
+            top_recommandations.extend(recommandations[:2])  # Prendre les 2 meilleurs par offre
+    
+    # Trier toutes les recommandations par score
+    top_recommandations.sort(key=lambda x: x['score'], reverse=True)
+    top_recommandations = top_recommandations[:5]  # Limiter à 5 meilleures au total
 
     context = {
         'entreprise': entreprise,
         'offres': offres,
         'candidatures': candidatures,
-        'form': form,
+        'offres_actives': offres_actives,
+        'top_recommandations': top_recommandations,
     }
+    
     return render(request, 'stages/profil_entreprise.html', context)
 
 # --- Étudiants ---
@@ -484,3 +501,330 @@ def mes_candidatures(request):
     candidatures = Candidature.objects.filter(etudiant=request.user.etudiant)
     return render(request, 'etudiant/mes_candidatures.html', {'candidatures': candidatures})
 
+@login_required
+def recommander_candidats(request, offre_id):
+    if not hasattr(request.user, 'entreprise'):
+        raise PermissionDenied
+    
+    offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
+    
+    ia = RecommandationIA()
+    recommandations = ia.recommander_candidats(offre_id)
+    
+    return render(request, 'entreprise/recommandations_ia.html', {
+        'offre': offre,
+        'recommandations': recommandations,
+    })
+
+@login_required
+def evaluer_candidatures_ia(request, offre_id):
+    if not hasattr(request.user, 'entreprise'):
+        raise PermissionDenied
+    
+    offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
+    
+    ia = RecommandationIA()
+    nb_evaluees = ia.evaluer_candidatures(offre_id)
+    
+    messages.success(request, f"{nb_evaluees} candidatures ont été évaluées par l'IA.")
+    return redirect('candidatures_offre', offre_id=offre.id)
+
+# --- Conventions de stage ---
+@login_required
+def creer_convention(request, candidature_id):
+    candidature = get_object_or_404(Candidature, id=candidature_id)
+    
+    # Vérification des permissions
+    if not (request.user == candidature.offre.entreprise.user or 
+            request.user == candidature.etudiant.user or
+            (hasattr(request.user, 'enseignant') and 
+             request.user.enseignant == candidature.etudiant.enseignant_referent)):
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        form = ConventionStageForm(request.POST, request.FILES)
+        if form.is_valid():
+            convention = form.save(commit=False)
+            convention.etudiant = candidature.etudiant
+            convention.offre = candidature.offre
+            convention.entreprise = candidature.offre.entreprise
+            convention.save()
+            
+            # Mettre à jour le statut de la candidature
+            candidature.statut = 'acceptee'
+            candidature.save()
+            
+            messages.success(request, "La convention a été créée avec succès.")
+            return redirect('detail_convention', convention_id=convention.id)
+    else:
+        initial = {
+            'date_debut': candidature.offre.date_debut,
+            'date_fin': candidature.offre.date_debut + timedelta(days=30*candidature.offre.duree) if candidature.offre.date_debut and candidature.offre.duree else None,
+            'gratification': candidature.offre.gratification,
+            'tuteur_entreprise': request.user.entreprise.nom_entreprise if hasattr(request.user, 'entreprise') else "",
+            'email_tuteur': request.user.email,
+            'telephone_tuteur': request.user.entreprise.telephone if hasattr(request.user, 'entreprise') else "",
+            'enseignant_referent': candidature.etudiant.enseignant_referent,
+        }
+        form = ConventionStageForm(initial=initial)
+    
+    return render(request, 'conventions/creer.html', {
+        'form': form,
+        'candidature': candidature,
+    })
+
+@login_required
+def detail_convention(request, convention_id):
+    convention = get_object_or_404(ConventionDeStage, id=convention_id)
+    
+    # Vérification des permissions
+    if not (request.user == convention.entreprise.user or 
+            request.user == convention.etudiant.user or
+            (hasattr(request.user, 'enseignant') and 
+             request.user.enseignant == convention.enseignant_referent)):
+        raise PermissionDenied
+    
+    suivis = SuiviStage.objects.filter(convention=convention).order_by('-date_rapport')
+    
+    return render(request, 'conventions/detail.html', {
+        'convention': convention,
+        'suivis': suivis,
+        'can_validate': hasattr(request.user, 'enseignant') and request.user.enseignant == convention.enseignant_referent,
+    })
+
+@login_required
+def valider_convention(request, convention_id):
+    convention = get_object_or_404(ConventionDeStage, id=convention_id)
+    
+    # Seul l'enseignant référent peut valider
+    if not hasattr(request.user, 'enseignant') or request.user.enseignant != convention.enseignant_referent:
+        raise PermissionDenied
+    
+    if convention.statut != 'en_attente':
+        messages.error(request, "Cette convention n'est pas en attente de validation.")
+        return redirect('detail_convention', convention_id=convention.id)
+    
+    convention.statut = 'validee'
+    convention.date_validation = timezone.now()
+    convention.save()
+    
+    messages.success(request, "La convention a été validée avec succès.")
+    return redirect('detail_convention', convention_id=convention.id)
+
+# --- Suivi de stage ---
+@login_required
+def ajouter_suivi(request, convention_id):
+    convention = get_object_or_404(ConventionDeStage, id=convention_id)
+    
+    # Vérification des permissions
+    if not (request.user == convention.entreprise.user or 
+            request.user == convention.etudiant.user or
+            (hasattr(request.user, 'enseignant'))and 
+             request.user.enseignant == convention.enseignant_referent):
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        form = SuiviStageForm(request.POST, request.FILES)
+        if form.is_valid():
+            suivi = form.save(commit=False)
+            suivi.convention = convention
+            suivi.auteur = request.user
+            suivi.save()
+            
+            messages.success(request, "Le suivi a été ajouté avec succès.")
+            return redirect('detail_convention', convention_id=convention.id)
+    else:
+        form = SuiviStageForm()
+    
+    return render(request, 'suivis/ajouter.html', {
+        'form': form,
+        'convention': convention,
+    })
+
+# --- Mémoires ---
+@login_required
+def deposer_memoire(request):
+    if not hasattr(request.user, 'etudiant'):
+        raise PermissionDenied
+    
+    etudiant = request.user.etudiant
+    
+    if request.method == 'POST':
+        form = MemoireForm(request.POST, request.FILES)
+        if form.is_valid():
+            memoire = form.save(commit=False)
+            memoire.etudiant = etudiant
+            memoire.save()
+            
+            messages.success(request, "Votre mémoire a été déposé avec succès.")
+            return redirect('mes_memoires')
+    else:
+        form = MemoireForm()
+    
+    return render(request, 'memoires/deposer.html', {'form': form})
+
+@login_required
+def mes_memoires(request):
+    if not hasattr(request.user, 'etudiant'):
+        raise PermissionDenied
+    
+    memoires = Memoire.objects.filter(etudiant=request.user.etudiant).order_by('-date_depot')
+    return render(request, 'memoires/liste.html', {'memoires': memoires})
+
+@login_required
+def evaluer_memoire(request, memoire_id):
+    memoire = get_object_or_404(Memoire, id=memoire_id)
+    
+    # Seul un enseignant du jury peut évaluer
+    if not hasattr(request.user, 'enseignant') or request.user.enseignant not in memoire.jury.all():
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        form = EvaluationMemoireForm(request.POST, instance=memoire)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Votre évaluation a été enregistrée.")
+            return redirect('detail_memoire', memoire_id=memoire.id)
+    else:
+        form = EvaluationMemoireForm(instance=memoire)
+    
+    return render(request, 'memoires/evaluer.html', {
+        'form': form,
+        'memoire': memoire,
+    })
+
+# --- Inscription enseignant ---
+def register_enseignant(request):
+    if request.method == 'POST':
+        form = EnseignantSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard')
+    else:
+        form = EnseignantSignupForm()
+    return render(request, 'registration/register_enseignant.html', {'form': form})
+
+# --- Dashboard enseignant ---
+@login_required
+def enseignant_dashboard(request):
+    if not hasattr(request.user, 'enseignant'):
+        return redirect('dashboard')
+    
+    enseignant = request.user.enseignant
+    etudiants = Etudiant.objects.filter(enseignant_referent=enseignant)
+    conventions = ConventionDeStage.objects.filter(enseignant_referent=enseignant)
+    memoires = Memoire.objects.filter(jury=enseignant)
+    
+    # Conventions en attente de validation
+    conventions_attente = conventions.filter(statut='en_attente')
+    
+    return render(request, 'enseignant/dashboard.html', {
+        'enseignant': enseignant,
+        'etudiants': etudiants,
+        'conventions_attente': conventions_attente,
+        'conventions_count': conventions.count(),
+        'memoires_count': memoires.count(),
+    })
+
+# --- API pour l'IA ---
+@login_required
+def api_candidatures_analyse(request, offre_id):
+    if not request.user.is_authenticated or not hasattr(request.user, 'entreprise'):
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+    
+    offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
+    
+    ia = RecommandationIA()
+    nb_evaluees = ia.evaluer_candidatures(offre_id)
+    
+    return JsonResponse({
+        'status': 'success',
+        'offre_id': offre_id,
+        'candidatures_evaluees': nb_evaluees
+    })
+@login_required
+def voir_recommandations(request, offre_id):
+    if not hasattr(request.user, 'entreprise'):
+        raise PermissionDenied
+    
+    offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
+    
+    # Initialiser l'IA
+    ia = RecommandationIA()
+    
+    # Obtenir les recommandations
+    recommandations = ia.recommander_candidats(offre_id)
+    
+    # Évaluer les candidatures existantes (optionnel)
+    ia.evaluer_candidatures(offre_id)
+    
+    # Récupérer les candidatures existantes avec leurs scores
+    candidatures = Candidature.objects.filter(offre=offre).order_by('-score_ia')
+    
+    return render(request, 'stages/recommandations_ia.html', {
+        'offre': offre,
+        'recommandations': recommandations,
+        'candidatures': candidatures,
+    })
+from django.shortcuts import redirect
+
+def post_login_redirect(request):
+    """
+    Redirige l'utilisateur vers la page appropriée après connexion
+    """
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    elif hasattr(request.user, 'entreprise'):
+        return redirect('profil_entreprise', id=request.user.entreprise.id)
+    elif hasattr(request.user, 'etudiant'):
+        return redirect('etudiant_dashboard')
+    else:
+        return redirect('dashboard')
+    
+@login_required
+def candidatures_offre(request, offre_id):
+    if not hasattr(request.user, 'entreprise'):
+        raise PermissionDenied
+    
+    offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
+    candidatures = Candidature.objects.filter(offre=offre).order_by('-score_ia')
+    
+    return render(request, 'entreprise/candidatures_offre.html', {  # Chemin corrigé
+        'offre': offre,
+        'candidatures': candidatures
+    })
+
+@login_required
+def evaluer_candidatures_ia(request, offre_id):
+    if not hasattr(request.user, 'entreprise'):
+        raise PermissionDenied
+    
+    offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
+    
+    ia = RecommandationIA()
+    nb_evaluees = ia.evaluer_candidatures(offre_id)
+    
+    if nb_evaluees > 0:
+        messages.success(request, f"{nb_evaluees} candidatures ont été évaluées par l'IA.")
+    else:
+        messages.info(request, "Aucune nouvelle candidature à évaluer.")
+    
+    return redirect('candidatures_offre', offre_id=offre.id)        
+
+def liste_candidatures_offre(request, offre_id):
+    offre = OffreDeStage.objects.get(id=offre_id)
+    
+    # Évaluer les nouvelles candidatures
+  
+    RecommandationIA().evaluer_candidatures(offre_id)
+    
+    # Récupérer les candidatures
+    candidatures = Candidature.objects.filter(offre=offre).order_by('-score_ia')
+    
+    context = {
+        'offre': offre,
+        'candidatures': candidatures,
+        # ... autres variables de contexte
+    }
+    return render(request, 'candidatures_offre.html', context)

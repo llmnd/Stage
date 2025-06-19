@@ -154,8 +154,6 @@
       100% { transform: translateX(100%) rotate(30deg); }
     }
     
-    
-
     @keyframes neonFlicker {
       0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
         text-shadow: 
@@ -174,7 +172,6 @@
       padding: 3rem;
       max-width: 1400px;
       margin: 0 auto;
-      
     }
 
     /* Cartes en verre holographiques */
@@ -189,10 +186,8 @@
       box-shadow: var(--box-shadow);
       opacity: 0;
       transform: translateY(30px) rotateX(5deg);
-      
       position: relative;
       overflow: hidden;
-     
     }
 
     .card::before {
@@ -202,7 +197,6 @@
       left: 0;
       width: 100%;
       height: 100%;
-      
       transform: translateX(-100%);
       transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
       z-index: -1;
@@ -572,6 +566,64 @@
       transform: translateX(100%);
     }
     
+    /* Section recommandations IA */
+    .progress {
+      height: 8px;
+      background: var(--glass);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      transition: width 0.6s ease;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25em 0.4em;
+      font-size: 75%;
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: baseline;
+      border-radius: 0.25rem;
+      background: var(--glass);
+      color: var(--text-light);
+    }
+    
+    .bg-secondary {
+      background: var(--secondary) !important;
+      color: var(--text-dark) !important;
+    }
+    
+    .small {
+      font-size: 0.875em;
+    }
+    
+    .mb-0 {
+      margin-bottom: 0 !important;
+    }
+    
+    .mt-2 {
+      margin-top: 0.5rem !important;
+    }
+    
+    .mb-2 {
+      margin-bottom: 0.5rem !important;
+    }
+    
+    .py-4 {
+      padding-top: 1.5rem !important;
+      padding-bottom: 1.5rem !important;
+    }
+    
+    .text-center {
+      text-align: center !important;
+    }
 
     @media (max-width: 768px) {
       header {
@@ -769,6 +821,114 @@
        </a>
     </div>
   </section>
+  
+ <!-- Ajoutez cette section après la section "Candidatures" -->
+<section class="card animate__animated" data-scroll>
+  <div class="card-header">
+    <h2 class="neon-text"><i class="fas fa-robot"></i> Recommandations IA</h2>
+    <span class="status-badge" style="background: var(--glass); color: var(--text-light);">
+      <i class="fas fa-bolt"></i> Intelligence Artificielle
+    </span>
+  </div>
+  
+  <div class="info-grid">
+    {% for offre in offres_actives %}
+    <div class="info-item animate__animated" data-scroll>
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <strong><i class="fas fa-bullseye"></i> {{ offre.titre }}</strong>
+          <p class="mt-2">{{ offre.domaine }}</p>
+          
+          <!-- Bouton pour voir les recommandations -->
+          <a href="{% url 'recommandations_ia' offre.id %}" 
+             class="btn btn-primary btn-sm mt-2"
+             style="display: inline-flex; align-items: center;">
+            <i class="fas fa-robot"></i>
+            <span>Voir recommandations</span>
+          </a>
+        </div>
+        
+        <!-- Statistiques rapides -->
+        <div class="text-right">
+          <span class="badge bg-secondary">
+            {{ offre.candidature_set.count }} candidats
+          </span>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-4">
+      <i class="fas fa-info-circle fa-2x mb-2" style="color: var(--secondary);"></i>
+      <p>Aucune offre active pour le moment</p>
+      <a href="{% url 'ajouter_offre' %}" class="btn btn-warning btn-sm">
+        <i class="fas fa-plus"></i> Créer une offre
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Section pour afficher les meilleurs candidats recommandés -->
+  <div class="mt-4">
+    <h3 class="neon-text" style="font-size: 1.3rem;">
+      <i class="fas fa-star"></i> Top candidats recommandés
+    </h3>
+    
+    <div class="candidatures-list">
+      {% for recommandation in top_recommandations %}
+      <article class="candidature-item animate__animated" data-scroll>
+        <div class="candidature-content">
+          <div class="candidature-header">
+            <h4>{{ recommandation.etudiant.nom_complet }}</h4>
+            <span class="status-badge" style="background: var(--primary);">
+              Score: {{ recommandation.score|floatformat:1 }}%
+            </span>
+          </div>
+          
+          <div class="progress mt-2 mb-2" style="height: 8px;">
+            <div class="progress-bar bg-success" 
+                 role="progressbar" 
+                 style="width: {{ recommandation.score }}%"
+                 aria-valuenow="{{ recommandation.score }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+            </div>
+          </div>
+          
+          <div class="candidature-meta">
+            <span><i class="fas fa-graduation-cap"></i> {{ recommandation.etudiant.get_niveau_etude_display }}</span>
+            <span><i class="fas fa-tag"></i> {{ recommandation.etudiant.get_domaine_etude_display }}</span>
+          </div>
+          
+          <div class="mt-2 p-2" style="background: rgba(0,255,136,0.1); border-radius: 8px;">
+            <p class="mb-0 small">{{ recommandation.feedback }}</p>
+          </div>
+        </div>
+        
+        <div class="candidature-actions">
+          <a href="{% url 'profil_etudiant' recommandation.etudiant.id %}" 
+             class="btn btn-primary btn-sm">
+            <i class="fas fa-eye"></i> Profil
+          </a>
+          <a href="{% url 'postuler_offre' recommandation.offre.id %}?etudiant_id={{ recommandation.etudiant.id }}"
+             class="btn btn-success btn-sm">
+            <i class="fas fa-paper-plane"></i> Contacter
+          </a>
+        </div>
+      </article>
+      {% empty %}
+      <div class="text-center py-4">
+        <i class="fas fa-robot fa-2x mb-2" style="color: var(--secondary);"></i>
+        <p>Lancez l'analyse IA pour voir les recommandations</p>
+        {% if offres_actives %}
+        <a href="{% url 'evaluer_candidatures_ia' offres_actives.0.id %}" class="btn btn-warning btn-sm">
+          <i class="fas fa-bolt"></i> Lancer l'IA
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 </main>
 
 <script>
@@ -800,7 +960,7 @@
   }
 
   // Animation au défilement
-  const observer = new IntersectionObserver((entries) => {
+   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');

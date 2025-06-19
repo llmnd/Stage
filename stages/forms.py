@@ -5,6 +5,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from .models import OffreDeStage, Etudiant, UserProfile, Entreprise
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import (Entreprise, Etudiant, OffreDeStage, Candidature, 
+                    ConventionDeStage, SuiviStage, Memoire, EvaluationStage)
 
 
 class OffreDeStageForm(forms.ModelForm):
@@ -293,3 +298,81 @@ class CandidatureForm(forms.ModelForm):
             if ext not in ['pdf', 'doc', 'docx']:
                 raise forms.ValidationError("Format de fichier non supporté.")
         return cv
+
+class ConventionStageForm(forms.ModelForm):
+    class Meta:
+        model = ConventionDeStage
+        fields = [
+            'date_debut', 'date_fin', 'heures_semaine', 'gratification',
+            'tuteur_entreprise', 'email_tuteur', 'telephone_tuteur',
+            'enseignant_referent', 'document', 'commentaires'
+        ]
+        widgets = {
+            'date_debut': forms.DateInput(attrs={'type': 'date'}),
+            'date_fin': forms.DateInput(attrs={'type': 'date'}),
+            'commentaires': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class SuiviStageForm(forms.ModelForm):
+    class Meta:
+        model = SuiviStage
+        fields = ['date_rapport', 'type_rapport', 'document', 'commentaires', 'note']
+        widgets = {
+            'date_rapport': forms.DateInput(attrs={'type': 'date'}),
+            'commentaires': forms.Textarea(attrs={'rows': 4}),
+        }
+
+class MemoireForm(forms.ModelForm):
+    class Meta:
+        model = Memoire
+        fields = ['titre', 'resume', 'mots_cles', 'document', 'date_soutenance', 'jury', 'est_public']
+        widgets = {
+            'resume': forms.Textarea(attrs={'rows': 5}),
+            'date_soutenance': forms.DateInput(attrs={'type': 'date'}),
+            'jury': forms.CheckboxSelectMultiple(),
+        }
+
+class EvaluationStageForm(forms.ModelForm):
+    class Meta:
+        model = EvaluationStage
+        fields = ['satisfaction_globale', 'acquis_professionnels', 
+                 'points_positifs', 'points_amelioration', 
+                 'recommandation_entreprise', 'commentaires']
+        widgets = {
+            'acquis_professionnels': forms.Textarea(attrs={'rows': 3}),
+            'points_positifs': forms.Textarea(attrs={'rows': 3}),
+            'points_amelioration': forms.Textarea(attrs={'rows': 3}),
+            'commentaires': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class EnseignantSignupForm(UserCreationForm):
+    nom_complet = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    telephone = forms.CharField(max_length=20, required=False)
+    specialite = forms.CharField(max_length=100)
+    departement = forms.CharField(max_length=100)
+
+    class Meta:
+        model = User
+        fields = ('username', 'nom_complet', 'email', 'telephone', 
+                 'specialite', 'departement', 'password1', 'password2')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            enseignant = Enseignant.objects.create(
+                user=user,
+                nom_complet=self.cleaned_data['nom_complet'],
+                email=self.cleaned_data['email'],
+                telephone=self.cleaned_data['telephone'],
+                specialite=self.cleaned_data['specialite'],
+                departement=self.cleaned_data['departement']
+            )
+            # Créer le profil utilisateur
+            UserProfile.objects.create(
+                user=user,
+                role='enseignant',
+                is_validated=False
+            )
+        return user
