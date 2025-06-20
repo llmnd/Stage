@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, FileResponse
 from .models import ConventionDeStage, SuiviStage, Memoire, EvaluationStage
+from django.contrib import messages
 from .forms import (ConventionStageForm, SuiviStageForm, MemoireForm, 
                    EvaluationStageForm, EnseignantSignupForm)
 from .ia.recommendation import RecommandationIA
@@ -531,6 +532,18 @@ def evaluer_candidatures_ia(request, offre_id):
 
 # --- Conventions de stage ---
 @login_required
+def mes_conventions(request):
+    user = request.user
+    if hasattr(user, 'etudiant'):
+        conventions = ConventionDeStage.objects.filter(etudiant=user.etudiant).order_by('-date_creation')
+    elif hasattr(user, 'entreprise'):
+        conventions = ConventionDeStage.objects.filter(entreprise=user.entreprise).order_by('-date_creation')
+    else:
+        conventions = ConventionDeStage.objects.none()
+
+    return render(request, 'dashboard.html', {'conventions': conventions})
+
+@login_required
 def creer_convention(request, candidature_id):
     candidature = get_object_or_404(Candidature, id=candidature_id)
     
@@ -567,6 +580,18 @@ def creer_convention(request, candidature_id):
             'enseignant_referent': candidature.etudiant.enseignant_referent,
         }
         form = ConventionStageForm(initial=initial)
+        if form.is_valid():
+            convention = form.save(commit=False)
+            convention.etudiant = candidature.etudiant
+            convention.offre = candidature.offre
+            convention.entreprise = candidature.offre.entreprise
+
+        if 'signature_etudiant' in request.FILES:
+            convention.signature_etudiant = request.FILES['signature_etudiant']
+        if 'signature_entreprise' in request.FILES:
+            convention.signature_entreprise = request.FILES['signature_entreprise']
+
+        convention.save()
     
     return render(request, 'conventions/creer.html', {
         'form': form,
@@ -828,3 +853,64 @@ def liste_candidatures_offre(request, offre_id):
         # ... autres variables de contexte
     }
     return render(request, 'candidatures_offre.html', context)
+
+from django.shortcuts import redirect
+from stages.ia.recommendation import RecommandationIA
+
+
+def reevaluer_candidatures(request, offre_id):
+    if request.method == 'POST':
+        ia = RecommandationIA()
+        nombre = ia.evaluer_candidatures(offre_id)
+        messages.success(request, f"Réévaluation IA terminée ✅ ({nombre} candidature(s) mise(s) à jour)")
+    return redirect('candidature_', offre_id=offre_id)
+
+@login_required
+def mes_conventions(request):
+    user = request.user
+    if hasattr(user, 'etudiant'):
+        conventions = ConventionDeStage.objects.filter(etudiant=user.etudiant).order_by('-date_creation')
+    else:
+        raise PermissionDenied
+
+    return render(request, 'conventions/liste.html', {'conventions': conventions})
+
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from django.conf import settings
+import os
+
+@login_required
+def generer_pdf_convention(request, convention_id):
+    convention = get_object_or_404(ConventionDeStage, id=convention_id)
+
+    # Vérifie les permissions
+    if not (request.user == convention.etudiant.user or request.user == convention.entreprise.user):
+        raise PermissionDenied
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Convention_{convention.id}.pdf"'
+
+    c = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    c.drawString(100, height - 100, f"Convention de stage #{convention.id}")
+    c.drawString(100, height - 120, f"Étudiant : {convention.etudiant}")
+    c.drawString(100, height - 140, f"Entreprise : {convention.entreprise}")
+    c.drawString(100, height - 160, f"Date début : {convention.date_debut}")
+    c.drawString(100, height - 180, f"Date fin : {convention.date_fin}")
+    
+    # Signatures
+    if convention.signature_etudiant:
+        path = os.path.join(settings.MEDIA_ROOT, convention.signature_etudiant.name)
+        c.drawImage(path, 100, height - 300, width=100, height=50)
+
+    if convention.signature_entreprise:
+        path = os.path.join(settings.MEDIA_ROOT, convention.signature_entreprise.name)
+        c.drawImage(path, 300, height - 300, width=100, height=50)
+
+    c.save()
+    return response
+
+

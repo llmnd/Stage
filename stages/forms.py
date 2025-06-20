@@ -312,6 +312,9 @@ class ConventionStageForm(forms.ModelForm):
             'date_fin': forms.DateInput(attrs={'type': 'date'}),
             'commentaires': forms.Textarea(attrs={'rows': 3}),
         }
+        signature_etudiant = forms.ImageField(required=False)
+        signature_entreprise = forms.ImageField(required=False)
+
 
 class SuiviStageForm(forms.ModelForm):
     class Meta:

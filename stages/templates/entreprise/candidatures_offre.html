@@ -3,71 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidatures - {{ offre.titre }}</title>
+    <title>Matching IA - {{ offre.titre }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
+            --primary-color: #31459f;
+            --secondary-color: #361582;
             --accent-color: #4cc9f0;
             --light-bg: #f8f9fa;
             --dark-bg: #212529;
+            --ai-blue: #4e2294;
+            --ai-purple: #560bad;
         }
         
         body {
-            background-color: #f5f7ff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #020512;
+            font-family: 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(to bottom, rgba(231, 225, 249, 0.856), rgba(231, 233, 240, 0.9)), 
+                              url("");
         }
         
         .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: rgb(59, 23, 116);
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+        }
+        
+        .ai-badge {
+            background: rgba(72, 149, 239, 0.1);
+            color: var(--ai-blue);
+            border-left: 3px solid var(--ai-blue);
+            padding-left: 0.75rem;
+            display: inline-flex;
+            align-items: center;
         }
         
         .card {
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             border: none;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
         }
         
         .card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.15);
         }
         
         .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: rgb(59, 23, 116);
             color: white;
-            padding: 1.2rem;
+            padding: 1.2rem 1.5rem;
             border-bottom: none;
+            position: relative;
+        }
+        
+        .card-header::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-color), transparent);
+            opacity: 0.3;
         }
         
         .stat-card {
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--ai-blue);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(72, 149, 239, 0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
         }
         
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
+            border: 1px solid rgba(67, 97, 238, 0.1);
         }
         
         .table th {
             background-color: rgba(67, 97, 238, 0.05);
             font-weight: 600;
             color: var(--dark-bg);
+            border-bottom: 1px solid rgba(67, 97, 238, 0.1);
         }
         
         .table-hover tbody tr:hover {
-            background-color: rgba(67, 97, 238, 0.03);
-        }
-        
-        .badge-score {
-            font-weight: 500;
-            padding: 0.5em 0.8em;
-            font-size: 0.9rem;
+            background-color: rgba(67, 97, 238, 0.03) !important;
         }
         
         .progress-circle {
@@ -76,60 +125,109 @@
             border-radius: 50%;
             background: 
                 radial-gradient(closest-side, white 79%, transparent 80% 100%),
-                conic-gradient(var(--primary-color) calc(var(--score)*1%), #e9ecef 0);
+                conic-gradient(var(--ai-blue) calc(var(--score)*1%), #e9ecef 0);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 0.8rem;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .progress-circle::after {
+            content: "";
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 50%;
+            border: 1px solid var(--ai-blue);
+            opacity: 0.3;
+        }
+        
+        .ai-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ai-blue), var(--ai-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-weight: bold;
         }
         
         .empty-state {
             padding: 4rem;
             text-align: center;
+            background-color: rgba(67, 97, 238, 0.03);
+            border-radius: 12px;
+            margin: 2rem;
         }
         
         .empty-state i {
             font-size: 4rem;
-            color: #dee2e6;
+            color: rgba(67, 97, 238, 0.1);
             margin-bottom: 1.5rem;
         }
         
         .text-gradient {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            background: linear-gradient(135deg, var(--ai-blue), var(--ai-purple));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            font-weight: 600;
         }
         
-        .explanation-tooltip {
-            border-bottom: 1px dashed #6c757d;
-            cursor: help;
+        .btn-ai {
+            background: linear-gradient(135deg, var(--ai-blue), var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
         
-        .location-badge {
-            background-color: rgba(76, 201, 240, 0.1);
-            color: #4361ee;
-            border-left: 3px solid var(--accent-color);
-            padding-left: 0.75rem;
+        .btn-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            color: white;
+        }
+        
+        .ai-analysis-chip {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(72, 149, 239, 0.1);
+            color: var(--ai-blue);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ai-analysis-chip i {
+            margin-right: 0.3rem;
+            font-size: 0.7rem;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="container">
+        <div class="container position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="mb-3">
-                        <i class="fas fa-users me-2"></i>
-                        <span class="text-gradient">Candidatures</span>
+                        <i class="fas fa-robot me-2"></i>
+                        <span class="text-gradient">Matching IA</span>
                     </h1>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-white text-dark me-2">
+                    <div class="d-flex align-items-center flex-wrap">
+                        <span class="badge bg-white text-dark me-2 mb-2">
                             <i class="fas fa-briefcase me-1"></i>
                             {{ offre.titre }}
                         </span>
-                        <span class="location-badge">
+                        <span class="ai-badge me-2 mb-2">
                             <i class="fas fa-map-marker-alt me-1"></i>
                             {{ offre.entreprise.ville|default:"Lieu non précisé" }}
                         </span>
@@ -154,8 +252,9 @@
                             <div>
                                 <h5 class="card-title text-muted">Total</h5>
                                 <h2 class="mb-0">{{ candidatures|length }}</h2>
+                                <small class="text-muted">Analysés par l'IA</small>
                             </div>
-                            <i class="fas fa-file-alt fa-2x text-primary opacity-25"></i>
+                            <i class="fas fa-brain fa-2x" style="color: rgba(72, 149, 239, 0.2);"></i>
                         </div>
                     </div>
                 </div>
@@ -165,10 +264,11 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title text-muted">En attente</h5>
-                                <h2 class="mb-0 text-warning">{{ candidatures_en_attente }}</h2>
+                                <h5 class="card-title text-muted">Top Matching</h5>
+                                <h2 class="mb-0" style="color: var(--ai-blue);">{{ top_matching_count }}</h2>
+                                <small class="text-muted">Score > 80%</small>
                             </div>
-                            <i class="fas fa-hourglass-half fa-2x text-warning opacity-25"></i>
+                            <i class="fas fa-bolt fa-2x" style="color: rgba(72, 149, 239, 0.2);"></i>
                         </div>
                     </div>
                 </div>
@@ -178,10 +278,11 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title text-muted">Acceptées</h5>
-                                <h2 class="mb-0 text-success">{{ candidatures_acceptees }}</h2>
+                                <h5 class="card-title text-muted">Diversité</h5>
+                                <h2 class="mb-0">{{ diversity_score }}%</h2>
+                                <small class="text-muted">Variété des profils</small>
                             </div>
-                            <i class="fas fa-check-circle fa-2x text-success opacity-25"></i>
+                            <i class="fas fa-globe fa-2x" style="color: rgba(72, 149, 239, 0.2);"></i>
                         </div>
                     </div>
                 </div>
@@ -189,149 +290,129 @@
         </div>
 
         <!-- Liste des candidatures -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-0">
-                        <i class="fas fa-list-check me-2"></i>
-                        Toutes les candidatures
-                    </h4>
-                    <small class="text-white-50">Classées par pertinence</small>
-                </div>
-                <span class="badge bg-white text-primary">
-                    {{ candidatures|length }} candidature(s)
-                </span>
-            </div>
-            
-            <div class="card-body p-0">
-                {% if candidatures %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 25%">Candidat</th>
-                                    <th style="width: 15%" class="text-center">
-                                        Score IA
-                                        <i class="fas fa-info-circle ms-1 explanation-tooltip" 
-                                           title="Score de correspondance entre le profil du candidat et les exigences de l'offre (0-100%)"></i>
-                                    </th>
-                                    <th style="width: 20%">Statut</th>
-                                    <th style="width: 20%" class="text-center">Documents</th>
-                                    <th style="width: 20%" class="text-end">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for candidature in candidatures %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" 
-                                                     style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-user text-secondary"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">{{ candidature.etudiant.nom_complet }}</h6>
-                                                <small class="text-muted d-block">
-                                                    <i class="fas fa-graduation-cap me-1"></i>
-                                                    {{ candidature.etudiant.domaine_etude }} • {{ candidature.etudiant.niveau_etude }}
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        {% if candidature.score_ia %}
-                                            <div class="progress-circle" style="--score: {{ candidature.score_ia }}">
-                                                <span>{{ candidature.score_ia|floatformat:0 }}%</span>
-                                            </div>
-                                        {% else %}
-                                            <span class="badge bg-secondary rounded-pill badge-score">
-                                                Non évalué
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="badge rounded-pill py-1 px-3 
-                                            {% if candidature.statut == 'acceptee' %}bg-success
-                                            {% elif candidature.statut == 'refusee' %}bg-danger
-                                            {% elif candidature.statut == 'en_attente' %}bg-warning text-dark
-                                            {% else %}bg-secondary{% endif %}">
-                                            <i class="fas 
-                                                {% if candidature.statut == 'acceptee' %}fa-check
-                                                {% elif candidature.statut == 'refusee' %}fa-times
-                                                {% elif candidature.statut == 'en_attente' %}fa-hourglass-half
-                                                {% else %}fa-question{% endif %} me-1"></i>
-                                            {{ candidature.get_statut_display }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ candidature.cv.url }}" target="_blank" 
-                                               class="btn btn-outline-primary" title="Voir le CV">
-                                                <i class="fas fa-file-pdf"></i>
-                                            </a>
-                                            {% if candidature.lettre_motivation %}
-                                            <a href="{{ candidature.lettre_motivation.url }}" target="_blank" 
-                                               class="btn btn-outline-primary" title="Voir la lettre de motivation">
-                                                <i class="fas fa-envelope-open-text"></i>
-                                            </a>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="btn-group">
-                                            <a href="{% url 'detail_candidature' candidature.id %}" 
-                                               class="btn btn-sm btn-primary px-3">
-                                                <i class="fas fa-eye me-1"></i> Détails
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" 
-                                                    data-bs-toggle="dropdown">
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fas fa-comment me-2"></i> Envoyer un message
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fas fa-calendar me-2"></i> Planifier un entretien
-                                                    </a>
-                                                </li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li>
-                                                    <a class="dropdown-item text-danger" href="#">
-                                                        <i class="fas fa-trash me-2"></i> Rejeter
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <h3 class="mb-3">Aucune candidature reçue</h3>
-                        <p class="text-muted mb-4">Cette offre n'a pas encore reçu de candidatures.</p>
-                        <a href="#" class="btn btn-primary">
-                            <i class="fas fa-share me-1"></i> Partager cette offre
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
+        <div class="card mb-4 position-relative">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0">
+                <i class="fas fa-sort-amount-down me-2"></i>
+                Classement par pertinence IA
+            </h4>
+            <small class="text-white-50">Basé sur l'algorithme de matching</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-white text-primary">
+                {{ candidatures|length }} candidature(s)
+            </span>
+            <form method="post" action="{% url 'reevaluer_candidatures' offre.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-sync-alt me-1"></i> Réévaluer avec l'IA
+                </button>
+            </form>
         </div>
     </div>
+
+    <div class="card-body p-0">
+        {% if candidatures %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Candidat</th>
+                            <th style="width: 30%" class="text-center">
+                                Score IA & Feedback
+                                <i class="fas fa-info-circle ms-1" 
+                                   data-bs-toggle="tooltip" 
+                                   title="Score de matching algorithmique et feedback généré par l'IA"></i>
+                            </th>
+                            <th style="width: 20%" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidature in candidatures %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="ai-avatar me-3">
+                                        {{ candidature.etudiant.nom_complet|first|upper }}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ candidature.etudiant.nom_complet }}</h6>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-graduation-cap me-1"></i>
+                                            {{ candidature.etudiant.domaine_etude }} • {{ candidature.etudiant.niveau_etude }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                {% if candidature.score_ia %}
+                                    <div class="progress-circle" style="--score: {{ candidature.score_ia }}">
+                                        <span>{{ candidature.score_ia|floatformat:0 }}%</span>
+                                    </div>
+                                    {% if candidature.feedback_ia %}
+                                    <small class="d-block mt-2 text-muted text-start px-2" style="font-size: 0.75rem; white-space: pre-line;">
+                                        {{ candidature.feedback_ia }}
+                                    </small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill">
+                                        <i class="fas fa-spinner fa-spin me-1"></i> Analyse
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a href="{% url 'detail_candidature' candidature.id %}" 
+                                       class="btn btn-sm btn-ai px-3">
+                                        <i class="fas fa-eye me-1"></i> Détails
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                                            data-bs-toggle="dropdown"></button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fas fa-comment me-2"></i> Contacter
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fas fa-calendar me-2"></i> Entretien
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#">
+                                                <i class="fas fa-times me-2"></i> Rejeter
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3 class="mb-3">Aucune candidature reçue</h3>
+                <p class="text-muted mb-4">Notre IA n'a pas encore analysé de candidatures pour cette offre.</p>
+                <a href="#" class="btn btn-ai">
+                    <i class="fas fa-share me-1"></i> Partager cette offre
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialiser les tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (element) {
                 return new bootstrap.Tooltip(element);
             });
@@ -349,21 +430,28 @@
                 }, 100);
             });
             
-            // Explication du score IA au survol
-            const scoreCells = document.querySelectorAll('td.text-center');
-            scoreCells.forEach(cell => {
-                cell.addEventListener('mouseenter', function() {
-                    if (this.querySelector('.progress-circle')) {
-                        const tooltip = new bootstrap.Tooltip(this, {
-                            title: "Ce score représente la correspondance entre le profil du candidat et les exigences de l'offre, calculée par notre algorithme IA.",
-                            placement: 'top',
-                            trigger: 'hover'
-                        });
-                        tooltip.show();
-                    }
+            // Effet de survol pour les cercles de progression
+            const progressCircles = document.querySelectorAll('.progress-circle');
+            progressCircles.forEach(circle => {
+                circle.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                });
+                circle.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
                 });
             });
         });
     </script>
 </body>
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
 </html>

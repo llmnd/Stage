@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4"><i class="fas fa-file-contract me-2"></i> Mes conventions de stage</h2>
+
+    {% if conventions %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Offre</th>
+                        <th>Entreprise</th>
+                        <th>Date de début</th>
+                        <th>Date de fin</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for convention in conventions %}
+                        <tr>
+                            <td>{{ convention.offre.titre }}</td>
+                            <td>{{ convention.entreprise.nom_entreprise }}</td>
+                            <td>{{ convention.date_debut|date:"d/m/Y" }}</td>
+                            <td>{{ convention.date_fin|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if convention.statut == 'validee' %} bg-success
+                                    {% elif convention.statut == 'en_attente' %} bg-warning
+                                    {% elif convention.statut == 'refusee' %} bg-danger
+                                    {% else %} bg-secondary {% endif %}">
+                                    {{ convention.get_statut_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'detail_convention' convention.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> Détails
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-1"></i> Aucune convention disponible pour le moment.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

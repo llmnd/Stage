@@ -14,8 +14,8 @@
   <style>
     :root {
       --primary: #6e45e2;
-      --primary-light: #88d3ce;
-      --secondary: #79cbd1;
+      --primary-light: #cbadb9;
+      --secondary: #f1dfd5d2;
       --secondary-alpha: rgba(0, 240, 255, 0.1);
       --accent: #6d0f4e;
       --accent-alpha: rgba(255, 0, 170, 0.1);
@@ -815,9 +815,6 @@
           <p>Les candidatures apparaîtront ici</p>
         </div>
       {% endfor %}
-       <a href="{% url 'logout' %}" class="btn btn-warning btn-sm animate__animated animate__fadeIn">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Se déconnecter</span>
        </a>
     </div>
   </section>
@@ -838,13 +835,7 @@
         <div>
           <strong><i class="fas fa-bullseye"></i> {{ offre.titre }}</strong>
           <p class="mt-2">{{ offre.domaine }}</p>
-          
-          <!-- Bouton pour voir les recommandations -->
-          <a href="{% url 'recommandations_ia' offre.id %}" 
-             class="btn btn-primary btn-sm mt-2"
-             style="display: inline-flex; align-items: center;">
-            <i class="fas fa-robot"></i>
-            <span>Voir recommandations</span>
+         
           </a>
         </div>
         
@@ -867,14 +858,14 @@
     {% endfor %}
   </div>
   
-  <!-- Section pour afficher les meilleurs candidats recommandés -->
-  <div class="mt-4">
-    <h3 class="neon-text" style="font-size: 1.3rem;">
-      <i class="fas fa-star"></i> Top candidats recommandés
-    </h3>
-    
-    <div class="candidatures-list">
-      {% for recommandation in top_recommandations %}
+ <!-- Section pour afficher les meilleurs candidats recommandés -->
+<div class="mt-4">
+  <h3 class="neon-text" style="font-size: 1.3rem;">
+    <i class="fas fa-star"></i> Top candidats recommandés
+  </h3>
+
+  <div class="candidatures-list">
+    {% for recommandation in top_recommandations %}
       <article class="candidature-item animate__animated" data-scroll>
         <div class="candidature-content">
           <div class="candidature-header">
@@ -883,53 +874,42 @@
               Score: {{ recommandation.score|floatformat:1 }}%
             </span>
           </div>
-          
-          <div class="progress mt-2 mb-2" style="height: 8px;">
-            <div class="progress-bar bg-success" 
-                 role="progressbar" 
-                 style="width: {{ recommandation.score }}%"
-                 aria-valuenow="{{ recommandation.score }}" 
-                 aria-valuemin="0" 
-                 aria-valuemax="100">
-            </div>
-          </div>
-          
-          <div class="candidature-meta">
-            <span><i class="fas fa-graduation-cap"></i> {{ recommandation.etudiant.get_niveau_etude_display }}</span>
-            <span><i class="fas fa-tag"></i> {{ recommandation.etudiant.get_domaine_etude_display }}</span>
-          </div>
-          
-          <div class="mt-2 p-2" style="background: rgba(0,255,136,0.1); border-radius: 8px;">
-            <p class="mb-0 small">{{ recommandation.feedback }}</p>
-          </div>
-        </div>
-        
-        <div class="candidature-actions">
-          <a href="{% url 'profil_etudiant' recommandation.etudiant.id %}" 
-             class="btn btn-primary btn-sm">
-            <i class="fas fa-eye"></i> Profil
-          </a>
-          <a href="{% url 'postuler_offre' recommandation.offre.id %}?etudiant_id={{ recommandation.etudiant.id }}"
-             class="btn btn-success btn-sm">
-            <i class="fas fa-paper-plane"></i> Contacter
-          </a>
+
+          <blockquote class="candidature-message" style="margin-top: 0.5rem;">
+            <i class="fas fa-robot"></i>
+            <strong>Feedback IA :</strong><br>
+            {{ recommandation.feedback|linebreaks }}
+          </blockquote>
         </div>
       </article>
-      {% empty %}
+    {% empty %}
       <div class="text-center py-4">
         <i class="fas fa-robot fa-2x mb-2" style="color: var(--secondary);"></i>
         <p>Lancez l'analyse IA pour voir les recommandations</p>
         {% if offres_actives %}
-        <a href="{% url 'evaluer_candidatures_ia' offres_actives.0.id %}" class="btn btn-warning btn-sm">
-          <i class="fas fa-bolt"></i> Lancer l'IA
-        </a>
+          <a href="{% url 'evaluer_candidatures_ia' offres_actives.0.id %}" class="btn btn-warning btn-sm">
+            <i class="fas fa-bolt"></i> Lancer l'IA
+          </a>
         {% endif %}
       </div>
-      {% endfor %}
-    </div>
+    {% endfor %}
   </div>
-</section>
-</main>
+  <a href="{% url 'mes_conventions' %}" class="btn btn-outline-secondary">
+  <i class="fas fa-folder-open me-1"></i> Mes conventions
+</a>
+{% if convention and convention.id %}
+  <a href="{% url 'generer_pdf_convention' convention.id %}" class="btn btn-success">
+    <i class="fas fa-file-pdf me-1"></i> Télécharger la convention signée
+  </a>
+{% else %}
+  <span class="text-muted">
+    <i class="fas fa-file-pdf me-1"></i> Aucune convention disponible
+  </span>
+{% endif %}
+
+
+
+</div>
 
 <script>
   // Création des particules
