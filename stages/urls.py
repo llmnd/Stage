@@ -113,6 +113,14 @@ urlpatterns = [
      path('offre/<int:offre_id>/candidatures/', views.candidatures_offre, name='candidature_offre'),
      path('offre/<int:offre_id>/candidatures/', views.liste_candidatures_offre, name='candidatures_offre'),
     path('offre/<int:offre_id>/evaluer-candidatures/', views.evaluer_candidatures_ia, name='evaluer_candidatures'),
+    path('entreprise/offre/<int:offre_id>/reevaluer/', views.reevaluer_candidatures, name='reevaluer_candidatures'),
+    path('conventions/', views.mes_conventions, name='mes_conventions'),
+    path('mes-conventions/', views.mes_conventions, name='mes_conventions'),
+    path('convention/creer/<int:candidature_id>/', views.creer_convention, name='creer_convention'),
+
+    path('convention/<int:convention_id>/pdf/', views.generer_pdf_convention, name='generer_pdf_convention'),
+
+    # Détails
     
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

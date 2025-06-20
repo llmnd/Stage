@@ -163,6 +163,9 @@ class ConventionDeStage(models.Model):
     date_validation = models.DateTimeField(null=True, blank=True)
     document = models.FileField(upload_to='conventions/', null=True, blank=True)
     commentaires = models.TextField(blank=True, null=True)
+    signature_etudiant = models.ImageField(upload_to='signatures/', null=True, blank=True)
+    signature_entreprise = models.ImageField(upload_to='signatures/', null=True, blank=True)
+
 
     def __str__(self):
         return f"Convention {self.etudiant} - {self.entreprise}"

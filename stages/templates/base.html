@@ -39,7 +39,7 @@
     body {
       margin: 0;
       font-family: 'Times New Roman', sans-serif;
-      background: linear-gradient(120deg, var(--primary), var(--secondary));
+      background: var(--bg-light);
       color: var(--text-light);
       overflow-x: hidden;
       transition: var(--transition);
@@ -51,7 +51,7 @@
       top: 0;
       left: 0;
       height: 4px;
-      background: linear-gradient(to right, var(--highlight), var(--highlight-secondary));
+      background: var(--highlight);
       width: 0;
       z-index: 9999;
       transition: width 0.1s ease;
@@ -87,7 +87,7 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      background: linear-gradient(rgba(43, 37, 56, 0.831), rgba(0, 0, 0, 0.5)), 
+      background: linear-gradient(rgba(140, 107, 213, 0.959), rgba(187, 159, 232, 0.868)), 
                   url('{% static "img/F.jpg" %}') center/cover no-repeat;
       text-align: center;
       position: relative;
@@ -192,7 +192,7 @@
 
     /* Dark Mode Styles */
     body.dark-mode {
-      background: #121212;
+      background: #dddbea;
       color: #eaeaea;
     }
 
