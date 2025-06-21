@@ -363,9 +363,9 @@ def post_login_redirect(request):
     elif hasattr(request.user, 'entreprise'):
         return redirect('profil_entreprise', id=request.user.entreprise.id)
     elif hasattr(request.user, 'etudiant'):
-        return redirect('etudiant_dashboard')
+        return redirect('etudiant_dashboard')  # Redirige vers le dashboard étudiant
     else:
-        return redirect('dashboard')
+        return redirect('dashboard')  # Page par défaut
 
 # --- Vues statiques ---
 
