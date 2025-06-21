@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Candidature de {{ candidature.etudiant.nom_complet|default:"Étudiant" }} | {{ candidature.offre.titre }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Détails de la candidature pour l'offre {{ candidature.offre.titre }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3f2176;
+            --secondary-color: #592fbb;
+            --accent-blue: #316bca;
+            --accent-purple: #7c3aed;
+        }
+        
+        body {
+            font-family: 'Times New Roman', sans-serif;
+            background-color: #e6d3e6;
+        }
+        
+        .status-badge {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .info-card {
+            background-color: #1b021311;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .info-card-label {
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .info-card-value {
+            color: #1e293b;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .btn {
+            padding: 0.5rem 1.4rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <div class="bg-white rounded-xl card-shadow overflow-hidden">
+            <!-- En-tête -->
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-5 text-white">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold">
+                            <i class="fas fa-file-alt mr-3"></i>
+                            Candidature pour : {{ candidature.offre.titre }}
+                        </h1>
+                        <p class="text-blue-100 mt-1 flex items-center">
+                            <i class="far fa-calendar-alt mr-2"></i>
+                            Soumise le {{ candidature.date_soumission|date:"d/m/Y à H:i" }}
+                        </p>
+                    </div>
+                    <span class="px-4 py-2 rounded-full text-sm font-semibold status-badge
+                                {% if candidature.statut == 'accepte' %}bg-green-100 text-green-800
+                                {% elif candidature.statut == 'refuse' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {{ candidature.get_statut_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="p-6 sm:p-8">
+                <!-- Section Étudiant -->
+                <div class="mb-10">
+                    <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-user-graduate mr-3 text-purple-500"></i>Profil du candidat
+                    </h2>
+                    
+                    <!-- Grille d'informations -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                        <!-- Carte d'information -->
+                        <div class="info-card">
+                            <p class="info-card-label">
+                                <i class="fas fa-user mr-2 text-gray-400"></i>
+                                Nom complet
+                            </p>
+                            <p class="info-card-value">
+                                {{ candidature.etudiant.nom_complet|default:"Non renseigné" }}
+                            </p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <p class="info-card-label">
+                                <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                                Email
+                            </p>
+                            <p class="info-card-value">
+                                {% if candidature.etudiant.email %}
+                                    <a href="mailto:{{ candidature.etudiant.email }}" class="text-blue-600 hover:underline">
+                                        {{ candidature.etudiant.email }}
+                                    </a>
+                                {% else %}
+                                    Non renseigné
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <p class="info-card-label">
+                                <i class="fas fa-phone-alt mr-2 text-gray-400"></i>
+                                Téléphone
+                            </p>
+                            <p class="info-card-value">
+                                {% if candidature.etudiant.telephone %}
+                                    {{ candidature.etudiant.telephone }}
+                                {% else %}
+                                    Non renseigné
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <p class="info-card-label">
+                                <i class="fas fa-university mr-2 text-gray-400"></i>
+                                Université
+                            </p>
+                            <p class="info-card-value">
+                                {{ candidature.etudiant.universite|default:"Non renseignée" }}
+                            </p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <p class="info-card-label">
+                                <i class="fas fa-layer-group mr-2 text-gray-400"></i>
+                                Niveau d'étude
+                            </p>
+                            <p class="info-card-value">
+                                {{ candidature.etudiant.niveau_etude|default:"Non renseigné" }}
+                            </p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <p class="info-card-label">
+                                <i class="fas fa-book mr-2 text-gray-400"></i>
+                                Domaine d'étude
+                            </p>
+                            <p class="info-card-value">
+                                {{ candidature.etudiant.domaine_etude|default:"Non renseigné" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Compétences -->
+                    {% if candidature.etudiant.competences %}
+                    <div class="bg-gray-50 p-5 rounded-lg mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-tools text-blue-500 mr-2"></i> 
+                            Compétences
+                        </h3>
+                        <div class="text-gray-700">
+                            {{ candidature.etudiant.competences }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Réalisations -->
+                    {% if candidature.etudiant.realisations %}
+                    <div class="bg-gray-50 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-trophy text-purple-500 mr-2"></i> 
+                            Réalisations
+                        </h3>
+                        <div class="text-gray-700">
+                            {{ candidature.etudiant.realisations }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Section Documents -->
+                <div class="mb-10">
+                    <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-paperclip mr-3 text-blue-500"></i>Documents
+                    </h2>
+                    
+                    <!-- CV -->
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-6">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-file-pdf text-3xl text-red-500 mr-4"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">CV du candidat</h3>
+                                {% if candidature.cv %}
+                                    <a href="{{ candidature.cv.url }}" download class="text-blue-600 hover:underline">
+                                        <i class="fas fa-download mr-1"></i>Télécharger
+                                    </a>
+                                {% else %}
+                                    <p class="text-sm text-gray-500">Aucun fichier disponible</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lettre de motivation -->
+                    <div class="bg-gray-50 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-envelope-open-text text-purple-500 mr-2"></i> 
+                            Lettre de motivation
+                        </h3>
+                        <div class="text-gray-700">
+                            {% if candidature.message %}
+                                {{ candidature.message }}
+                            {% else %}
+                                <p class="italic text-gray-400">Aucun message fourni.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-3 justify-end border-t pt-6">
+                    <a href="{% url 'liste_offres' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left mr-2"></i> 
+                        Retour aux offres
+                    </a>
+                    
+                    {% if is_entreprise %}
+                        {% if candidature.statut != 'accepte' %}
+                        <form method="post" action="{% url 'modifier_statut_candidature' candidature.id 'accepte' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn bg-green-600 text-white">
+                                <i class="fas fa-check mr-2"></i> 
+                                Accepter
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if candidature.statut != 'refuse' %}
+                        <form method="post" action="{% url 'modifier_statut_candidature' candidature.id 'refuse' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn bg-red-600 text-white">
+                                <i class="fas fa-times mr-2"></i> 
+                                Refuser
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon Profil - Plateforme de Stages</title>
+
+    <!-- Icônes & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Feuille de style principale -->
+    <link rel="stylesheet" href="{% static 'css/etudiant.css' %}" />
+</head>
+<body>
+    <!-- En-tête -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Stagely</span>
+            </div>
+            <nav class="nav-links">
+                <a href="{% url 'home' %}"><i class="fas fa-home"></i> Accueil</a>
+                <a href="{% url 'offres' %}"><i class="fas fa-briefcase"></i> Offres</a>
+                <a href="#" class="active"><i class="fas fa-user"></i> Mon Profil</a>
+                <a href="{% url 'entreprises' %}"><i class="fas fa-building"></i> Entreprises</a>
+                <a href="{% url 'documents' %}"><i class="fas fa-file-alt"></i> Documents</a>
+            </nav>
+            <div class="user-actions">
+                <button class="notification-btn"><i class="fas fa-bell"></i></button>
+                <button class="user-btn"><i class="fas fa-user"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <div class="container">
+        <div class="profile-container">
+            <!-- Barre latérale -->
+            <aside class="sidebar">
+                <div class="profile-header">
+                    <div class="profile-pic">
+                        {% if student.profile_picture %}
+                            <img src="{{ student.profile_picture.url }}" alt="profil" />
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="profile-name">{{ student.full_name }}</div>
+                    <div class="profile-title">{{ student.formation }}</div>
+                    <div class="profile-score">
+                        <i class="fas fa-star"></i> Profil complété à {{ student.profile_completion }}%
+                    </div>
+                </div>
+
+                <div class="profile-details">
+                    <div class="detail-item"><i class="fas fa-envelope"></i> {{ student.email }}</div>
+                    <div class="detail-item"><i class="fas fa-phone"></i> {{ student.telephone }}</div>
+                    <div class="detail-item"><i class="fas fa-map-marker-alt"></i> {{ student.adresse }}</div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="section-title">
+                        <span>Complétion du profil</span>
+                        <span>{{ student.profile_completion }}%</span>
+                    </div>
+
+                    {% for section in profile_sections %}
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>{{ section.name }}</span>
+                            <span>{{ section.progress }}%</span>
+                        </div>
+                        <div class="progress-bar">
+                                 
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <a href="{{ student.cv.url }}" download class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-download"></i> Télécharger mon CV
+                </a>
+            </aside>
+
+            <!-- Contenu principal -->
+            <main class="main-content">
+                <!-- Carte compétences -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Mes Compétences</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-outline"><i class="fas fa-sync-alt"></i> Actualiser</button>
+                        </div>
+                    </div>
+
+                    <div class="skills-container">
+                        {% for skill in student.skills.all %}
+                        <div class="skill-tag">{{ skill.name }} <i class="fas fa-check-circle"></i></div>
+                        {% endfor %}
+                    </div>
+
+                    <form method="post" class="add-skill">
+                        {% csrf_token %}
+                        <input type="text" name="new_skill" placeholder="Ajouter une compétence..." />
+                        <button class="btn btn-primary" type="submit">Ajouter</button>
+                    </form>
+                </section>
+
+                <!-- Offres recommandées -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Offres Recommandées</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-outline"><i class="fas fa-filter"></i> Filtrer</button>
+                        </div>
+                    </div>
+
+                    <div class="match-grid">
+                        {% for offre in offres_recommandees %}
+                        <article class="match-card">
+                            <header class="match-header">
+                                <h3 class="match-title">{{ offre.titre }}</h3>
+                                <p class="match-subtitle">{{ offre.entreprise.nom }} - {{ offre.ville }}</p>
+                            </header>
+                            <div class="match-body">
+                                <div class="match-stats">
+                                    <span>Match TIA</span>
+                                    <span class="match-percentage">{{ offre.match_score }}%</span>
+                                </div>
+                                <div class="match-progress">
+                                    <div class="progress-bar">
+                                      
+                                    </div>
+                                </div>
+                                <div class="match-actions">
+                                    <a href="{% url 'offre_detail' offre.id %}" class="btn btn-outline">
+                                        <i class="far fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{% url 'postuler' offre.id %}" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Postuler
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- Candidatures -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Mes Candidatures</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-outline"><i class="fas fa-history"></i> Historique</button>
+                        </div>
+                    </div>
+
+                    <div class="timeline">
+                        {% for candidature in candidatures %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">{{ candidature.date_candidature }}</div>
+                                <div class="timeline-title">{{ candidature.offre.titre }} - {{ candidature.offre.entreprise.nom }}</div>
+                                <div class="status {{ candidature.status|lower }}">{{ candidature.get_status_display }}</div>
+                                <p>{{ candidature.message }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

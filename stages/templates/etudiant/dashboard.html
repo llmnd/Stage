@@ -1,0 +1,671 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etudiant ESP - InternAI</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* [Tous vos styles existants restent inchangés] */
+         :root {
+            --primary: #4a3aff;
+            --primary-light: #7b6eff;
+            --primary-dark: #2a1b9e;
+            --secondary: #8e2de2;
+            --accent: #ff6b6b;
+            --accent-light: #ff8e8e;
+            --light: #f8f9fa;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --gray-light: #dfe6e9;
+            --gray-lighter: #f1f3f5;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --white: #ffffff;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 15px 35px rgba(0,0,0,0.12);
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Times New Roman', sans-serif;
+            background-color: #f4f1ff;
+            color: var(--dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(42, 35, 125, 0.9) 0%, rgba(142, 45, 226, 0.9) 100%),
+                        url('{% static "img/F.jpg" %}') center/cover no-repeat fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            color: var(--white);
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        header h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-family: 'Times New Roman', sans-serif;
+        }
+
+        header p {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            max-width: 800px;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Boutons */
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            border-radius: var(--border-radius-sm);
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            font-size: 1rem;
+            gap: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(74, 58, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 58, 255, 0.4);
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Dashboard Étudiant */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            height: fit-content;
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+        }
+
+        .profile-card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1.5rem;
+            display: block;
+            border: 5px solid white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-name {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            font-family: 'Times New Roman', sans-serif;
+        }
+
+        .profile-university {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .profile-details {
+            margin-top: 1.5rem;
+        }
+
+        .detail-item {
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-lighter);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+        }
+
+        .main-content:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-dark);
+            font-family: 'Times New Roman', sans-serif;
+        }
+
+        .section-title i {
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+
+        /* Candidatures */
+        .candidature-card {
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .candidature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .candidature-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .candidature-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+        }
+
+        .candidature-company {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .candidature-description {
+            color: var(--dark);
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        .candidature-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .candidature-date {
+            font-size: 0.85rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .candidature-status {
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-pending {
+            background-color: rgba(253, 203, 110, 0.2);
+            color: #b78a00;
+        }
+
+        .status-accepted {
+            background-color: rgba(0, 184, 148, 0.2);
+            color: var(--success);
+        }
+
+        .status-rejected {
+            background-color: rgba(214, 48, 49, 0.1);
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray);
+            border: 1px dashed var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            background: var(--gray-lighter);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 2rem 1rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .profile-card, .main-content {
+                padding: 1.5rem;
+            }
+        }
+        /* Ajouts spécifiques pour les recommandations IA */
+        .ai-recommendations {
+            margin-top: 3rem;
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.05) 0%, rgba(42, 35, 125, 0.05) 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            border: 1px solid rgba(106, 17, 203, 0.1);
+        }
+        
+        .ai-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+        
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .recommendation-card {
+            background: white;
+            border-radius: var(--border-radius-sm);
+            padding: 1.5rem;
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        
+        .recommendation-score {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(0, 184, 148, 0.2);
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-bottom-left-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .recommendation-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            padding-right: 4rem;
+        }
+        
+        .recommendation-company {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .recommendation-desc {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        
+        .recommendation-feedback {
+            background: rgba(253, 203, 110, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .view-all-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="animate-in">Etudiant ESP - InternAI</h1>
+        <p class="animate-in delay-1">La solution intelligente pour trouver votre stage idéal</p>
+        <div class="btn-group">
+            {% if user.is_authenticated %}
+                <a href="{% url 'liste_offres' %}" class="btn btn-primary animate-in delay-2">
+                    <i data-lucide="layout-dashboard"></i> Liste des Offres
+                </a>
+                <a href="{% url 'mes_candidatures' %}" class="btn btn-outline animate-in delay-2">
+                    <i data-lucide="file-text"></i> Mes Candidatures
+                </a>
+            {% else %}
+                <a href="{% url 'liste_offres' %}" class="btn btn-primary animate-in delay-2">
+                    <i data-lucide="layout-dashboard"></i> Liste des Offres
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-primary animate-in delay-2">
+                    <i data-lucide="log-in"></i> Se connecter
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-outline animate-in delay-3">
+                    <i data-lucide="user-plus"></i> S'inscrire
+                </a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if user.is_authenticated and user.etudiant %}
+    <div class="container">
+        <div class="dashboard-container">
+            <!-- Profil Étudiant -->
+            <div class="profile-card animate-in delay-1">
+                <h2 class="profile-name">{{ user.etudiant.nom_complet }}</h2>
+                <p class="profile-university">{{ user.etudiant.universite }}</p>
+                
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Niveau d'étude</div>
+                        <div class="detail-value">{{ user.etudiant.get_niveau_etude_display }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Domaine d'étude</div>
+                        <div class="detail-value">{{ user.etudiant.get_domaine_etude_display }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">{{ user.etudiant.email }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Téléphone</div>
+                        <div class="detail-value">{{ user.etudiant.telephone|default:"Non renseigné" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu Principal -->
+            <div class="main-content animate-in delay-2">
+                <h2 class="section-title">
+                    <i data-lucide="file-text"></i> Mes Candidatures Récentes
+                </h2>
+                
+                {% for candidature in user.etudiant.candidature_set.all|slice:":3" %}
+                <div class="candidature-card">
+                    <div class="candidature-header">
+                        <div>
+                            <h3 class="candidature-title">{{ candidature.offre.titre }}</h3>
+                            <p class="candidature-company">{{ candidature.offre.entreprise.nom_entreprise }}</p>
+                        </div>
+                    </div>
+                    <p class="candidature-description">{{ candidature.offre.description|truncatewords:20 }}</p>
+                    <div class="candidature-footer">
+                        <span class="candidature-date">
+                            <i data-lucide="calendar" width="16"></i> Postulé le {{ candidature.date_postulation|date:"d/m/Y" }}
+                        </span>
+                        <span class="candidature-status 
+                            {% if candidature.statut == 'acceptee' %}status-accepted
+                            {% elif candidature.statut == 'refusee' %}status-rejected
+                            {% else %}status-pending{% endif %}">
+                            <i data-lucide="{% if candidature.statut == 'acceptee' %}check-circle{% elif candidature.statut == 'refusee' %}x-circle{% else %}clock{% endif %}" width="16"></i>
+                            {{ candidature.get_statut_display }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i data-lucide="inbox" width="48" height="48"></i>
+                    <h3>Aucune candidature</h3>
+                    <p>Vous n'avez pas encore postulé à des offres de stage.</p>
+                </div>
+                {% endfor %}
+
+                <a href="{% url 'mes_candidatures' %}" class="btn btn-primary" style="margin-top: 1.5rem;">
+                    <i data-lucide="list"></i> Voir toutes mes candidatures
+                </a>
+
+                <!-- Nouvelle section: Recommandations IA -->
+                <div class="ai-recommendations">
+                    <div class="ai-header">
+                        <span class="ai-badge">
+                            <i data-lucide="sparkles"></i> INTELLIGENCE ARTIFICIELLE
+                        </span>
+                        <h2 class="section-title" style="margin-bottom: 0;">
+                            Offres recommandées pour vous
+                        </h2>
+                    </div>
+                    
+                    <p>Notre IA a analysé votre profil et sélectionné ces offres qui correspondent le mieux à vos compétences et à votre domaine d'étude.</p>
+                    
+                    <div class="recommendation-grid">
+                        {% for recommandation in offres_recommandees|slice:":3" %}
+                        <div class="recommendation-card">
+                            <span class="recommendation-score">
+                                <i data-lucide="bar-chart-2" width="16"></i> {{ recommandation.score }}%
+                            </span>
+                            <h3 class="recommendation-title">{{ recommandation.offre.titre }}</h3>
+                            <p class="recommendation-company">{{ recommandation.offre.entreprise.nom_entreprise }}</p>
+                            <p class="recommendation-desc">{{ recommandation.offre.description|truncatewords:25 }}</p>
+                            
+                            <div class="recommendation-feedback">
+                                <i data-lucide="lightbulb" width="16" style="color: var(--warning);"></i> 
+                                {{ recommandation.feedback }}
+                            </div>
+                            
+                            <a href="{% url 'detail_offre' recommandation.offre.id %}" class="btn btn-primary" style="margin-top: 1rem; width: 100%;">
+                                <i data-lucide="eye"></i> Voir l'offre
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <i data-lucide="alert-circle" width="48" height="48"></i>
+                            <h3>Aucune recommandation disponible</h3>
+                            <p>Complétez votre profil pour recevoir des suggestions personnalisées.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <a href="{% url 'offres_recommandees' %}" class="view-all-link">
+                        <i data-lucide="chevron-right"></i> Voir toutes les recommandations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation des icônes Lucide
+            lucide.createIcons();
+            
+            // Animation au scroll
+            const animateElements = document.querySelectorAll('.animate-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            animateElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

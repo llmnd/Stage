@@ -1,0 +1,12 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <label>Signature de l'étudiant :</label>
+    <input type="file" name="signature_etudiant" accept="image/*">
+
+    <label>Signature de l’entreprise :</label>
+    <input type="file" name="signature_entreprise" accept="image/*">
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>

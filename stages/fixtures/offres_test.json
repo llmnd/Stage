@@ -1,0 +1,60 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "entreprise1",
+      "password": "pbkdf2_sha256$260000$dummyhash",  
+      "is_active": true
+    }
+  },
+  {
+    "model": "stages.profilentreprise",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "nom_entreprise": "Entreprise Alpha",
+      "est_valide": true
+    }
+  },
+  {
+    "model": "stages.offredestage",
+    "pk": 1,
+    "fields": {
+      "titre": "Stage Développeur Python",
+      "description": "Travail sur un projet web Django.",
+      "date_publication": "2025-06-12",
+      "domaine": "Informatique",
+      "entreprise": 1
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "entreprise2",
+      "password": "pbkdf2_sha256$260000$dummyhash",
+      "is_active": true
+    }
+  },
+  {
+    "model": "stages.profilentreprise",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "nom_entreprise": "Entreprise Beta",
+      "est_valide": true
+    }
+  },
+  {
+    "model": "stages.offredestage",
+    "pk": 2,
+    "fields": {
+      "titre": "Stage Marketing Digital",
+      "description": "Campagne de publicité sur les réseaux sociaux.",
+      "date_publication": "2025-06-12",
+      "domaine": "Marketing",
+      "entreprise": 2
+    }
+  }
+]

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ajouter une offre</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #bfc3d8, #9f81bc);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem;
+      color: white;
+    }
+
+    .container {
+      background-color: #1f1f3823;
+      padding: 2.5rem;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 1.8rem;
+      color: #12040a;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    form p {
+      margin-bottom: 1.5rem;
+      color: #e2e2ff;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #21020a;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.7rem;
+      background-color: #444482;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      background-color: #5a5a9d;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      background-color: #667eea;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 4px 15px #5561c1;
+    }
+
+    button:hover {
+      background-color: #5762c4;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+
+      .container {
+        padding: 2rem;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Nouvelle offre de stage</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Publier l'offre</button>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,523 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liste des Offres de Stage | ESP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2e1168;
+      --primary-light: #4a1da8;
+      --secondary: #8e2de2;
+      --accent: #ff4e50;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+      --border-radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Times New Roman', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    #progress-bar {
+      height: 4px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--secondary), var(--accent));
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      transition: width 0.2s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Times New Roman', serif;
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      margin: 2rem 0 3rem;
+      color: white;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    h1::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(to right, var(--accent), var(--secondary));
+      margin: 1rem auto 0;
+      border-radius: 2px;
+    }
+
+    /* Search and Filter */
+    .search-filter {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box, .filter-select {
+      position: relative;
+      min-width: 250px;
+    }
+
+    .search-box i, .filter-select i {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+      pointer-events: none;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 3rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 1rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary);
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 0 3px rgba(142, 45, 226, 0.2);
+    }
+
+    /* Offres List */
+    .offres-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+
+    .offre-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: var(--transition);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .offre-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--secondary), var(--accent));
+      transition: var(--transition);
+    }
+
+    .offre-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-xl);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .offre-card:hover::before {
+      width: 6px;
+    }
+
+    .offre-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .offre-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: white;
+      font-weight: 600;
+    }
+
+    .offre-entreprise {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+      font-weight: 500;
+    }
+
+    .offre-description {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .offre-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .meta-item i {
+      color: var(--accent);
+    }
+
+    .offre-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      font-size: 0.95rem;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, var(--secondary), var(--primary));
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-xl);
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-accent:hover {
+      background: #ff6b6b;
+      transform: translateY(-3px);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 3rem 0;
+      flex-wrap: wrap;
+    }
+
+    .page-item {
+      list-style: none;
+    }
+
+    .page-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      color: white;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .page-link:hover, .page-link.active {
+      background: var(--secondary);
+      color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      grid-column: 1 / -1;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* Admin Actions */
+    .admin-actions {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .offres-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-filter {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+  </style>
+</head>
+<body>
+  <div id="progress-bar"></div>
+
+  <div class="container">
+    <h1 class="animate__animated animate__fadeInDown">Stages</h1>
+
+    <div class="search-filter">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search" placeholder="Rechercher un titre..." value="{{ request.GET.recherche }}">
+      </div>
+      <div class="filter-select">
+        <i class="fas fa-filter"></i>
+        <select id="filter">
+          <option value="">Tous les domaines</option>
+          {% for domaine in domaines %}
+            <option value="{{ domaine }}" {% if request.GET.domaine == domaine %}selected{% endif %}>{{ domaine }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="offres-grid">
+      {% for offre in offres %}
+      <div class="offre-card" data-scroll data-index="{{ forloop.counter0 }}">
+        <h2 class="offre-title">{{ offre.titre }}</h2>
+        
+        <div class="offre-entreprise">
+          <i class="fas fa-building"></i>
+          <span>{{ offre.entreprise.nom_entreprise }}</span>
+        </div>
+        
+        <p class="offre-description">{{ offre.description }}</p>
+        
+        <div class="offre-meta">
+          <div class="meta-item">
+            <i class="far fa-calendar-alt"></i>
+            <span>Publié le {{ offre.date_publication|date:"d/m/Y" }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-tag"></i>
+            <span>{{ offre.domaine }}</span>
+          </div>
+        </div>
+        
+        <div class="offre-actions">
+          <a href="{% url 'detail_offre' offre.id %}" class="btn btn-primary">
+            <i class="fas fa-eye"></i> Détails
+          </a>
+          
+          {% if offre.entreprise and offre.entreprise.id %}
+            <a href="{% url 'voir_profil_entreprise' offre.entreprise.id %}" class="btn btn-outline">
+              <i class="fas fa-briefcase"></i> Entreprise
+            </a>
+          {% endif %}
+          
+          {% if user.is_authenticated and user.userprofile.role == 'etudiant' %}
+            <form method="post" action="{% url 'postuler_offre' offre.id %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-accent">
+                <i class="fas fa-paper-plane"></i> Postuler
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <i class="far fa-folder-open"></i>
+        <p>Aucune offre disponible pour le moment.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if offres %}
+    <div class="pagination" data-scroll>
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&recherche={{ request.GET.recherche }}&domaine={{ request.GET.domaine }}" class="btn btn-outline">
+          <i class="fas fa-chevron-left"></i> Précédent
+        </a>
+      {% endif %}
+      
+      <ul class="pagination">
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item">
+              <a href="?page={{ num }}&recherche={{ request.GET.recherche }}&domaine={{ request.GET.domaine }}" class="page-link active">{{ num }}</a>
+            </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+              <a href="?page={{ num }}&recherche={{ request.GET.recherche }}&domaine={{ request.GET.domaine }}" class="page-link">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&recherche={{ request.GET.recherche }}&domaine={{ request.GET.domaine }}" class="btn btn-outline">
+          Suivant <i class="fas fa-chevron-right"></i>
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated and user.profilentreprise.est_valide %}
+    <div class="admin-actions" data-scroll>
+      <a href="{% url 'ajouter_offre' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Ajouter une offre
+      </a>
+    </div>
+    {% endif %}
+    
+    <div style="text-align: center; margin-top: 3rem;" data-scroll>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline">
+          <i class="fas fa-sign-out-alt"></i> Se déconnecter
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Progress bar
+    window.addEventListener('scroll', () => {
+      const progressBar = document.getElementById('progress-bar');
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrollPercent = (scrollTop / scrollHeight) * 100;
+      progressBar.style.width = scrollPercent + '%';
+    });
+
+    // Scroll reveal animation
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('[data-scroll]');
+      const windowHeight = window.innerHeight;
+      
+      elements.forEach(el => {
+        const elementPosition = el.getBoundingClientRect().top;
+        const index = el.dataset.index || 0;
+        const delay = index * 100;
+        
+        if (elementPosition < windowHeight - 100) {
+          setTimeout(() => {
+            el.classList.add('visible');
+            el.style.animation = `fadeInUp 0.6s ease forwards ${delay}ms`;
+          }, delay);
+        }
+      });
+    };
+
+    window.addEventListener('scroll', animateOnScroll);
+    window.addEventListener('load', animateOnScroll);
+
+    // Dynamic search and filter
+    const searchInput = document.getElementById('search');
+    const filterSelect = document.getElementById('filter');
+
+    function updateResults() {
+      const params = new URLSearchParams(window.location.search);
+      params.set('recherche', searchInput.value);
+      params.set('domaine', filterSelect.value);
+      params.delete('page');
+      window.location.search = params.toString();
+    }
+
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') updateResults();
+    });
+
+    filterSelect.addEventListener('change', updateResults);
+  </script>
+</body>
+</html>

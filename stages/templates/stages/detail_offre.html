@@ -1,0 +1,429 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail Offre - {{ offre.titre }} | Plateforme de Stages</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2e1168;
+            --primary-light: #4a1da8;
+            --secondary: #8e2de2;
+            --accent: #ff4e50;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Times New Roman', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        #progress-bar {
+            height: 4px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: width 0.2s ease;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Times New Roman', serif;
+            color: white;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+
+        /* Offer Detail Card */
+        .offer-detail {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offer-detail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--secondary), var(--accent));
+            transition: var(--transition);
+        }
+
+        .offer-detail p {
+            margin-bottom: 1.2rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .offer-detail strong {
+            color: white;
+            font-weight: 500;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.03);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .meta-item strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Application Section */
+        .application-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-lg);
+            margin-top: 3rem;
+        }
+
+        /* Status Messages */
+        .status-message, .login-message {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .status-message {
+            background: rgba(46, 204, 113, 0.1);
+            border-left: 4px solid #2ecc71;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .login-message {
+            background: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid #f39c12;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Form Styles */
+        form {
+            margin-top: 2rem;
+        }
+
+        .form-field {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        input[type="file"], 
+        textarea,
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-family: 'Times New Roman', sans-serif;
+            transition: var(--transition);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(142, 45, 226, 0.2);
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Links */
+        .entreprise-link {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .entreprise-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .offer-detail, .application-section {
+                padding: 1.5rem;
+            }
+
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        [data-scroll] {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        [data-scroll].visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div id="progress-bar"></div>
+
+    <div class="container">
+        <h1 data-scroll>{{ offre.titre }}</h1>
+
+        <section class="offer-detail" data-scroll aria-labelledby="offer-details-title">
+            <h2 id="offer-details-title" class="visually-hidden">Détails de l'offre</h2>
+            
+            <div class="meta-grid">
+                <div class="meta-item">
+                    <strong><i class="fas fa-tag"></i> Domaine</strong>
+                    <p>{{ offre.domaine }}</p>
+                </div>
+                <div class="meta-item">
+                    <strong><i class="fas fa-clock"></i> Durée</strong>
+                    <p>{{ offre.duree }} mois</p>
+                </div>
+                <div class="meta-item">
+                    <strong><i class="fas fa-calendar-alt"></i> Date de début</strong>
+                    <p>{{ offre.date_debut }}</p>
+                </div>
+                <div class="meta-item">
+                    <strong><i class="fas fa-building"></i> Entreprise</strong>
+                    <p>
+                        <a href="{% url 'profil_entreprise' offre.entreprise.id %}" class="entreprise-link">
+                            {{ offre.entreprise.nom_entreprise }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3><i class="fas fa-align-left"></i> Description</h3>
+                <p>{{ offre.description|linebreaksbr }}</p>
+            </div>
+
+            <div class="info-section" style="margin-top: 2rem;">
+                <h3><i class="fas fa-tasks"></i> Compétences requises</h3>
+                <p>{{ offre.competences_requises|linebreaksbr }}</p>
+            </div>
+        </section>
+
+        <section class="application-section" data-scroll aria-labelledby="application-title">
+            <h2 id="application-title"><i class="fas fa-paper-plane"></i> Postuler à cette offre</h2>
+            
+            {% if etudiant %}
+                {% if candidature_existante %}
+                    <div class="status-message" role="status">
+                        <p><strong><i class="fas fa-check-circle"></i> Vous avez déjà postulé à cette offre</strong></p>
+                        <p>Statut : <strong>{{ candidature_existante.get_statut_display }}</strong></p>
+                        {% if candidature_existante.message %}
+                            <p style="margin-top: 1rem;">Votre message : <em>"{{ candidature_existante.message }}"</em></p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-field">
+                                <label for="{{ field.id_for_label }}">
+                                    <i class="fas fa-{% if field.name == 'cv' %}file-pdf{% elif field.name == 'message' %}comment-alt{% else %}info-circle{% endif %}"></i>
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small style="color: var(--gray); display: block; margin-top: 0.5rem;">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div style="color: var(--accent); margin-top: 0.5rem;" role="alert">
+                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary" aria-label="Postuler à cette offre">
+                            <i class="fas fa-paper-plane"></i> Envoyer ma candidature
+                        </button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <div class="login-message">
+                    <p><i class="fas fa-exclamation-triangle"></i> <strong>Connectez-vous en tant qu'étudiant pour pouvoir postuler.</strong></p>
+                    <p style="margin-top: 1rem;">
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </a>
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <script>
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const progressBar = document.getElementById('progress-bar');
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+        });
+
+        // Scroll reveal animation
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('[data-scroll]');
+            const windowHeight = window.innerHeight;
+            
+            elements.forEach(el => {
+                const elementPosition = el.getBoundingClientRect().top;
+                
+                if (elementPosition < windowHeight - 100) {
+                    el.classList.add('visible');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+
+        // Focus management for better accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstInteractive = document.querySelector('input, textarea, button, a');
+            if (firstInteractive) firstInteractive.focus();
+        });
+    </script>
+</body>
+</html>

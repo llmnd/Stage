@@ -1,0 +1,884 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil de {{ entreprise.nom_entreprise }} | Plateforme de Stages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Profil complet de l'entreprise {{ entreprise.nom_entreprise }} - Secteur {{ entreprise.secteur }} - {{ entreprise.ville }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3a0ca3;
+            --primary-light: #4cc9f0;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --light-bg: #f9f7ff;
+            --border-radius: 16px;
+            --box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Élégant avec Gradient Animé */
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 6rem 2rem 10rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            animation: gradientBG 15s ease infinite;
+            background-size: 400% 400%;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 75% 30%, rgba(255,255,255,0.15) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .entreprise-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .entreprise-secteur {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        /* Logo avec Effet de Profondeur */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -100px;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 10;
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 20px 30px rgba(114, 9, 183, 0.3));
+        }
+
+        .logo-wrapper {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 15px 40px rgba(114, 9, 183, 0.4);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255,255,255,0.3) 0%,
+                rgba(255,255,255,0) 60%
+            );
+            transform: rotate(30deg);
+        }
+
+        .logo-wrapper:hover {
+            transform: scale(1.08) rotate(5deg);
+            box-shadow: 0 20px 50px rgba(114, 9, 183, 0.5);
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 6px solid var(--white);
+            display: block;
+            background-color: var(--light);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Contenu Principal */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        /* Cartes d'Informations Modernes */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .info-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-top: 5px solid transparent;
+            background-image: linear-gradient(white, white), 
+                              linear-gradient(135deg, var(--primary-light), var(--accent));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+        }
+
+        .card-title i {
+            color: var(--accent);
+            font-size: 1.6rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(247, 37, 133, 0.1);
+            border-radius: 50%;
+        }
+
+        .info-item {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .info-item strong {
+            color: var(--dark);
+            font-weight: 600;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.05rem;
+        }
+
+        .info-item i {
+            color: var(--secondary);
+            width: 20px;
+            text-align: center;
+        }
+
+        .info-item span, .info-item a {
+            flex: 1;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .info-item a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            word-break: break-all;
+            font-weight: 500;
+        }
+
+        .info-item a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* Réseaux Sociaux Modernes */
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(114, 9, 183, 0.08);
+            color: var(--secondary);
+            border-radius: 50px;
+            text-decoration: none;
+            transition: var(--transition);
+            border: 1px solid rgba(114, 9, 183, 0.15);
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .social-link i {
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(114, 9, 183, 0.2);
+            border-color: transparent;
+        }
+
+        .social-link:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Sections de Contenu Élégantes */
+        .content-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-light), var(--accent));
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .section-content {
+            line-height: 1.9;
+            color: var(--dark);
+            font-size: 1.05rem;
+        }
+
+        .section-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Offres de Stage avec Design Moderne */
+        .offres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .offre-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 5px solid var(--secondary);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offre-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-light), var(--accent));
+        }
+
+        .offre-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .offre-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-decoration: none;
+            display: block;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        .offre-card:hover .offre-title {
+            color: var(--accent);
+        }
+
+        .offre-description {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .offre-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: auto;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .offre-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .offre-meta i {
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        /* État Vide Artistique */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(74, 201, 240, 0.05) 0%, transparent 70%);
+            z-index: 1;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            opacity: 0.7;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Boutons avec Effets */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 1rem 2.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-size: 1.05rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            z-index: -1;
+            transition: var(--transition);
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--white);
+            box-shadow: 0 8px 25px rgba(114, 9, 183, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(114, 9, 183, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        /* Pied de Page Élégant */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray);
+            font-size: 1rem;
+            background: var(--white);
+            margin-top: 4rem;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-light), var(--accent));
+        }
+
+        /* Bouton Retour avec Animation */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 3rem 0 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            background: rgba(58, 12, 163, 0.05);
+        }
+
+        .back-btn i {
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: var(--accent);
+            background: rgba(247, 37, 133, 0.1);
+            transform: translateX(-10px);
+        }
+
+        .back-btn:hover i {
+            transform: translateX(-5px);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        [data-scroll] {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        [data-scroll].visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Effet de vague au bas du header */
+        .wave-shape {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' opacity='.25' fill='%23ffffff'%3E%3C/path%3E%3Cpath d='M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z' opacity='.5' fill='%23ffffff'%3E%3C/path%3E%3Cpath d='M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z' fill='%23ffffff'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: 2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-header {
+                padding: 5rem 1.5rem 8rem;
+            }
+            
+            .logo {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .content-section {
+                padding: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: 4rem 1.5rem 6rem;
+                clip-path: polygon(0 0, 100% 0, 100% 95%, 0 100%);
+            }
+            
+            .entreprise-title {
+                font-size: 2.5rem;
+            }
+            
+            .logo {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .main-container {
+                padding: 0 1.5rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .offres-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-header {
+                padding: 3rem 1rem 5rem;
+            }
+            
+            .entreprise-title {
+                font-size: 2rem;
+            }
+            
+            .entreprise-secteur {
+                font-size: 1.1rem;
+            }
+            
+            .logo {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .info-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header avec Animation de Gradient -->
+    <header class="hero-header">
+        <div class="wave-shape"></div>
+        <div class="hero-content">
+            <h1 class="entreprise-title">{{ entreprise.nom_entreprise }}</h1>
+            <p class="entreprise-secteur">{{ entreprise.secteur }} • {{ entreprise.ville }}, {{ entreprise.pays }}</p>
+        </div>
+    </header>
+
+    <!-- Logo avec Effet de Profondeur -->
+    {% if entreprise.logo_url %}
+    <div class="logo-container" data-scroll>
+        <div class="logo-wrapper">
+            <img src="{{ entreprise.logo_url }}" 
+                 alt="Logo de {{ entreprise.nom_entreprise }}" 
+                 class="logo"
+                 loading="lazy"
+                 width="180"
+                 height="180">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="main-container">
+        <!-- Grille d'Informations Modernes -->
+        <div class="info-grid">
+            <!-- Carte Contact Élégante -->
+            <div class="info-card" data-scroll>
+                <h3 class="card-title"><i class="fas fa-envelope"></i> Contact</h3>
+                <div class="info-item">
+                    <strong><i class="fas fa-map-marker-alt"></i> Adresse</strong>
+                    <span>{{ entreprise.adresse }}, {{ entreprise.ville }}, {{ entreprise.pays }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-phone"></i> Téléphone</strong>
+                    <a href="tel:{{ entreprise.telephone }}">{{ entreprise.telephone }}</a>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-envelope"></i> Email</strong>
+                    <a href="mailto:{{ entreprise.email_contact }}">{{ entreprise.email_contact }}</a>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-globe"></i> Site web</strong>
+                    {% if entreprise.site_web %}
+                        <a href="{{ entreprise.site_web }}" target="_blank" rel="noopener noreferrer">
+                            {{ entreprise.site_web|truncatechars:25 }}
+                        </a>
+                    {% else %}
+                        <span>Non renseigné</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Carte Entreprise Stylée -->
+            <div class="info-card" data-scroll>
+                <h3 class="card-title"><i class="fas fa-building"></i> Entreprise</h3>
+                <div class="info-item">
+                    <strong><i class="fas fa-users"></i> Taille</strong>
+                    <span>{{ entreprise.taille }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-user-tie"></i> Employés</strong>
+                    <span>{{ entreprise.nombre_employes }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-calendar-alt"></i> Création</strong>
+                    <span>{{ entreprise.date_creation|date:"d/m/Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-gavel"></i> Statut</strong>
+                    <span>{{ entreprise.statut_juridique }}</span>
+                </div>
+            </div>
+
+            <!-- Carte Réseaux Sociaux Interactive -->
+            <div class="info-card" data-scroll>
+                <h3 class="card-title"><i class="fas fa-share-alt"></i> Réseaux</h3>
+                {% if entreprise.reseaux_sociaux %}
+                    <div class="social-links">
+                        {% for lien in entreprise.reseaux_sociaux|split:"," %}
+                            {% with lien_clean=lien|trim %}
+                            <a href="{{ lien_clean }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="social-link">
+                                {% if "facebook" in lien_clean %}
+                                    <i class="fab fa-facebook-f"></i> Facebook
+                                {% elif "twitter" in lien_clean %}
+                                    <i class="fab fa-twitter"></i> Twitter
+                                {% elif "linkedin" in lien_clean %}
+                                    <i class="fab fa-linkedin-in"></i> LinkedIn
+                                {% elif "instagram" in lien_clean %}
+                                    <i class="fab fa-instagram"></i> Instagram
+                                {% else %}
+                                    <i class="fas fa-globe"></i> Réseau
+                                {% endif %}
+                            </a>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: var(--gray); font-style: italic;">Aucun réseau social renseigné</p>
+                {% endif %}
+            </div>
+        </div>
+
+       
+        <div class="content-section" data-scroll>
+            <h2 class="section-title">À propos</h2>
+            <div class="section-content">
+                {{ entreprise.description|linebreaks|default:"<p style='color:var(--gray); font-style: italic;'>Aucune description fournie.</p>" }}
+            </div>
+        </div>
+
+         Section Réalisations Élégante 
+        <div class="content-section" data-scroll>
+            <h2 class="section-title">Réalisations</h2>
+            <div class="section-content">
+                {{ entreprise.realisations|linebreaks|default:"<p style='color:var(--gray); font-style: italic;'>Aucune réalisation renseignée.</p>" }}
+            </div>
+        </div>
+
+         Section Offres avec Design Moderne 
+        <div class="content-section" data-scroll>
+            <h2 class="section-title">Offres disponibles</h2>
+            {% if offres %}
+                <div class="offres-grid">
+                    {% for offre in offres %}
+                        <a href="{% url 'detail_offre' offre.id %}" class="offre-card" data-scroll>
+                            <h3 class="offre-title">{{ offre.titre }}</h3>
+                            <p class="offre-description">{{ offre.description|truncatewords:25 }}</p>
+                            <div class="offre-meta">
+                                <span><i class="fas fa-tag"></i> {{ offre.domaine }}</span>
+                                <span><i class="far fa-calendar-alt"></i> {{ offre.date_publication|date:"d/m/Y" }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state" data-scroll>
+                    <i class="far fa-folder-open"></i>
+                    <p>Aucune offre disponible pour le moment</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-bell"></i> M'alerter des nouvelles offres
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        
+        <a href="javascript:history.back()" class="back-btn" data-scroll>
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    
+    <footer class="footer" data-scroll>
+        Plateforme de Stages ESP – © {% now "Y" %}
+    </footer>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollElements = document.querySelectorAll('[data-scroll]');
+            
+            const elementInView = (el, dividend = 1) => {
+                const elementTop = el.getBoundingClientRect().top;
+                return (
+                    elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+                );
+            };
+            
+            const displayScrollElement = (element) => {
+                element.classList.add('visible');
+            };
+            
+            const handleScrollAnimation = () => {
+                scrollElements.forEach((el, index) => {
+                    if (elementInView(el, 1.25)) {
+                        setTimeout(() => {
+                            displayScrollElement(el);
+                        }, index * 150);
+                    }
+                });
+            };
+            
+            // Initial check
+            handleScrollAnimation();
+            
+            // Listen for scroll events
+            window.addEventListener('scroll', () => {
+                throttle(handleScrollAnimation, 100);
+            });
+            
+            // Throttle function for performance
+            let throttleTimer;
+            const throttle = (callback, time) => {
+                if (throttleTimer) return;
+                throttleTimer = true;
+                setTimeout(() => {
+                    callback();
+                    throttleTimer = false;
+                }, time);
+            };
+        });
+    </script>
+</body>
+</html>
