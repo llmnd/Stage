@@ -10,7 +10,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-8(!3l4r5s&fq0q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('stage-dgnk.onrender.com')
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'stage-dgnk.onrender.com,.onrender.com,localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
