@@ -949,3 +949,8 @@ def offres_recommandees(request):
         'etudiant': etudiant
     }
     return render(request, 'etudiant/offres_recommandees.html', context)
+def index(request):
+    return render(request, 'index.html')
+
+def login_view(request):
+    return render(request, 'login.html')
