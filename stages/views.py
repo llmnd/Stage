@@ -938,19 +938,21 @@ from .ia.recommendation import RecommandationIA
 
 
 @login_required
+@login_required
 def offres_recommandees(request):
     etudiant = get_object_or_404(Etudiant, user=request.user)
     ia = RecommandationIA()
     
-    offres_recommandees = ia.recommander_offres(etudiant.id)
+    if request.method == 'POST':
+        # Force le recalcul des recommandations
+        offres_recommandees = ia.recommander_offres(etudiant.id, force_recompute=True)
+        messages.success(request, "Recommandations actualisées avec succès !")
+    else:
+        # Utilise le cache existant
+        offres_recommandees = ia.recommander_offres(etudiant.id)
     
     context = {
         'offres_recommandees': offres_recommandees,
         'etudiant': etudiant
     }
     return render(request, 'etudiant/offres_recommandees.html', context)
-def index(request):
-    return render(request, 'index.html')
-
-def login_view(request):
-    return render(request, 'login.html')

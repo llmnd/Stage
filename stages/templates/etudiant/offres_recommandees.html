@@ -1,55 +1,252 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block content %}
-<div class="dashboard-container">
-    <div class="main-content">
-        <h2 class="section-title">
-            <i data-lucide="zap"></i> Offres Recommandées pour Vous
-        </h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offres Recommandées</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --text: #2d3436;
+            --light-text: #636e72;
+            --bg: #f5f6fa;
+            --card-bg: #ffffff;
+            --success: #00b894;
+            --warning: #fdcb6e;
+        }
         
-        <div class="ai-explanation" style="margin-bottom: 2rem; padding: 1rem; background: rgba(106, 17, 203, 0.1); border-radius: 8px;">
-            <p style="display: flex; align-items: center; gap: 0.5rem;">
-                <i data-lucide="brain" style="color: #b388ff;"></i>
-                <strong>Notre IA a analysé votre profil</strong> et sélectionné ces offres qui correspondent le mieux à vos compétences et domaine d'étude.
-            </p>
-        </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .ai-explanation {
+            margin-bottom: 2rem;
+            padding: 1.2rem;
+            background: rgba(106, 17, 203, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .ai-explanation p {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.95rem;
+        }
+        
+        .offres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .offre-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .offre-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .offre-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .offre-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .entreprise {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .offre-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .offre-body p {
+            color: var(--light-text);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(253, 203, 110, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--warning);
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .offre-footer {
+            padding: 1rem 1.5rem;
+            background: rgba(0, 0, 0, 0.02);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(106, 17, 203, 0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .empty-state i {
+            margin-bottom: 1rem;
+            color: var(--light-text);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        
+        .empty-state p {
+            color: var(--light-text);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .match-score {
+            background: rgba(0, 184, 148, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="main-content">
+            <h2 class="section-title">
+                <i data-lucide="zap"></i> Offres Recommandées pour Vous
+            </h2>
+            
+            <div class="ai-explanation">
+                <p>
+                    <i data-lucide="brain"></i>
+                    <strong>Notre IA a analysé votre profil</strong> et sélectionné ces offres qui correspondent le mieux à vos compétences et domaine d'étude.
+                </p>
+            </div>
 
-        {% if offres_recommandees %}
-            <div class="offres-grid">
-                {% for recommandation in offres_recommandees %}
-                <div class="offre-card">
-                    <div class="offre-header">
-                        <h3>{{ recommandation.offre.titre }}</h3>
-                        <div class="entreprise">{{ recommandation.offre.entreprise.nom_entreprise }}</div>
-                        <div class="match-score" style="background: rgba(0, 184, 148, 0.2); padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.85rem; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.3rem;">
-                            <i data-lucide="bar-chart-2" width="14"></i>
-                            Adéquation: {{ recommandation.score }}%
+            {% if offres_recommandees %}
+                <div class="offres-grid">
+                    {% for recommandation in offres_recommandees %}
+                    <div class="offre-card">
+                        <div class="offre-header">
+                            <h3>{{ recommandation.offre.titre }}</h3>
+                            <div class="entreprise">{{ recommandation.offre.entreprise.nom_entreprise }}</div>
+                            <div class="match-score">
+                                <i data-lucide="bar-chart-2" width="14"></i>
+                                Adéquation: {{ recommandation.score }}%
+                            </div>
+                        </div>
+                        
+                        <div class="offre-body">
+                            <p>{{ recommandation.offre.description|truncatewords:30 }}</p>
+                            <div class="ai-feedback">
+                                <i data-lucide="lightbulb"></i> {{ recommandation.feedback }}
+                            </div>
+                        </div>
+                        
+                        <div class="offre-footer">
+                           
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="offre-body">
-                        <p>{{ recommandation.offre.description|truncatewords:30 }}</p>
-                        <div class="ai-feedback" style="margin-top: 1rem; padding: 0.8rem; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 0.9rem;">
-                            <i data-lucide="lightbulb" style="color: #fdcb6e;"></i> {{ recommandation.feedback }}
-                        </div>
-                    </div>
-                    
-                    <div class="offre-footer">
-                        <a href="{% url 'postuler_offre' recommandation.offre.id %}" class="btn btn-primary">
-                            <i data-lucide="send"></i> Postuler
-                        </a>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <i data-lucide="inbox" width="48" height="48"></i>
-                <h3>Aucune recommandation disponible</h3>
-                <p>Complétez votre profil pour recevoir des offres personnalisées.</p>
-            </div>
-        {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <i data-lucide="inbox"></i>
+                    <h3>Aucune recommandation disponible</h3>
+                    <p>Complétez votre profil pour recevoir des offres personnalisées.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
-</div>
-{% endblock %}
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
