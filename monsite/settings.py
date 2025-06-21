@@ -12,7 +12,12 @@ SECRET_KEY = 'django-insecure-8(!3l4r5s&fq0q)om#wgk=%(v755(@5ar^((=mx231us0y#889
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'stage-dgnk.onrender.com',  # Votre domaine spécifique
+    '.onrender.com',            # Tous les sous-domaines Render
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
