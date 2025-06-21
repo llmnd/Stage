@@ -40,9 +40,6 @@ urlpatterns = [
     # Admin
     path('admin/', admin_site.urls),
 
-    # Authentification
-    path('', views.index, name='index'),
-    path('login/', views.login_view, name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
