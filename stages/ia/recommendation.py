@@ -3,13 +3,6 @@ import fitz  # PyMuPDF
 from stages.models import OffreDeStage, Etudiant, Candidature
 from .spacy_singleton import SpacyModelSingleton
 
-class RecommandationIA:
-    def __init__(self):
-        self.nlp = SpacyModelSingleton.get_model()
-
-    # reste du code inchangé
-
-
 class SpacyModelSingleton:
     _model = None
 
@@ -22,7 +15,7 @@ class SpacyModelSingleton:
 class RecommandationIA:
     def __init__(self):
         # Charger le modèle NLP français
-        self.nlp = spacy.load("fr_core_news_md")
+        self.nlp = SpacyModelSingleton.get_model()
     
     def calculer_score_spacy(self, texte_offre, texte_etudiant):
         """Calcule une similarité sémantique entre deux textes (0 à 1)"""
@@ -33,7 +26,7 @@ class RecommandationIA:
         return round(doc1.similarity(doc2), 3)
 
     def extraire_texte_pdf(self, fichier_pdf):
-        """Extrait le texte d’un fichier PDF (FileField de Django)"""
+        """Extrait le texte d'un fichier PDF (FileField de Django)"""
         if not fichier_pdf:
             return ""
         try:
@@ -48,6 +41,7 @@ class RecommandationIA:
             return ""
 
     def recommander_candidats(self, offre_id, limite=5):
+        """Recommande des candidats pour une offre spécifique"""
         try:
             offre = OffreDeStage.objects.get(id=offre_id)
         except OffreDeStage.DoesNotExist:
@@ -63,9 +57,38 @@ class RecommandationIA:
             texte_etudiant = f"{etudiant.competences} {etudiant.domaine_etude} {etudiant.realisations}"
             score = self.calculer_score_spacy(texte_offre, texte_etudiant)
             
-            if score >= 0.2:
+            if score >= 0.1:
                 resultats.append({
                     'etudiant': etudiant,
+                    'score': round(score * 100, 1),
+                    'feedback': self.generer_feedback(score)
+                })
+        
+        return sorted(resultats, key=lambda x: x['score'], reverse=True)[:limite]
+
+    def recommander_offres(self, etudiant_id, limite=5):
+        """Recommande des offres pour un étudiant spécifique"""
+        try:
+            etudiant = Etudiant.objects.get(id=etudiant_id)
+        except Etudiant.DoesNotExist:
+            return []
+
+        texte_etudiant = f"{etudiant.competences} {etudiant.domaine_etude} {etudiant.realisations}"
+        
+        candidatures_existantes = Candidature.objects.filter(etudiant=etudiant).values_list('offre_id', flat=True)
+        offres = OffreDeStage.objects.filter(
+            domaine=etudiant.domaine_etude,
+            est_valide=True
+        ).exclude(id__in=candidatures_existantes)
+        
+        resultats = []
+        for offre in offres:
+            texte_offre = f"{offre.titre} {offre.description} {offre.domaine} {offre.competences_requises}"
+            score = self.calculer_score_spacy(texte_offre, texte_etudiant)
+            
+            if score >= 0.2:
+                resultats.append({
+                    'offre': offre,
                     'score': round(score * 100, 1),
                     'feedback': self.generer_feedback(score)
                 })
@@ -86,6 +109,7 @@ class RecommandationIA:
         return f"Score de correspondance : {pourcentage}% - {commentaire}"
 
     def evaluer_candidatures(self, offre_id):
+        """Évalue toutes les candidatures pour une offre"""
         try:
             offre = OffreDeStage.objects.get(id=offre_id)
         except OffreDeStage.DoesNotExist:

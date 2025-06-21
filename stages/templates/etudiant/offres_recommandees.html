@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="main-content">
+        <h2 class="section-title">
+            <i data-lucide="zap"></i> Offres Recommandées pour Vous
+        </h2>
+        
+        <div class="ai-explanation" style="margin-bottom: 2rem; padding: 1rem; background: rgba(106, 17, 203, 0.1); border-radius: 8px;">
+            <p style="display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="brain" style="color: #b388ff;"></i>
+                <strong>Notre IA a analysé votre profil</strong> et sélectionné ces offres qui correspondent le mieux à vos compétences et domaine d'étude.
+            </p>
+        </div>
+
+        {% if offres_recommandees %}
+            <div class="offres-grid">
+                {% for recommandation in offres_recommandees %}
+                <div class="offre-card">
+                    <div class="offre-header">
+                        <h3>{{ recommandation.offre.titre }}</h3>
+                        <div class="entreprise">{{ recommandation.offre.entreprise.nom_entreprise }}</div>
+                        <div class="match-score" style="background: rgba(0, 184, 148, 0.2); padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.85rem; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                            <i data-lucide="bar-chart-2" width="14"></i>
+                            Adéquation: {{ recommandation.score }}%
+                        </div>
+                    </div>
+                    
+                    <div class="offre-body">
+                        <p>{{ recommandation.offre.description|truncatewords:30 }}</p>
+                        <div class="ai-feedback" style="margin-top: 1rem; padding: 0.8rem; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 0.9rem;">
+                            <i data-lucide="lightbulb" style="color: #fdcb6e;"></i> {{ recommandation.feedback }}
+                        </div>
+                    </div>
+                    
+                    <div class="offre-footer">
+                        <a href="{% url 'postuler_offre' recommandation.offre.id %}" class="btn btn-primary">
+                            <i data-lucide="send"></i> Postuler
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i data-lucide="inbox" width="48" height="48"></i>
+                <h3>Aucune recommandation disponible</h3>
+                <p>Complétez votre profil pour recevoir des offres personnalisées.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
