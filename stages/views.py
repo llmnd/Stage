@@ -278,9 +278,27 @@ def profil_entreprise(request, id):
 # --- Étudiants ---
 
 @login_required
+@login_required
 def etudiant_dashboard(request):
-    return render(request, 'etudiant/dashboard.html')
+    try:
+        etudiant = request.user.etudiant
+    except Etudiant.DoesNotExist:
+        return redirect('dashboard')
 
+    # Récupérer les candidatures récentes
+    candidatures_recentes = Candidature.objects.filter(etudiant=etudiant).order_by('-date_postulation')[:3]
+    
+    # Obtenir les recommandations IA - MODIFICATION ICI
+    ia = RecommandationIA()
+    offres_recommandees = ia.recommander_offres(etudiant.id)
+    
+    context = {
+        'etudiant': etudiant,
+        'candidatures_recentes': candidatures_recentes,
+        'offres_recommandees': offres_recommandees,
+    }
+    
+    return render(request, 'etudiant/dashboard.html', context)
 def page_etudiant(request):
     return render(request, 'registration/login_etudiant.html')
 
@@ -913,4 +931,21 @@ def generer_pdf_convention(request, convention_id):
     c.save()
     return response
 
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Etudiant
+from .ia.recommendation import RecommandationIA
 
+
+@login_required
+def offres_recommandees(request):
+    etudiant = get_object_or_404(Etudiant, user=request.user)
+    ia = RecommandationIA()
+    
+    offres_recommandees = ia.recommander_offres(etudiant.id)
+    
+    context = {
+        'offres_recommandees': offres_recommandees,
+        'etudiant': etudiant
+    }
+    return render(request, 'etudiant/offres_recommandees.html', context)

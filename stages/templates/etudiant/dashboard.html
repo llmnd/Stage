@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etudiant ESP</title>
+    <title>Etudiant ESP - InternAI</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
+        /* [Tous vos styles existants restent inchangés] */
+         :root {
             --primary: #4a3aff;
             --primary-light: #7b6eff;
             --primary-dark: #2a1b9e;
@@ -393,12 +394,114 @@
                 padding: 1.5rem;
             }
         }
+        /* Ajouts spécifiques pour les recommandations IA */
+        .ai-recommendations {
+            margin-top: 3rem;
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.05) 0%, rgba(42, 35, 125, 0.05) 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            border: 1px solid rgba(106, 17, 203, 0.1);
+        }
+        
+        .ai-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+        
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .recommendation-card {
+            background: white;
+            border-radius: var(--border-radius-sm);
+            padding: 1.5rem;
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        
+        .recommendation-score {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(0, 184, 148, 0.2);
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-bottom-left-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .recommendation-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            padding-right: 4rem;
+        }
+        
+        .recommendation-company {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .recommendation-desc {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        
+        .recommendation-feedback {
+            background: rgba(253, 203, 110, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .view-all-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1 class="animate-in">Etudiant ESP</h1>
-        <p class="animate-in delay-1">La solution intelligente pour connecter étudiants et entreprises</p>
+        <h1 class="animate-in">Etudiant ESP - InternAI</h1>
+        <p class="animate-in delay-1">La solution intelligente pour trouver votre stage idéal</p>
         <div class="btn-group">
             {% if user.is_authenticated %}
                 <a href="{% url 'liste_offres' %}" class="btn btn-primary animate-in delay-2">
@@ -455,7 +558,7 @@
                     <i data-lucide="file-text"></i> Mes Candidatures Récentes
                 </h2>
                 
-                {% for candidature in user.etudiant.candidature_set.all|slice:":5" %}
+                {% for candidature in user.etudiant.candidature_set.all|slice:":3" %}
                 <div class="candidature-card">
                     <div class="candidature-header">
                         <div>
@@ -488,14 +591,54 @@
                 <a href="{% url 'mes_candidatures' %}" class="btn btn-primary" style="margin-top: 1.5rem;">
                     <i data-lucide="list"></i> Voir toutes mes candidatures
                 </a>
-                <a href="{% url 'mes_conventions' %}" class="btn btn-primary" style="margin-top: 1.5rem;">
-                    <i data-lucide="list"></i> Voir toutes mes conventions
-                </a>
-                
+
+                <!-- Nouvelle section: Recommandations IA -->
+                <div class="ai-recommendations">
+                    <div class="ai-header">
+                        <span class="ai-badge">
+                            <i data-lucide="sparkles"></i> INTELLIGENCE ARTIFICIELLE
+                        </span>
+                        <h2 class="section-title" style="margin-bottom: 0;">
+                            Offres recommandées pour vous
+                        </h2>
+                    </div>
+                    
+                    <p>Notre IA a analysé votre profil et sélectionné ces offres qui correspondent le mieux à vos compétences et à votre domaine d'étude.</p>
+                    
+                    <div class="recommendation-grid">
+                        {% for recommandation in offres_recommandees|slice:":3" %}
+                        <div class="recommendation-card">
+                            <span class="recommendation-score">
+                                <i data-lucide="bar-chart-2" width="16"></i> {{ recommandation.score }}%
+                            </span>
+                            <h3 class="recommendation-title">{{ recommandation.offre.titre }}</h3>
+                            <p class="recommendation-company">{{ recommandation.offre.entreprise.nom_entreprise }}</p>
+                            <p class="recommendation-desc">{{ recommandation.offre.description|truncatewords:25 }}</p>
+                            
+                            <div class="recommendation-feedback">
+                                <i data-lucide="lightbulb" width="16" style="color: var(--warning);"></i> 
+                                {{ recommandation.feedback }}
+                            </div>
+                            
+                            <a href="{% url 'detail_offre' recommandation.offre.id %}" class="btn btn-primary" style="margin-top: 1rem; width: 100%;">
+                                <i data-lucide="eye"></i> Voir l'offre
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <i data-lucide="alert-circle" width="48" height="48"></i>
+                            <h3>Aucune recommandation disponible</h3>
+                            <p>Complétez votre profil pour recevoir des suggestions personnalisées.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <a href="{% url 'offres_recommandees' %}" class="view-all-link">
+                        <i data-lucide="chevron-right"></i> Voir toutes les recommandations
+                    </a>
+                </div>
             </div>
-            
         </div>
-        
     </div>
     {% endif %}
 

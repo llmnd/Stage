@@ -763,6 +763,7 @@
       </div>
     </article>
     {% endif %}
+    
   </section>
 
   <!-- Section Candidatures -->
@@ -851,9 +852,6 @@
     <div class="col-12 text-center py-4">
       <i class="fas fa-info-circle fa-2x mb-2" style="color: var(--secondary);"></i>
       <p>Aucune offre active pour le moment</p>
-      <a href="{% url 'ajouter_offre' %}" class="btn btn-warning btn-sm">
-        <i class="fas fa-plus"></i> Créer une offre
-      </a>
     </div>
     {% endfor %}
   </div>
@@ -893,22 +891,10 @@
         {% endif %}
       </div>
     {% endfor %}
+     <a href="{% url 'ajouter_offre' %}" class="btn btn-warning btn-sm">
+        <i class="fas fa-plus"></i> Créer une offre
+      </a>
   </div>
-  <a href="{% url 'mes_conventions' %}" class="btn btn-outline-secondary">
-  <i class="fas fa-folder-open me-1"></i> Mes conventions
-</a>
-{% if convention and convention.id %}
-  <a href="{% url 'generer_pdf_convention' convention.id %}" class="btn btn-success">
-    <i class="fas fa-file-pdf me-1"></i> Télécharger la convention signée
-  </a>
-{% else %}
-  <span class="text-muted">
-    <i class="fas fa-file-pdf me-1"></i> Aucune convention disponible
-  </span>
-{% endif %}
-
-
-
 </div>
 
 <script>

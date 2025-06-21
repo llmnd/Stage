@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <div class="icon-success animate__animated animate__bounceIn">
+        <i data-lucide="check-circle" style="width: 80px; height: 80px; color: #4ade80;"></i>
+    </div>
+    
+    <h2>Inscription réussie !</h2>
+    
+    <div class="success-message">
+        {% if user_profile.role == 'etudiant' %}
+            <p>Votre compte étudiant a été créé avec succès.</p>
+        {% else %}
+            <p>Votre compte entreprise a été créé avec succès.</p>
+        {% endif %}
+        
+        <p>Un administrateur doit valider votre inscription avant que vous puissiez vous connecter.</p>
+        <p>Vous recevrez un email de confirmation une fois votre compte activé.</p>
+    </div>
+    
+    <div class="bottom-text">
+        <a href="{% url 'home' %}">Retour à l'accueil</a>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

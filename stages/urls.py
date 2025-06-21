@@ -9,6 +9,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import mes_candidatures
 from .views import voir_recommandations
+from .views import offres_recommandees
+
 
 from stages.views import (
     RegisterView,
@@ -119,6 +121,9 @@ urlpatterns = [
     path('convention/creer/<int:candidature_id>/', views.creer_convention, name='creer_convention'),
 
     path('convention/<int:convention_id>/pdf/', views.generer_pdf_convention, name='generer_pdf_convention'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('register/success/', TemplateView.as_view(template_name='registration/register_success.html'), name='register_success'),
+    path('etudiant/recommandations/', offres_recommandees, name='offres_recommandees'),
 
     # Détails
     
