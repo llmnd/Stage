@@ -10,6 +10,17 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, FileResponse
 from .models import ConventionDeStage, SuiviStage, Memoire, EvaluationStage
 from django.contrib import messages
+from django.core.cache import cache
+from django.db.models import Q
+from .models import Conversation, Message
+from django.contrib import messages as django_messages
+from django.db import models
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from .models import Conversation, Message  # adapte selon tes modèles
+
+
 from .forms import (ConventionStageForm, SuiviStageForm, MemoireForm, 
                    EvaluationStageForm, EnseignantSignupForm)
 from .ia.recommendation import RecommandationIA
@@ -520,20 +531,32 @@ def mes_candidatures(request):
     candidatures = Candidature.objects.filter(etudiant=request.user.etudiant)
     return render(request, 'etudiant/mes_candidatures.html', {'candidatures': candidatures})
 
+from django.views.decorators.http import require_http_methods
+
+@login_required
+@require_http_methods(["GET", "POST"])
 @login_required
 def recommander_candidats(request, offre_id):
     if not hasattr(request.user, 'entreprise'):
         raise PermissionDenied
-    
+
     offre = get_object_or_404(OffreDeStage, id=offre_id, entreprise=request.user.entreprise)
-    
     ia = RecommandationIA()
-    recommandations = ia.recommander_candidats(offre_id)
-    
+
+    if request.method == "POST" and request.POST.get("reset_cache") == "1":
+        cache.delete(f"reco_candidats_{offre_id}")
+        cache.delete(f"eval_candidatures_{offre_id}_v2")
+        recommandations = ia.recommander_candidats(offre_id, force_recompute=True)
+        messages.success(request, "Cache IA vidé et recommandations recalculées.")
+    else:
+        recommandations = ia.recommander_candidats(offre_id)
+
     return render(request, 'entreprise/recommandations_ia.html', {
         'offre': offre,
         'recommandations': recommandations,
     })
+
+
 
 @login_required
 def evaluer_candidatures_ia(request, offre_id):
@@ -956,3 +979,120 @@ def offres_recommandees(request):
         'etudiant': etudiant
     }
     return render(request, 'etudiant/offres_recommandees.html', context)
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from stages.models import OffreDeStage
+from stages.ia.recommendation import RecommandationIA
+
+
+@login_required
+def tableau_de_bord_entreprise(request):
+    entreprise = request.user.entreprise
+    offres_actives = OffreDeStage.objects.filter(entreprise=entreprise, est_valide=True)
+
+    ia = RecommandationIA()
+    top_recommandations = []
+    if offres_actives:
+        top_recommandations = ia.recommander_candidats(offres_actives[0].id)
+
+    return render(request, "entreprise/tableau_de_bord.html", {
+        "offres_actives": offres_actives,
+        "top_recommandations": top_recommandations,
+    })
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Conversation, Message
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
+from .models import Conversation, Message
+
+User = get_user_model()
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from .models import Conversation, User
+
+@login_required
+def start_conversation(request, user_id):
+    other_user = get_object_or_404(User, id=user_id)
+
+    conversation = Conversation.objects.filter(
+        (Q(participant1=request.user) & Q(participant2=other_user)) |
+        (Q(participant1=other_user) & Q(participant2=request.user))
+    ).first()
+
+    if not conversation:
+        conversation = Conversation.objects.create(
+            participant1=request.user,
+            participant2=other_user
+        )
+
+    return redirect('view_conversation', conversation_id=conversation.id)
+
+
+
+@login_required
+def view_conversation(request, conversation_id):
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+
+    # Vérifier que l'utilisateur est participant
+    if request.user != conversation.participant1 and request.user != conversation.participant2:
+        return redirect('liste_conversations')
+
+    # Identifier l'autre participant
+    other_user = conversation.participant2 if conversation.participant1 == request.user else conversation.participant1
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            Message.objects.create(
+                conversation=conversation,
+                sender=request.user,
+                content=content
+            )
+        return redirect('view_conversation', conversation_id=conversation.id)
+
+    messages = conversation.messages.order_by('timestamp')
+
+    context = {
+        'conversation': conversation,
+        'messages': messages,
+        'other_user': other_user,
+    }
+    return render(request, 'messaging/conversation.html', context)
+
+
+@login_required
+def liste_conversations(request):
+    # Récupérer toutes les conversations où l'utilisateur est participant
+    conversations = Conversation.objects.filter(
+        Q(participant1=request.user) | Q(participant2=request.user)
+    ).order_by('-updated_at')
+
+    context = {
+        'conversations': conversations
+    }
+    return render(request, 'messaging/liste_conversations.html', context)
+
+
+
+def liste_conversations(request):
+    # Récupérer les conversations de l’utilisateur connecté
+    conversations = []  # À remplacer par ta logique réelle
+    return render(request, 'messaging/liste_conversations.html', {'conversations': conversations})
+
+
+@login_required
+def liste_conversations(request):
+    conversations = Conversation.objects.filter(
+        Q(participant1=request.user) | Q(participant2=request.user)
+    ).order_by('-updated_at')
+
+    return render(request, 'messaging/liste_conversations.html', {'conversations': conversations})
+

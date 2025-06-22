@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation avec {{ other_user.get_full_name }}</title>
+    <style>
+        :root {
+            --whatsapp-green: #25D366;
+            --whatsapp-light-green: #DCF8C6;
+            --whatsapp-chat-bg: #ECE5DD;
+            --whatsapp-header-bg: #F0F2F5;
+            --whatsapp-timestamp: #667781;
+        }
+        
+        body {
+            background-color: #000000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .chat-header {
+            background-color: var(--whatsapp-header-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9edef;
+        }
+        
+        .chat-header h4 {
+            margin: 0;
+            color: #111b21;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            color: var(--whatsapp-green);
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .chat-body {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: var(--whatsapp-chat-bg);
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AkEEjIZJj4Z9QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAANElEQVQ4y2NgGAWjYBSMglEwCkbBKBgFowA3YGRgYPjPgAz+//+PzMfKQJQp6EzEJUY0GAVDAwAA4XoK6X9Qh5QAAAAASUVORK5CYII=');
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            max-width: 70%;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .received {
+            align-self: flex-start;
+        }
+        
+        .sent {
+            align-self: flex-end;
+        }
+        
+        .message-content {
+            padding: 8px 12px;
+            border-radius: 7.5px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .received .message-content {
+            background-color: white;
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+        }
+        
+        .sent .message-content {
+            background-color: var(--whatsapp-light-green);
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: var(--whatsapp-timestamp);
+            margin-top: 3px;
+            text-align: right;
+            padding-right: 5px;
+        }
+        
+        .chat-footer {
+            padding: 10px 15px;
+            background-color: var(--whatsapp-header-bg);
+            border-top: 1px solid #e9edef;
+        }
+        
+        .message-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex-grow: 1;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 15px;
+            outline: none;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+        }
+        
+        .send-btn {
+            background-color: var(--whatsapp-green);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .send-btn:hover {
+            background-color: #128C7E;
+        }
+        
+        /* Custom scrollbar */
+        .chat-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-body::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .chat-body::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h4>Conversation avec {{ other_user.get_full_name }}</h4>
+            <a href="{% url 'liste_conversations' %}" class="back-btn">
+                Retour
+            </a>
+        </div>
+        
+        <div class="chat-body">
+            {% for message in messages %}
+            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                <div class="message-content">
+                    {{ message.content }}
+                </div>
+                <div class="message-time">{{ message.timestamp|timesince }} ago</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="chat-footer">
+            <form method="post" class="message-form">
+                {% csrf_token %}
+                <input type="text" name="content" class="message-input" placeholder="Écrivez votre message..." required>
+                <button type="submit" class="send-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

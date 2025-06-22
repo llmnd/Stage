@@ -124,7 +124,10 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('register/success/', TemplateView.as_view(template_name='registration/register_success.html'), name='register_success'),
     path('etudiant/recommandations/', offres_recommandees, name='offres_recommandees'),
-
+    path('recommander-candidats/<int:offre_id>/', views.recommander_candidats, name='recommander_candidats'),
+    path('conversation/start/<int:user_id>/', views.start_conversation, name='start_conversation'),
+    path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
+    path('conversations/', views.liste_conversations, name='liste_conversations'),
     # Détails
     
 

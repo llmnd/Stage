@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
+          :root {
             --primary: #1a1180;
             --primary-light: #7b6eff;
             --primary-dark: #2a1b9e;
@@ -360,6 +360,13 @@
             </div>
         </div>
 
+        <!-- Navigation Messages (déplacé en haut) -->
+        <div class="messages-nav" style="margin-bottom: 1.5rem;">
+            <a href="{% url 'liste_conversations' %}" class="btn" style="background: var(--primary-light);">
+                <i data-lucide="message-circle" width="16"></i> Voir mes messages
+            </a>
+        </div>
+
         <!-- Liste des candidatures -->
         <div class="candidatures-list">
             {% for candidature in candidatures %}
@@ -403,12 +410,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialisation des icônes Lucide
             lucide.createIcons();
             
-            // Animation des éléments
             const animateElements = document.querySelectorAll('.animate-in');
-            
             animateElements.forEach((el, index) => {
                 el.style.opacity = 0;
                 el.style.transform = 'translateY(20px)';
