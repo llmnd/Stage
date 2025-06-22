@@ -633,18 +633,11 @@
                         {% endfor %}
                     </div>
                     
-                    <a href="{% url 'offres_recommandees' %}" class="view-all-link">
-                        <i data-lucide="chevron-right"></i> Voir toutes les recommandations
-                    </a>
+                   
                            <!-- Dans la section IA -->
 <div class="ai-header">
-    <span class="ai-badge">
-        <i data-lucide="sparkles"></i> INTELLIGENCE ARTIFICIELLE
-    </span>
+   
     <div style="display: flex; align-items: center; gap: 1rem;">
-        <h2 class="section-title" style="margin-bottom: 0;">
-            voir
-        </h2>
         <form method="post" action="{% url 'offres_recommandees' %}" style="margin: 0;">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">
@@ -658,6 +651,7 @@
         </div>
     </div>
     {% endif %}
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

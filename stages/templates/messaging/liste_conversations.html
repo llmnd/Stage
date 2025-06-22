@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des conversations</title>
+    <style>
+        :root {
+            --whatsapp-green: #25D366;
+            --whatsapp-light-green: #DCF8C6;
+            --whatsapp-header-bg: #F0F2F5;
+            --whatsapp-chat-bg: #ECE5DD;
+            --whatsapp-text-primary: #111B21;
+            --whatsapp-text-secondary: #667781;
+            --whatsapp-border: #E9EDEF;
+        }
+        
+        body {
+            background-color: #000000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: var(--whatsapp-text-primary);
+        }
+        
+        .conversations-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        .conversations-header {
+            background-color: var(--whatsapp-header-bg);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--whatsapp-border);
+        }
+        
+        .conversations-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .conversation-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--whatsapp-border);
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.2s;
+        }
+        
+        .conversation-item:hover {
+            background-color: #f5f6f6;
+        }
+        
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--whatsapp-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        
+        .conversation-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .conversation-name {
+            font-weight: 500;
+            margin: 0 0 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-preview {
+            font-size: 14px;
+            color: var(--whatsapp-text-secondary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-time {
+            font-size: 12px;
+            color: var(--whatsapp-text-secondary);
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+        
+        .empty-conversations {
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--whatsapp-text-secondary);
+        }
+        
+        .preview-content {
+            display: inline;
+        }
+        
+        .no-messages {
+            font-style: italic;
+        }
+        
+        /* Animation pour les nouveaux messages */
+        @keyframes newMessage {
+            0% { background-color: rgba(37, 211, 102, 0.1); }
+            100% { background-color: transparent; }
+        }
+        
+        .new-message {
+            animation: newMessage 2s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="conversations-container">
+        <div class="conversations-header">
+            <h3>Messages</h3>
+        </div>
+        
+        <div class="conversation-list">
+            {% for conv in conversations %}
+                {% if conv.participant1 == request.user %}
+                    {% with conv.participant2 as other_user %}
+                        <a href="{% url 'view_conversation' conv.id %}" class="conversation-item {% if forloop.first %}new-message{% endif %}">
+                            <div class="conversation-avatar">
+                                {{ other_user.get_full_name|default:other_user.username|first|upper }}
+                            </div>
+                            <div class="conversation-details">
+                                <h4 class="conversation-name">{{ other_user.get_full_name|default:other_user.username }}</h4>
+                                <p class="conversation-preview">
+                                    <span class="preview-content">
+                                        {% if conv.messages.last %}
+                                            {{ conv.messages.last.content|truncatechars:40 }}
+                                        {% else %}
+                                            <span class="no-messages">Aucune conversation</span>
+                                        {% endif %}
+                                    </span>
+                                </p>
+                            </div>
+                            {% if conv.messages.last %}
+                                <div class="conversation-time">
+                                    {{ conv.messages.last.timestamp|timesince }} ago
+                                </div>
+                            {% endif %}
+                        </a>
+                    {% endwith %}
+                {% else %}
+                    {% with conv.participant1 as other_user %}
+                        <a href="{% url 'view_conversation' conv.id %}" class="conversation-item {% if forloop.first %}new-message{% endif %}">
+                            <div class="conversation-avatar">
+                                {{ other_user.get_full_name|default:other_user.username|first|upper }}
+                            </div>
+                            <div class="conversation-details">
+                                <h4 class="conversation-name">{{ other_user.get_full_name|default:other_user.username }}</h4>
+                                <p class="conversation-preview">
+                                    <span class="preview-content">
+                                        {% if conv.messages.last %}
+                                            {{ conv.messages.last.content|truncatechars:40 }}
+                                        {% else %}
+                                            <span class="no-messages">Aucune conversation</span>
+                                        {% endif %}
+                                    </span>
+                                </p>
+                            </div>
+                            {% if conv.messages.last %}
+                                <div class="conversation-time">
+                                    {{ conv.messages.last.timestamp|timesince }} ago
+                                </div>
+                            {% endif %}
+                        </a>
+                    {% endwith %}
+                {% endif %}
+            {% empty %}
+                <div class="empty-conversations">
+                    <p>Aucune conversation pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

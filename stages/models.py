@@ -233,3 +233,37 @@ class EvaluationStage(models.Model):
 
     def __str__(self):
         return f"Evaluation de {self.convention.etudiant}"
+    
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
+
+@receiver(post_delete, sender=OffreDeStage)
+def supprimer_cache_offre(sender, instance, **kwargs):
+    cache.delete(f"reco_candidats_{instance.id}")
+    cache.delete(f"eval_candidatures_{instance.id}_v2")
+
+@receiver(post_delete, sender=Etudiant)
+def supprimer_cache_etudiant(sender, instance, **kwargs):
+    cache.delete(f"reco_offres_{instance.id}_v2")
+
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class Conversation(models.Model):
+    participant1 = models.ForeignKey(User, related_name='conversations1', on_delete=models.CASCADE)
+    participant2 = models.ForeignKey(User, related_name='conversations2', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('participant1', 'participant2')
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)    
