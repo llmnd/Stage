@@ -645,6 +645,28 @@
             </button>
         </form>
     </div>
+    {% if conventions %}
+    <h2>Mes Conventions</h2>
+    <div class="list-group mb-4">
+        {% for convention in conventions %}
+            <a href="{% url 'detail_convention' convention.id %}" class="list-group-item list-group-item-action">
+                Stage chez {{ convention.entreprise.nom_entreprise }} ({{ convention.date_debut }} - {{ convention.date_fin }})<br>
+                Statut : 
+                <span class="badge 
+                    {% if convention.statut == 'validee' %} bg-success 
+                    {% elif convention.statut == 'en_attente' %} bg-warning 
+                    {% elif convention.statut == 'refusee' %} bg-danger 
+                    {% else %} bg-secondary 
+                    {% endif %}">
+                    {{ convention.get_statut_display }}
+                </span>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Aucune convention créée pour le moment.</p>
+{% endif %}
+
 </div>
                 </div>
             </div>

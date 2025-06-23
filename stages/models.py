@@ -109,6 +109,7 @@ class OffreDeStage(models.Model):
     gratification = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     nombre_places = models.PositiveIntegerField(default=1)
     est_valide = models.BooleanField(default=False)
+    date_limite = models.DateField("Date limite de candidature", null=True, blank=True)
 
     def __str__(self):
         return self.titre
@@ -252,11 +253,80 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+
 class Conversation(models.Model):
-    participant1 = models.ForeignKey(User, related_name='conversations1', on_delete=models.CASCADE)
-    participant2 = models.ForeignKey(User, related_name='conversations2', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    participant1 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='conversations_initiated',
+        on_delete=models.CASCADE,
+        verbose_name="Premier participant"
+    )
+    participant2 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='conversations_received',
+        on_delete=models.CASCADE,
+        verbose_name="Second participant"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date de création"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Dernière mise à jour"
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['participant1', 'participant2'],
+                name='unique_conversation_participants'
+            )
+        ]
+        ordering = ['-updated_at']
+        verbose_name = "Conversation"
+        verbose_name_plural = "Conversations"
+
+    def __str__(self):
+        return f"Conversation #{self.id} entre {self.participant1} et {self.participant2}"
+
+    def save(self, *args, **kwargs):
+        # Force l'ordre des participants pour éviter les doublons
+        if self.participant1_id > self.participant2_id:
+            self.participant1, self.participant2 = self.participant2, self.participant1
+        
+        # Mise à jour automatique de updated_at si nécessaire
+        if not self.pk:  # Si c'est une nouvelle conversation
+            self.created_at = timezone.now()
+        self.updated_at = timezone.now()
+        
+        super().save(*args, **kwargs)
+
+    def get_other_participant(self, user):
+        """Retourne l'autre participant de la conversation"""
+        if user not in (self.participant1, self.participant2):
+            raise ValueError("L'utilisateur n'est pas participant à cette conversation")
+        return self.participant2 if user == self.participant1 else self.participant1
+
+    @property
+    def participants(self):
+        """Retourne les deux participants sous forme de tuple"""
+        return (self.participant1, self.participant2)
+
+    @classmethod
+    def get_conversation(cls, user1, user2):
+        """Récupère ou crée une conversation entre deux utilisateurs"""
+        participant1, participant2 = sorted([user1, user2], key=lambda u: u.id)
+        conversation, created = cls.objects.get_or_create(
+            participant1=participant1,
+            participant2=participant2
+        )
+        return conversation
+    
+
 
     class Meta:
         unique_together = ('participant1', 'participant2')

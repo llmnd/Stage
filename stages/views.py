@@ -490,6 +490,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from .models import Candidature
 
+from django.urls import reverse
+
 @login_required
 def modifier_statut_candidature(request, candidature_id, nouveau_statut):
     candidature = get_object_or_404(Candidature, id=candidature_id)
@@ -506,10 +508,15 @@ def modifier_statut_candidature(request, candidature_id, nouveau_statut):
         candidature.statut = nouveau_statut
         candidature.save()
         messages.success(request, f"La candidature a été marquée comme {candidature.get_statut_display().lower()}.")
+
+        # 🚨 Redirection vers la création de convention si statut = accepte
+        if nouveau_statut == 'accepte':
+            return redirect(reverse('creer_convention', kwargs={'candidature_id': candidature.id}))
     else:
         messages.error(request, "Statut invalide.")
     
     return redirect('detail_candidature', candidature_id=candidature_id)
+
 # views.py
 from django.views.decorators.http import require_GET
 from django.http import FileResponse, HttpResponseForbidden
@@ -571,6 +578,16 @@ def evaluer_candidatures_ia(request, offre_id):
     messages.success(request, f"{nb_evaluees} candidatures ont été évaluées par l'IA.")
     return redirect('candidatures_offre', offre_id=offre.id)
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
+from .models import *
+from .forms import *
+from django.contrib.auth import login
+
 # --- Conventions de stage ---
 @login_required
 def mes_conventions(request):
@@ -581,20 +598,18 @@ def mes_conventions(request):
         conventions = ConventionDeStage.objects.filter(entreprise=user.entreprise).order_by('-date_creation')
     else:
         conventions = ConventionDeStage.objects.none()
-
     return render(request, 'dashboard.html', {'conventions': conventions})
+
 
 @login_required
 def creer_convention(request, candidature_id):
     candidature = get_object_or_404(Candidature, id=candidature_id)
-    
+
     # Vérification des permissions
-    if not (request.user == candidature.offre.entreprise.user or 
-            request.user == candidature.etudiant.user or
-            (hasattr(request.user, 'enseignant') and 
-             request.user.enseignant == candidature.etudiant.enseignant_referent)):
-        raise PermissionDenied
-    
+    if not (hasattr(request.user, 'entreprise') and candidature.offre.entreprise.user == request.user):
+     raise PermissionDenied
+
+
     if request.method == 'POST':
         form = ConventionStageForm(request.POST, request.FILES)
         if form.is_valid():
@@ -602,18 +617,29 @@ def creer_convention(request, candidature_id):
             convention.etudiant = candidature.etudiant
             convention.offre = candidature.offre
             convention.entreprise = candidature.offre.entreprise
+
+            # Gestion des statuts selon bouton
+            if 'soumettre' in request.POST:
+                convention.statut = 'en_attente'
+            else:
+                convention.statut = 'brouillon'
+
+            if 'signature_etudiant' in request.FILES:
+                convention.signature_etudiant = request.FILES['signature_etudiant']
+            if 'signature_entreprise' in request.FILES:
+                convention.signature_entreprise = request.FILES['signature_entreprise']
+
             convention.save()
-            
-            # Mettre à jour le statut de la candidature
+
             candidature.statut = 'acceptee'
             candidature.save()
-            
+
             messages.success(request, "La convention a été créée avec succès.")
             return redirect('detail_convention', convention_id=convention.id)
     else:
         initial = {
             'date_debut': candidature.offre.date_debut,
-            'date_fin': candidature.offre.date_debut + timedelta(days=30*candidature.offre.duree) if candidature.offre.date_debut and candidature.offre.duree else None,
+            'date_fin': candidature.offre.date_debut + timedelta(days=30 * candidature.offre.duree) if candidature.offre.date_debut and candidature.offre.duree else None,
             'gratification': candidature.offre.gratification,
             'tuteur_entreprise': request.user.entreprise.nom_entreprise if hasattr(request.user, 'entreprise') else "",
             'email_tuteur': request.user.email,
@@ -621,59 +647,49 @@ def creer_convention(request, candidature_id):
             'enseignant_referent': candidature.etudiant.enseignant_referent,
         }
         form = ConventionStageForm(initial=initial)
-        if form.is_valid():
-            convention = form.save(commit=False)
-            convention.etudiant = candidature.etudiant
-            convention.offre = candidature.offre
-            convention.entreprise = candidature.offre.entreprise
 
-        if 'signature_etudiant' in request.FILES:
-            convention.signature_etudiant = request.FILES['signature_etudiant']
-        if 'signature_entreprise' in request.FILES:
-            convention.signature_entreprise = request.FILES['signature_entreprise']
-
-        convention.save()
-    
     return render(request, 'conventions/creer.html', {
         'form': form,
         'candidature': candidature,
     })
 
+
 @login_required
 def detail_convention(request, convention_id):
     convention = get_object_or_404(ConventionDeStage, id=convention_id)
-    
+
     # Vérification des permissions
     if not (request.user == convention.entreprise.user or 
             request.user == convention.etudiant.user or
             (hasattr(request.user, 'enseignant') and 
              request.user.enseignant == convention.enseignant_referent)):
         raise PermissionDenied
-    
+
     suivis = SuiviStage.objects.filter(convention=convention).order_by('-date_rapport')
-    
+
     return render(request, 'conventions/detail.html', {
         'convention': convention,
         'suivis': suivis,
         'can_validate': hasattr(request.user, 'enseignant') and request.user.enseignant == convention.enseignant_referent,
     })
 
+
 @login_required
 def valider_convention(request, convention_id):
     convention = get_object_or_404(ConventionDeStage, id=convention_id)
-    
+
     # Seul l'enseignant référent peut valider
     if not hasattr(request.user, 'enseignant') or request.user.enseignant != convention.enseignant_referent:
         raise PermissionDenied
-    
+
     if convention.statut != 'en_attente':
         messages.error(request, "Cette convention n'est pas en attente de validation.")
         return redirect('detail_convention', convention_id=convention.id)
-    
+
     convention.statut = 'validee'
     convention.date_validation = timezone.now()
     convention.save()
-    
+
     messages.success(request, "La convention a été validée avec succès.")
     return redirect('detail_convention', convention_id=convention.id)
 
@@ -681,14 +697,13 @@ def valider_convention(request, convention_id):
 @login_required
 def ajouter_suivi(request, convention_id):
     convention = get_object_or_404(ConventionDeStage, id=convention_id)
-    
-    # Vérification des permissions
+
     if not (request.user == convention.entreprise.user or 
             request.user == convention.etudiant.user or
-            (hasattr(request.user, 'enseignant'))and 
-             request.user.enseignant == convention.enseignant_referent):
+            (hasattr(request.user, 'enseignant') and 
+             request.user.enseignant == convention.enseignant_referent)):
         raise PermissionDenied
-    
+
     if request.method == 'POST':
         form = SuiviStageForm(request.POST, request.FILES)
         if form.is_valid():
@@ -696,55 +711,68 @@ def ajouter_suivi(request, convention_id):
             suivi.convention = convention
             suivi.auteur = request.user
             suivi.save()
-            
+
             messages.success(request, "Le suivi a été ajouté avec succès.")
             return redirect('detail_convention', convention_id=convention.id)
     else:
         form = SuiviStageForm()
-    
+
     return render(request, 'suivis/ajouter.html', {
         'form': form,
         'convention': convention,
     })
+
 
 # --- Mémoires ---
 @login_required
 def deposer_memoire(request):
     if not hasattr(request.user, 'etudiant'):
         raise PermissionDenied
-    
+
     etudiant = request.user.etudiant
-    
+
     if request.method == 'POST':
         form = MemoireForm(request.POST, request.FILES)
         if form.is_valid():
             memoire = form.save(commit=False)
             memoire.etudiant = etudiant
             memoire.save()
-            
+
             messages.success(request, "Votre mémoire a été déposé avec succès.")
             return redirect('mes_memoires')
     else:
         form = MemoireForm()
-    
+
     return render(request, 'memoires/deposer.html', {'form': form})
+
 
 @login_required
 def mes_memoires(request):
     if not hasattr(request.user, 'etudiant'):
         raise PermissionDenied
-    
+
     memoires = Memoire.objects.filter(etudiant=request.user.etudiant).order_by('-date_depot')
     return render(request, 'memoires/liste.html', {'memoires': memoires})
+
+
+@login_required
+def detail_memoire(request, memoire_id):
+    memoire = get_object_or_404(Memoire, id=memoire_id)
+
+    if not (hasattr(request.user, 'etudiant') and memoire.etudiant == request.user.etudiant) \
+       and not (hasattr(request.user, 'enseignant') and request.user.enseignant in memoire.jury.all()):
+        raise PermissionDenied
+
+    return render(request, 'memoires/detail.html', {'memoire': memoire})
+
 
 @login_required
 def evaluer_memoire(request, memoire_id):
     memoire = get_object_or_404(Memoire, id=memoire_id)
-    
-    # Seul un enseignant du jury peut évaluer
+
     if not hasattr(request.user, 'enseignant') or request.user.enseignant not in memoire.jury.all():
         raise PermissionDenied
-    
+
     if request.method == 'POST':
         form = EvaluationMemoireForm(request.POST, instance=memoire)
         if form.is_valid():
@@ -753,11 +781,12 @@ def evaluer_memoire(request, memoire_id):
             return redirect('detail_memoire', memoire_id=memoire.id)
     else:
         form = EvaluationMemoireForm(instance=memoire)
-    
+
     return render(request, 'memoires/evaluer.html', {
         'form': form,
         'memoire': memoire,
     })
+
 
 # --- Inscription enseignant ---
 def register_enseignant(request):
@@ -771,20 +800,20 @@ def register_enseignant(request):
         form = EnseignantSignupForm()
     return render(request, 'registration/register_enseignant.html', {'form': form})
 
+
 # --- Dashboard enseignant ---
 @login_required
 def enseignant_dashboard(request):
     if not hasattr(request.user, 'enseignant'):
         return redirect('dashboard')
-    
+
     enseignant = request.user.enseignant
     etudiants = Etudiant.objects.filter(enseignant_referent=enseignant)
     conventions = ConventionDeStage.objects.filter(enseignant_referent=enseignant)
     memoires = Memoire.objects.filter(jury=enseignant)
-    
-    # Conventions en attente de validation
+
     conventions_attente = conventions.filter(statut='en_attente')
-    
+
     return render(request, 'enseignant/dashboard.html', {
         'enseignant': enseignant,
         'etudiants': etudiants,
@@ -922,6 +951,15 @@ from reportlab.lib.pagesizes import A4
 from django.conf import settings
 import os
 
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+from django.conf import settings
+import os
+
 @login_required
 def generer_pdf_convention(request, convention_id):
     convention = get_object_or_404(ConventionDeStage, id=convention_id)
@@ -936,23 +974,83 @@ def generer_pdf_convention(request, convention_id):
     c = canvas.Canvas(response, pagesize=A4)
     width, height = A4
 
-    c.drawString(100, height - 100, f"Convention de stage #{convention.id}")
-    c.drawString(100, height - 120, f"Étudiant : {convention.etudiant}")
-    c.drawString(100, height - 140, f"Entreprise : {convention.entreprise}")
-    c.drawString(100, height - 160, f"Date début : {convention.date_debut}")
-    c.drawString(100, height - 180, f"Date fin : {convention.date_fin}")
-    
+    margin = 2 * cm
+    y = height - margin
+
+    # Titre
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(margin, y, f"Convention de stage n°{convention.id}")
+    y -= 1.5*cm
+
+    c.setFont("Helvetica", 12)
+    # Informations principales
+    c.drawString(margin, y, f"Étudiant : {convention.etudiant.nom_complet}")
+    y -= 0.7*cm
+    c.drawString(margin, y, f"Entreprise : {convention.entreprise.nom_entreprise}")
+    y -= 0.7*cm
+    c.drawString(margin, y, f"Date de début : {convention.date_debut.strftime('%d/%m/%Y') if convention.date_debut else 'N/A'}")
+    y -= 0.7*cm
+    c.drawString(margin, y, f"Date de fin : {convention.date_fin.strftime('%d/%m/%Y') if convention.date_fin else 'N/A'}")
+    y -= 1*cm
+
+    # Articles exemples
+    c.setFont("Helvetica-Bold", 13)
+    c.drawString(margin, y, "Articles de la Convention :")
+    y -= 1*cm
+
+    c.setFont("Helvetica", 11)
+    articles = [
+        "Article 1 : Objet du stage - Le présent contrat a pour objet de définir les conditions du stage.",
+        "Article 2 : Durée du stage - La durée du stage est fixée conformément aux dates ci-dessus.",
+        "Article 3 : Gratification - Le stagiaire percevra une gratification mensuelle de {gratification} FCFA.".format(
+            gratification=convention.gratification if convention.gratification else "N/A"),
+        "Article 4 : Obligations de l'étudiant - L'étudiant s'engage à respecter le règlement intérieur de l'entreprise.",
+        "Article 5 : Encadrement - Le tuteur en entreprise est {tuteur}.".format(
+            tuteur=convention.tuteur_entreprise if convention.tuteur_entreprise else "Non défini"),
+    ]
+
+    for article in articles:
+        if y < margin + 3*cm:
+            c.showPage()
+            y = height - margin
+            c.setFont("Helvetica", 11)
+        c.drawString(margin, y, article)
+        y -= 0.7*cm
+
     # Signatures
+    y -= 1.5*cm
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, y, "Signatures :")
+    y -= 1*cm
+
+    # Signature Étudiant
     if convention.signature_etudiant:
-        path = os.path.join(settings.MEDIA_ROOT, convention.signature_etudiant.name)
-        c.drawImage(path, 100, height - 300, width=100, height=50)
+        path_etudiant = os.path.join(settings.MEDIA_ROOT, convention.signature_etudiant.name)
+        if os.path.exists(path_etudiant):
+            c.drawString(margin, y, "Signature Étudiant :")
+            c.drawImage(path_etudiant, margin + 5*cm, y - 0.5*cm, width=5*cm, height=2*cm, preserveAspectRatio=True)
+        else:
+            c.drawString(margin, y, "Signature Étudiant (fichier manquant)")
+    else:
+        c.drawString(margin, y, "Signature Étudiant : Non fournie")
+    y -= 3*cm
 
+    # Signature Entreprise
     if convention.signature_entreprise:
-        path = os.path.join(settings.MEDIA_ROOT, convention.signature_entreprise.name)
-        c.drawImage(path, 300, height - 300, width=100, height=50)
+        path_entreprise = os.path.join(settings.MEDIA_ROOT, convention.signature_entreprise.name)
+        if os.path.exists(path_entreprise):
+            c.drawString(margin, y, "Signature Entreprise :")
+            c.drawImage(path_entreprise, margin + 5*cm, y - 0.5*cm, width=5*cm, height=2*cm, preserveAspectRatio=True)
+        else:
+            c.drawString(margin, y, "Signature Entreprise (fichier manquant)")
+    else:
+        c.drawString(margin, y, "Signature Entreprise : Non fournie")
+    y -= 3*cm
 
+    c.showPage()
     c.save()
     return response
+
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -1095,4 +1193,5 @@ def liste_conversations(request):
     ).order_by('-updated_at')
 
     return render(request, 'messaging/liste_conversations.html', {'conversations': conversations})
+    
 

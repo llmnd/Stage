@@ -3,240 +3,720 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse Candidats - {{ offre.titre }}</title>
+    <title>NeuroScan - {{ offre.titre }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-light: #3b82f6;
-            --secondary: #1e40af;
-            --light: #f8fafc;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --neon: #00f0ff;
+            --neon-light: rgba(0, 240, 255, 0.2);
             --dark: #0f172a;
-            --gray: #64748b;
-            --border-radius: 12px;
+            --darker: #020617;
+            --light: #f8fafc;
+            --border-radius: 16px;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        @font-face {
+            font-family: 'Geist';
+            src: url('https://fonts.cdnfonts.com/css/geist') format('woff2');
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f1f5f9;
-            color: var(--dark);
-            line-height: 1.5;
+            font-family: 'Times New Roman', system-ui, sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 240, 255, 0.1) 0%, transparent 50%);
+            min-height: 100vh;
         }
         
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        .neuro-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
             color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        
-        .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
-            background-color: white;
+            padding: 1.5rem 0;
+            position: relative;
             overflow: hidden;
         }
         
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .neuro-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: 0;
         }
         
-        .card-header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem 1.5rem;
+        .neuro-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .neuro-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+        }
+        
+        .neuro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(0, 240, 255, 0.3);
+        }
+        
+        .neuro-score {
+            width: 80px;
+            height: 80px;
+            background: conic-gradient(var(--neon) calc(var(--score)*1%), rgba(255, 255, 255, 0.1) 0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            animation: pulse 2s infinite alternate;
+        }
+        
+        .neuro-score::after {
+            content: attr(data-score)'%';
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: var(--dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--light);
+            font-size: 1.1rem;
+        }
+        
+        .neuro-table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--light);
+            --bs-table-border-color: var(--glass-border);
+        }
+        
+        .neuro-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+            color: var(--neon);
+        }
+        
+        .neuro-table td {
+            vertical-align: middle;
+            padding: 1.25rem 0.75rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .neuro-table tr:last-child td {
             border-bottom: none;
         }
         
-        .candidate-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
+        .neuro-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
         }
         
-        .score-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: conic-gradient(var(--primary) calc(var(--score)*1%), #e2e8f0 0);
-            position: relative;
+        .neuro-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
         }
         
-        .score-badge::after {
-            content: '';
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
+        .neuro-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--neon));
+            width: calc(var(--score)*1%);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+        
+        .neuro-btn {
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+        }
+        
+        .btn-neon {
+            background: linear-gradient(135deg, var(--primary), var(--neon));
+            color: var(--darker);
+            font-weight: 600;
+        }
+        
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            color: var(--darker);
+        }
+        
+        .btn-glass {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+        }
+        
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border-color: var(--neon);
+        }
+        
+        .neuro-tag {
+            display: inline-block;
+            padding: 0.35em 0.8em;
+            background: rgba(0, 240, 255, 0.1);
+            border-radius: 50px;
+            font-size: 0.8em;
+            margin-right: 0.5em;
+            margin-bottom: 0.5em;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            color: var(--neon);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.6); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .neuro-empty {
+            padding: 3rem;
+            text-align: center;
+            border: 1px dashed var(--glass-border);
+            border-radius: var(--border-radius);
+        }
+        
+        .neuro-empty i {
+            font-size: 2.5rem;
+            color: var(--neon);
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Nouvelles améliorations */
+        .action-btn {
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            content: attr(data-score)'%';
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--dark);
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
-        
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-analyze {
+            background: var(--neon-light);
+            color: var(--neon);
+        }
+
+        .btn-analyze:hover {
+            background: var(--neon);
+            color: var(--darker);
+        }
+
         .btn-contact {
-            background-color: white;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            padding: 0.375rem 0.75rem;
-            border-radius: var(--border-radius);
-            transition: all 0.2s ease;
-        }
-        
-        .btn-contact:hover {
-            background-color: var(--primary);
+            background: var(--primary-dark);
             color: white;
         }
-        
-        .empty-state {
-            padding: 3rem 1rem;
-            text-align: center;
+
+        .btn-contact:hover {
+            background: var(--primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
         }
-        
-        .feedback-text {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+
+        .feedback-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--neon);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+
+        .feedback-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--dark);
+            border: 1px solid var(--neon);
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            color: #f8fafc;
+        }
+
+        .feedback-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .feedback-message.success {
+            border-color: var(--success);
+            background: rgb(239, 249, 246);
+        }
+
+        .feedback-message.warning {
+            border-color: var(--warning);
+            background: rgba(144, 34, 34, 0.854);
+        }
+
+        .feedback-message.danger {
+            border-color: var(--danger);
+            background: rgba(80, 4, 4, 0.884);
+        }
+
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        .highlight-row {
+            animation: highlight 2s ease-out;
+        }
+
+        @keyframes highlight {
+            0% { background-color: rgba(0, 240, 255, 0.1); }
+            100% { background-color: transparent; }
+        }
+
+        .tooltip-inner {
+            background-color: var(--dark);
+            border: 1px solid var(--neon);
+            color: var(--light);
+        }
+
+        .bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before,
+        .bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: var(--neon);
+        }
+
+        .scanning-animation {
+            position: relative;
             overflow: hidden;
-            font-size: 0.875rem;
-            color: var(--gray);
         }
-        
-        @media (max-width: 768px) {
-            .header {
-                padding: 1.5rem 0;
-            }
-            
-            .card-header {
-                padding: 1rem;
-            }
+
+        .scanning-animation::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.1), transparent);
+            animation: scanning 1.5s infinite;
+        }
+
+        @keyframes scanning {
+            100% { left: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
+    <!-- Feedback Message Container -->
+    <div id="feedbackMessage" class="feedback-message">
+        <i class="fas fa-check-circle me-2"></i>
+        <span id="feedbackText">Action réussie</span>
+    </div>
+
+    <header class="neuro-header">
+        <div class="container position-relative" style="z-index: 1;">
+            <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <h1 class="h3 mb-2">
-                        <i class="fas fa-user-tie me-2"></i>
-                        Candidatures - {{ offre.titre }}
+                        <i class="fas fa-brain me-2"></i>
+                        ScoreIA <span class="opacity-75">// {{ offre.titre }}</span>
                     </h1>
                     <div class="d-flex align-items-center">
-                        <span class="badge bg-white text-primary me-2">
-                            {{ candidatures|length }} candidatures
+                        <span class="badge bg-dark text-neon me-2">
+                            <i class="fas fa-wave-square me-1"></i>
+                            {{ candidatures|length }} signatures analysées
+                        </span>
+                        <span class="badge bg-dark text-neon">
+                            <i class="fas fa-bolt me-1"></i>
+                            <span id="lastUpdated">{% now "H:i" %}</span>
                         </span>
                     </div>
                 </div>
-                <a href="{% url 'liste_offres' %}" class="btn btn-outline-light">
+                <a href="{% url 'liste_offres' %}" class="btn btn-glass btn-sm">
                     <i class="fas fa-arrow-left me-1"></i> Retour
                 </a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="container pb-5">
-        <div class="row mb-4">
-            <div class="col">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h2 class="h5 mb-0">Liste des candidats</h2>
-                        <form method="post" action="{% url 'reevaluer_candidatures' offre.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-light">
-                                <i class="fas fa-sync-alt me-1"></i> Actualiser
-                            </button>
-                        </form>
+    <main class="container py-4">
+        <div class="row g-4">
+            <!-- Colonne principale -->
+            <div class="col-lg-8">
+                <div class="neuro-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h5 mb-0">
+                            <i class="fas fa-microchip text-neon me-2"></i>
+                            Classement 
+                        </h2>
+                        <div class="d-flex align-items-center">
+                            <div class="input-group input-group-sm me-2" style="width: 150px;">
+                                <span class="input-group-text bg-dark border-dark text-neon">
+                                    <i class="fas fa-filter"></i>
+                                </span>
+                                <select class="form-select bg-dark border-dark text-light">
+                                    <option>Trier par</option>
+                                    <option selected>Score IA</option>
+                                    <option>Nom</option>
+                                    <option>Récent</option>
+                                </select>
+                            </div>
+                            <form method="post" action="{% url 'reevaluer_candidatures' offre.id %}" id="rescanForm">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-neon btn-sm" id="rescanBtn">
+                                    <i class="fas fa-sync-alt me-1"></i> Rescan
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     
-                    <div class="card-body p-0">
-                        {% if candidatures %}
-                            <div class="list-group list-group-flush">
-                                {% for candidature in candidatures %}
-                                <div class="list-group-item p-3">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-4">
+                    {% if candidatures %}
+                        <div class="table-responsive">
+                            <table class="table neuro-table">
+                                <thead>
+                                    <tr>
+                                        <th>Profile</th>
+                                        <th class="text-center">Score IA</th>
+                                        <th>Synchronicité</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for candidature in candidatures %}
+                                    <tr id="row-{{ candidature.id }}" class="{% if forloop.first %}highlight-row{% endif %}">
+                                        <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="candidate-avatar me-3">
+                                                <div class="neuro-avatar me-3 position-relative">
                                                     {{ candidature.etudiant.nom_complet|first|upper }}
+                                                    {% if forloop.first %}
+                                                        <span class="feedback-badge pulse-animation" title="Top candidat">
+                                                            <i class="fas fa-crown"></i>
+                                                        </span>
+                                                    {% endif %}
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0">{{ candidature.etudiant.nom_complet }}</h6>
-                                                    <small class="text-muted">
-                                                        {{ candidature.etudiant.domaine_etude }}
-                                                    </small>
+                                                    <div class="fw-semibold">{{ candidature.etudiant.nom_complet }}</div>
+                                                    <small class="text-muted">{{ candidature.etudiant.domaine_etude }}</small>
                                                 </div>
                                             </div>
-                                        </div>
-                                        
-                                        <div class="col-md-2 text-center">
+                                        </td>
+                                        <td class="text-center">
                                             {% if candidature.score_ia %}
-                                                <div class="score-badge mx-auto" 
+                                                <div class="neuro-score" 
                                                      style="--score: {{ candidature.score_ia }}" 
-                                                     data-score="{{ candidature.score_ia|floatformat:0 }}">
+                                                     data-score="{{ candidature.score_ia|floatformat:0 }}"
+                                                     data-bs-toggle="tooltip" 
+                                                     data-bs-placement="top" 
+                                                     title="Score de compatibilité">
                                                 </div>
                                             {% else %}
-                                                <span class="badge bg-secondary">
-                                                    <i class="fas fa-spinner fa-spin"></i>
-                                                </span>
+                                                <div class="scanning-animation">
+                                                    <span class="badge bg-dark text-muted">
+                                                        <i class="fas fa-spinner fa-spin me-1"></i>
+                                                        Scanning...
+                                                    </span>
+                                                </div>
                                             {% endif %}
-                                        </div>
-                                        
-                                        <div class="col-md-4">
+                                        </td>
+                                        <td>
                                             {% if candidature.feedback_ia %}
-                                                <p class="feedback-text mb-0">
+                                                <div class="neuro-progress mb-2">
+                                                    <div class="neuro-progress-bar" style="--score: {{ candidature.score_ia }}"></div>
+                                                </div>
+                                                <small class="text-muted d-block text-truncate" style="max-width: 200px;" 
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-placement="top" 
+                                                       title="{{ candidature.feedback_ia }}">
                                                     {{ candidature.feedback_ia }}
-                                                </p>
+                                                </small>
                                             {% endif %}
-                                        </div>
-                                        
-                                        <div class="col-md-2 text-end">
+                                        </td>
+                                        <td class="text-end">
                                             <div class="d-flex justify-content-end gap-2">
                                                 <a href="{% url 'detail_candidature' candidature.id %}" 
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
+                                                   class="action-btn btn-analyze"
+                                                   data-bs-toggle="tooltip" 
+                                                   data-bs-placement="top" 
+                                                   title="Analyse détaillée">
+                                                    <i class="fas fa-chart-line"></i>
                                                 </a>
-                                                <!-- Ici, on passe l'ID du User lié à l'étudiant -->
                                                 <a href="{% url 'start_conversation' candidature.etudiant.user.id %}" 
-                                                   class="btn btn-sm btn-contact">
-                                                    <i class="fas fa-envelope"></i>
+                                                   class="action-btn btn-contact position-relative"
+                                                   data-bs-toggle="tooltip" 
+                                                   data-bs-placement="top" 
+                                                   title="Contacter le candidat">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                    {% if candidature.nouveau_message %}
+                                                        <span class="feedback-badge">!</span>
+                                                    {% endif %}
                                                 </a>
                                             </div>
-                                        </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="neuro-empty">
+                            <i class="fas fa-network-wired"></i>
+                            <h3 class="h5 mb-1">Aucune donnée neurale</h3>
+                            <p class="text-muted">Le système n'a détecté aucune signature candidate à analyser.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Colonne latérale -->
+            <div class="col-lg-4">
+                <div class="neuro-card p-4 mb-4">
+                    <h2 class="h5 mb-3">
+                        <i class="fas fa-chart-network text-neon me-2"></i>
+                        Insights
+                    </h2>
+                    
+                    <div class="neuro-card p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Top Match</span>
+                            <strong class="text-neon">
+                                {% if candidatures.0 %}
+                                    {{ candidatures.0.score_ia|floatformat:0 }}% Synergie
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div class="neuro-progress">
+                            <div class="neuro-progress-bar" 
+                                 style="--score: {% if candidatures.0 %}{{ candidatures.0.score_ia }}{% else %}0{% endif %}">
+                            </div>
+                        </div>
+                        {% if candidatures.0 %}
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>
+                                {{ candidatures.0.etudiant.nom_complet }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="neuro-card p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="h6 mb-0">Fréquences Clés</h3>
+                            <span class="badge bg-dark text-neon">{{ offre.competences_requises|length }}</span>
+                        </div>
+                        <div class="mb-2">
+                            {% for competence in offre.competences_requises|slice:":5" %}
+                                <span class="neuro-tag" 
+                                      data-bs-toggle="tooltip" 
+                                      data-bs-placement="top" 
+                                      title="Critère important">{{ competence }}</span>
+                            {% endfor %}
+                        </div>
+                        {% if offre.competences_requises|length > 5 %}
+                            <a href="#" class="btn btn-glass btn-sm w-100" id="showMoreTags">
+                                + {{ offre.competences_requises|length|add:"-5" }} autres
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="neuro-card p-3">
+                        <h3 class="h6 mb-2">Paramètres du Scan</h3>
+                        <div class="mb-2">
+                            <small class="text-muted">Modèle Neural</small>
+                            <div class="fw-medium">NeuroNet v3.2</div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Dernière analyse</small>
+                            <div class="fw-medium"><span id="scanTime">{% now "j F Y à H:i" %}</span></div>
+                        </div>
+                        <button class="btn btn-neon w-100 mt-2" id="optimizeBtn">
+                            <i class="fas fa-tune me-1"></i> Optimiser
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="neuro-card p-4">
+                    <h2 class="h5 mb-3">
+                        <i class="fas fa-ai text-neon me-2"></i>
+                        Diagnostic IA
+                    </h2>
+                    <div class="neuro-card p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2">
+                                <i class="fas fa-wave-pulse text-neon"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Intégrité du Scan</small>
+                                <div class="fw-medium">
+                                    <span class="text-success">98% Optimal</span>
+                                    <div class="neuro-progress mt-1">
+                                        <div class="neuro-progress-bar" style="--score: 98; background: var(--success);"></div>
                                     </div>
                                 </div>
-                                {% endfor %}
                             </div>
-                        {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
-                                <h3 class="h5 mb-2">Aucune candidature</h3>
-                                <p class="text-muted">Aucun candidat n'a postulé pour cette offre pour le moment.</p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">
+                                <i class="fas fa-cogs text-neon"></i>
                             </div>
-                        {% endif %}
+                            <div>
+                                <small class="text-muted">Précision</small>
+                                <div class="fw-medium">
+                                    <span class="text-warning">94.7% Confidence</span>
+                                    <div class="neuro-progress mt-1">
+                                        <div class="neuro-progress-bar" style="--score: 94.7; background: var(--warning);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Activer les tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Gestion du feedback pour le rescan
+            const rescanForm = document.getElementById('rescanForm');
+            if (rescanForm) {
+                rescanForm.addEventListener('submit', function(e) {
+                    const btn = document.getElementById('rescanBtn');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Scanning...';
+                    btn.disabled = true;
+                    
+                    // Simuler un traitement (à remplacer par une vraie requête AJAX)
+                    setTimeout(() => {
+                        showFeedback('Scan terminé avec succès', 'success');
+                        btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Rescan';
+                        btn.disabled = false;
+                        document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        document.getElementById('scanTime').textContent = new Date().toLocaleString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit'});
+                    }, 2000);
+                });
+            }
+
+            // Gestion du bouton Optimiser
+            const optimizeBtn = document.getElementById('optimizeBtn');
+            if (optimizeBtn) {
+                optimizeBtn.addEventListener('click', function() {
+                    showFeedback('Paramètres optimisés', 'success');
+                });
+            }
+
+            // Gestion du bouton "Voir plus" pour les tags
+            const showMoreTags = document.getElementById('showMoreTags');
+            if (showMoreTags) {
+                showMoreTags.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showFeedback('Toutes les compétences affichées', 'warning');
+                    // Ici vous pourriez ajouter la logique pour afficher tous les tags
+                });
+            }
+
+            // Fonction pour afficher les feedbacks
+            function showFeedback(message, type) {
+                const feedback = document.getElementById('feedbackMessage');
+                const feedbackText = document.getElementById('feedbackText');
+                
+                feedback.className = 'feedback-message show ' + type;
+                feedbackText.textContent = message;
+                
+                // Changer l'icône selon le type
+                let icon = 'fa-check-circle';
+                if (type === 'warning') icon = 'fa-exclamation-triangle';
+                if (type === 'danger') icon = 'fa-times-circle';
+                
+                feedback.innerHTML = `<i class="fas ${icon} me-2"></i><span id="feedbackText">${message}</span>`;
+                
+                // Masquer après 3 secondes
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 3000);
+            }
+
+            // Animation pour les nouvelles candidatures
+            const newCandidates = document.querySelectorAll('.highlight-row');
+            newCandidates.forEach(row => {
+                setTimeout(() => {
+                    row.classList.remove('highlight-row');
+                }, 2000);
+            });
+        });
+    </script>
 </body>
 </html>
