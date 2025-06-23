@@ -1,12 +1,129 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Convention de stage N°{{ convention.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 750px;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            color: #333;
+            background-color: #dbdae6;
+        }
+        h1, h2 {
+            color: #004085;
+            border-bottom: 2px solid #004085;
+            padding-bottom: 0.3rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #ccc;
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        .value {
+            margin-left: 0.5rem;
+        }
+        .dates {
+            background-color: #e9f7ef;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-weight: bold;
+            color: #155724;
+        }
+        ul.articles {
+            margin-left: 1.5rem;
+        }
+        ul.articles li {
+            margin-bottom: 0.7rem;
+            text-align: justify;
+        }
+        .btn-download {
+            display: inline-block;
+            margin: 1rem 0 2rem 0;
+            padding: 0.6rem 1.2rem;
+            background-color: #004085;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-download:hover {
+            background-color: #00306b;
+        }
+    </style>
+</head>
+<body>
 
-    <label>Signature de l'étudiant :</label>
-    <input type="file" name="signature_etudiant" accept="image/*">
+<h1>Convention de stage N°{{ convention.id }}</h1>
 
-    <label>Signature de l’entreprise :</label>
-    <input type="file" name="signature_entreprise" accept="image/*">
+<div class="section">
+    <h2>Informations générales</h2>
+    <p><span class="label">Étudiant :</span> <span class="value">{{ convention.etudiant.nom_complet }}</span></p>
+    <p><span class="label">Entreprise :</span> <span class="value">{{ convention.entreprise.nom_entreprise }}</span></p>
+    <p><span class="label">Adresse de l'entreprise :</span> <span class="value">{{ convention.entreprise.adresse }}</span></p>
+    <p><span class="label">Contact entreprise :</span> <span class="value">{{ convention.entreprise.telephone }} / {{ convention.entreprise.email }}</span></p>
+</div>
 
-    <button type="submit" class="btn btn-primary">Enregistrer</button>
-</form>
+<div class="section dates">
+    <p><span class="label">Date de début :</span> {{ convention.date_debut|date:"d/m/Y" }}</p>
+    <p><span class="label">Date de fin :</span> {{ convention.date_fin|date:"d/m/Y" }}</p>
+    <p><span class="label">Durée :</span> {{ convention.date_fin|timeuntil:convention.date_debut }}</p>
+</div>
+
+<div class="section">
+    <h2>Détails du stage</h2>
+    <p><span class="label">Gratification mensuelle :</span> {{ convention.gratification }} FCfA</p>
+    <p><span class="label">Tuteur entreprise :</span> {{ convention.tuteur_entreprise }}</p>
+    <p><span class="label">Email tuteur :</span> {{ convention.email_tuteur }}</p>
+    <p><span class="label">Téléphone tuteur :</span> {{ convention.telephone_tuteur }}</p>
+    <p><span class="label">Enseignant référent :</span> {{ convention.enseignant_referent }}</p>
+</div>
+
+<div class="section">
+    <h2>Articles de la convention</h2>
+    <ul class="articles">
+        <li><strong>Article 1 – Objet du stage :</strong> Le stage a pour but de permettre à l'étudiant d'acquérir une expérience professionnelle en lien avec sa formation.</li>
+        <li><strong>Article 2 – Durée du stage :</strong> La durée du stage est fixée conformément aux dates indiquées dans cette convention.</li>
+        <li><strong>Article 3 – Gratification :</strong> L'entreprise versera une gratification mensuelle conformément à la réglementation en vigueur.</li>
+        <li><strong>Article 4 – Encadrement :</strong> Le tuteur désigné par l'entreprise assure l'encadrement et le suivi du stagiaire.</li>
+        <li><strong>Article 5 – Obligations de l'étudiant :</strong> L'étudiant s'engage à respecter le règlement intérieur de l'entreprise et à effectuer les tâches qui lui sont confiées.</li>
+        <li><strong>Article 6 – Assurance :</strong> L'étudiant est couvert par l'assurance responsabilité civile de l'établissement scolaire.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>Signatures</h2>
+    <p><span class="label">Signature Étudiant :</span><br>
+        {% if convention.signature_etudiant %}
+            <img src="{{ convention.signature_etudiant.url }}" alt="Signature Étudiant" style="max-width: 200px;">
+        {% else %}
+            <em>Non fournie</em>
+        {% endif %}
+    </p>
+    <p><span class="label">Signature Entreprise :</span><br>
+        {% if convention.signature_entreprise %}
+            <img src="{{ convention.signature_entreprise.url }}" alt="Signature Entreprise" style="max-width: 200px;">
+        {% else %}
+            <em>Non fournie</em>
+        {% endif %}
+    </p>
+</div>
+
+<a href="{% url 'generer_pdf_convention' convention.id %}" class="btn-download" target="_blank" rel="noopener noreferrer">
+    <i class="fas fa-file-pdf"></i> Télécharger la convention en PDF
+</a>
+
+</body>
+</html>

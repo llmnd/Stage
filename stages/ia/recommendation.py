@@ -60,6 +60,19 @@ class RecommandationIA:
             print(f"Erreur extraction PDF {getattr(fichier_pdf, 'name', 'PDF inconnu')}: {e}")
             return ""
 
+    def generer_feedback(self, score):
+        pourcentage = round(score * 100)
+        if score > 0.75:
+            return f"Correspondance exceptionnelle ({pourcentage}%) - Vos compétences correspondent parfaitement aux exigences"
+        elif score > 0.5:
+            return f"Bonne correspondance ({pourcentage}%) - Vous avez la plupart des compétences requises"
+        elif score > 0.3:
+            return f"Correspondance moyenne ({pourcentage}%) - Certaines compétences correspondent"
+        elif score > 0.1:
+            return f"Correspondance minimale ({pourcentage}%) - Quelques éléments correspondent"
+        else:
+            return "Correspondance insuffisante"
+
     def recommander_candidats(self, offre_id, limite=5, force_recompute=False):
         cache_key = f"reco_candidats_{offre_id}"
 
@@ -119,14 +132,14 @@ class RecommandationIA:
         return resultats_tries[:limite]
 
     def recommander_offres(self, etudiant_id, limite=5, force_recompute=False, debug=False):
-        cache_key = f"reco_offres_{etudiant_id}_v2"
-
+        cache_key = f"reco_offres_{etudiant_id}_v3"
+        
         if not force_recompute:
             try:
                 cached_result = cache.get(cache_key)
                 if cached_result is not None:
                     if debug:
-                        print("Utilisation du cache existant")
+                        print(f"Utilisation du cache existant (clé: {cache_key})")
                     return cached_result[:limite]
             except Exception as e:
                 if debug:
@@ -135,25 +148,53 @@ class RecommandationIA:
         try:
             etudiant = Etudiant.objects.get(id=etudiant_id)
             if not etudiant.est_valide:
+                if debug:
+                    print("Étudiant non validé")
                 return []
         except Etudiant.DoesNotExist:
+            if debug:
+                print(f"Étudiant {etudiant_id} non trouvé")
             return []
 
         if debug:
             print(f"\n=== DEBUG ÉTUDIANT {etudiant_id} ===")
             print(f"Domaine: {etudiant.domaine_etude}")
-            print(f"Compétences: {etudiant.competences[:200]}...")
-            print(f"Réalisations: {etudiant.realisations[:200]}...\n")
+            print(f"Compétences: {etudiant.competences[:200]}..." if etudiant.competences else "Aucune compétence")
+            print(f"Réalisations: {etudiant.realisations[:200]}..." if etudiant.realisations else "Aucune réalisation")
+
+        texte_cv = ""
+        if etudiant.cv:
+            try:
+                texte_cv = self.extraire_texte_pdf(etudiant.cv)
+                if debug:
+                    print(f"Texte CV extrait: {texte_cv[:200]}..." if texte_cv else "CV vide")
+            except Exception as e:
+                if debug:
+                    print(f"Erreur lecture CV: {e}")
 
         texte_etudiant = " ".join(filter(None, [
-            etudiant.competences,
+            etudiant.competences or "",
             str(etudiant.domaine_etude),
-            etudiant.realisations,
-            self.extraire_texte_pdf(etudiant.cv)
+            etudiant.realisations or "",
+            texte_cv
         ])).strip()
 
-        candidatures_existantes = Candidature.objects.filter(etudiant=etudiant).values_list('offre_id', flat=True)
-        offres = OffreDeStage.objects.filter(est_valide=True).exclude(id__in=candidatures_existantes)
+        if not texte_etudiant:
+            if debug:
+                print("Aucune donnée textuelle pour l'étudiant")
+            return []
+
+        candidatures_existantes = Candidature.objects.filter(
+            etudiant=etudiant
+        ).values_list('offre_id', flat=True)
+
+        offres = OffreDeStage.objects.filter(
+            est_valide=True,
+            date_limite__gte=timezone.now()
+        ).exclude(id__in=candidatures_existantes).select_related('entreprise')
+
+        if debug:
+            print(f"\nOffres disponibles: {offres.count()}")
 
         resultats = []
         for offre in offres:
@@ -164,6 +205,9 @@ class RecommandationIA:
                 offre.competences_requises
             ])).strip()
 
+            if not texte_offre:
+                continue
+
             if debug and len(resultats) < 2:
                 print(f"\n--- Comparaison avec Offre {offre.id} ---")
                 print(f"Titre: {offre.titre}")
@@ -171,7 +215,12 @@ class RecommandationIA:
                 print(f"Texte offre (nettoyé): {self.preprocess_text(texte_offre)[:200]}...")
                 print(f"Texte étudiant (nettoyé): {self.preprocess_text(texte_etudiant)[:200]}...")
 
-            score = self.calculer_score_spacy(texte_offre, texte_etudiant)
+            try:
+                score = self.calculer_score_spacy(texte_offre, texte_etudiant)
+            except Exception as e:
+                if debug:
+                    print(f"Erreur calcul score pour offre {offre.id}: {e}")
+                continue
 
             if debug and len(resultats) < 2:
                 print(f"Score brut: {score}")
@@ -183,7 +232,7 @@ class RecommandationIA:
                     'feedback': self.generer_feedback(score),
                     'details': {
                         'domaine': str(offre.domaine),
-                        'competences': offre.competences_requises
+                        'competences': offre.competences_requises[:200] + "..." if offre.competences_requises else "Non spécifiées"
                     }
                 })
 
@@ -191,36 +240,24 @@ class RecommandationIA:
 
         if debug:
             print("\n=== RÉSULTATS FINAUX ===")
-            print(f"Offres trouvées: {len(offres)}")
-            print(f"Offres correspondantes: {len(resultats)}")
-            if resultats_tries:
-                print("Meilleure offre:")
-                print(f"ID: {resultats_tries[0]['offre'].id}")
-                print(f"Titre: {resultats_tries[0]['offre'].titre}")
-                print(f"Score: {resultats_tries[0]['score']}%")
-            else:
-                print("Aucune offre ne dépasse le seuil de similarité")
+            print(f"Offres correspondantes: {len(resultats_tries)}")
+            for i, res in enumerate(resultats_tries[:3]):
+                print(f"\nTop {i+1}:")
+                print(f"ID: {res['offre'].id}")
+                print(f"Titre: {res['offre'].titre}")
+                print(f"Entreprise: {res['offre'].entreprise.nom_entreprise}")
+                print(f"Score: {res['score']}%")
+                print(f"Feedback: {res['feedback']}")
 
         try:
             cache.set(cache_key, resultats_tries, timeout=getattr(settings, 'RECOMMENDATION_CACHE_TIMEOUT', 86400))
+            if debug:
+                print(f"\nRésultats mis en cache (clé: {cache_key})")
         except Exception as e:
             if debug:
                 print(f"Erreur mise en cache: {e}")
 
         return resultats_tries[:limite]
-
-    def generer_feedback(self, score):
-        pourcentage = round(score * 100)
-        if score > 0.75:
-            return f"Correspondance exceptionnelle ({pourcentage}%) - Vos compétences correspondent parfaitement aux exigences"
-        elif score > 0.5:
-            return f"Bonne correspondance ({pourcentage}%) - Vous avez la plupart des compétences requises"
-        elif score > 0.3:
-            return f"Correspondance moyenne ({pourcentage}%) - Certaines compétences correspondent"
-        elif score > 0.1:
-            return f"Correspondance minimale ({pourcentage}%) - Quelques éléments correspondent"
-        else:
-            return "Correspondance insuffisante"
 
     def evaluer_candidatures(self, offre_id, force_recompute=False):
         cache_key = f"eval_candidatures_{offre_id}_v2"

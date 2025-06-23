@@ -1,0 +1,11 @@
+<h2>Conventions en attente de validation</h2>
+<ul class="list-group">
+    {% for convention in conventions_attente %}
+        <li class="list-group-item">
+            Étudiant : {{ convention.etudiant.user.get_full_name }}<br>
+            Entreprise : {{ convention.entreprise.nom_entreprise }}<br>
+            Période : {{ convention.date_debut }} - {{ convention.date_fin }}
+            <a href="{% url 'detail_convention' convention.id %}" class="btn btn-sm btn-outline-primary float-end">Consulter</a>
+        </li>
+    {% endfor %}
+</ul>

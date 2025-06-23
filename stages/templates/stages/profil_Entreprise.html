@@ -322,9 +322,6 @@
              <span 
   {% if candidature.statut == 'acceptee' %}
     class="text-green-600"
-      <a href="{% url 'start_conversation' candidature.etudiant.user.id %}" 
-                                                   class="btn btn-sm btn-contact">
-                                                    <i class="fas fa-envelope"></i>
   {% elif candidature.statut == 'refusee' %}
     class="text-red-600"
   {% else %}
@@ -360,45 +357,55 @@
       </div>
     {% endif %}
   </section>
+ 
+<!-- Section IA simplifiée -->
+<section class="ia-section">
+  <h2><i class="fas fa-robot"></i> Intelligence Artificielle</h2>
+  <p style="color: var(--gray); margin-bottom: 1.5rem;">
+    Utilisez notre IA pour analyser les candidatures
+  </p>
   
-  <!-- Section IA simplifiée -->
-  <section class="ia-section">
-    <h2><i class="fas fa-robot"></i> Intelligence Artificielle</h2>
-    <p style="color: var(--gray); margin-bottom: 1.5rem;">
-      Utilisez notre IA pour analyser les candidatures
-    </p>
-    
-    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-      {% if offres_actives %}
-        <form method="post" action="{% url 'evaluer_candidatures_ia' offres_actives.0.id %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-warning">
-            <i class="fas fa-bolt"></i> Lancer l'IA
-          </button>
-        </form>
-      {% endif %}
-      
-      <a href="{% url 'ajouter_offre' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Créer une offre
-      </a>
-    </div>
-  </section>
-</main>
+  <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+    {% if offres_actives %}
+      <form method="post" action="{% url 'evaluer_candidatures_ia' offres_actives.0.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning">
+          <i class="fas fa-bolt"></i> Lancer l'IA
+        </button>
+      </form>
+    {% endif %}
 
-<script>
-  // Animation simple au défilement
-  document.addEventListener('DOMContentLoaded', function() {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate__animated', 'animate__fadeInUp');
-        }
-      });
-    }, { threshold: 0.1 });
+    <a href="{% url 'ajouter_offre' %}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Créer une offre
+    </a>
+  </div>
 
-    document.querySelectorAll('.card, .info-item').forEach(el => observer.observe(el));
-  });
-</script>
+  <!-- Intégration des conventions dans la même section -->
+  <div style="margin-top: 3rem;">
+    <h3><i class="fas fa-file-signature"></i> Mes conventions de stage</h3>
 
-</body>
-</html>
+    {% if conventions %}
+      <div class="list-group mt-2">
+        {% for convention in conventions %}
+          <a href="{% url 'detail_convention' convention.id %}" class="list-group-item list-group-item-action">
+            <strong>Stage chez {{ convention.entreprise.nom_entreprise }}</strong><br>
+            Du {{ convention.date_debut }} au {{ convention.date_fin }}<br>
+            Statut :
+            <span class="badge 
+              {% if convention.statut == 'validee' %} bg-success
+              {% elif convention.statut == 'en_attente' %} bg-warning
+              {% elif convention.statut == 'refusee' %} bg-danger
+              {% else %} bg-secondary
+              {% endif %}">
+              {{ convention.get_statut_display }}
+            </span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="mt-2">Aucune convention trouvée.</p>
+    {% endif %}
+  </div>
+</section>
+
+
