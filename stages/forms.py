@@ -8,6 +8,7 @@ from .models import OffreDeStage, Etudiant, UserProfile, Entreprise
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import UserProfile
 from .models import (Entreprise, Etudiant, OffreDeStage, Candidature, 
                     ConventionDeStage, SuiviStage, Memoire, EvaluationStage)
 
@@ -170,7 +171,7 @@ class EntrepriseForm(forms.ModelForm):
             }),
         }
         help_texts = {
-            'logo_url': _('URL du logo de votre entreprise (format carré recommandé)'),
+            'logo': _('URL du logo de votre entreprise (format carré recommandé)'),
             'email_contact': _('Adresse email de contact principale'),
             'telephone': _('Numéro de téléphone principal'),
             'reseaux_sociaux': _('Exemple : liens Facebook, LinkedIn, Twitter'),
@@ -379,3 +380,12 @@ class EnseignantSignupForm(UserCreationForm):
                 is_validated=False
             )
         return user
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.forms import ModelForm
+from .models import Etudiant, Entreprise, UserProfile
+
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import UserProfile, Etudiant, Entreprise
+

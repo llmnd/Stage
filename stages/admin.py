@@ -97,3 +97,10 @@ from stages.models import OffreDeStage, Entreprise, Candidature
 admin_site.register(OffreDeStage)
 admin_site.register(Entreprise)
 admin_site.register(Candidature)
+
+from django.contrib import admin
+from .models import ChefDepartement, Departement, Annonce, Etudiant  # importe tes modèles ici
+
+admin.site.register(ChefDepartement)
+admin.site.register(Departement)
+admin.site.register(Annonce)

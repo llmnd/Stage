@@ -1,0 +1,29 @@
+<!-- ajouter_annonce.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5>Publier une annonce</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="titre" class="form-label">Titre</label>
+                    <input type="text" class="form-control" name="titre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contenu" class="form-label">Contenu</label>
+                    <textarea class="form-control" name="contenu" rows="5" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="fichier" class="form-label">Fichier joint</label>
+                    <input type="file" class="form-control" name="fichier">
+                </div>
+                <button type="submit" class="btn btn-primary">Publier</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

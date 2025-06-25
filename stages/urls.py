@@ -128,6 +128,11 @@ urlpatterns = [
     path('conversation/start/<int:user_id>/', views.start_conversation, name='start_conversation'),
     path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
     path('conversations/', views.liste_conversations, name='liste_conversations'),
+    path('annonce/ajouter/', views.ajouter_annonce, name='ajouter_annonce'),
+    path('annonces/', views.annonces_etudiant, name='liste_annonces'),
+    path('annonces/', views.annonces_etudiant, name='liste_annonces'),
+    path('annonces/supprimer/<int:annonce_id>/', views.supprimer_annonce, name='supprimer_annonce'),
+
     # Détails
     
 

@@ -19,6 +19,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .models import Conversation, Message  # adapte selon tes modèles
+from .models import Annonce
 
 
 from .forms import (ConventionStageForm, SuiviStageForm, MemoireForm, 
@@ -1193,5 +1194,86 @@ def liste_conversations(request):
     ).order_by('-updated_at')
 
     return render(request, 'messaging/liste_conversations.html', {'conversations': conversations})
-    
 
+from .models import Annonce, Etudiant
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from django.http import HttpResponseForbidden
+from .models import Annonce, Etudiant
+
+@login_required
+def ajouter_annonce(request):
+    profil = getattr(request.user, 'userprofile', None)
+    
+    if not profil or profil.role != 'admin' or not profil.departement:
+        return HttpResponseForbidden("Seuls les chefs de département peuvent publier des annonces.")
+
+    if request.method == 'POST':
+        titre = request.POST['titre']
+        contenu = request.POST['contenu']
+        fichier = request.FILES.get('fichier')
+
+        Annonce.objects.create(
+            titre=titre,
+            contenu=contenu,
+            fichier=fichier,
+            departement=profil.departement,
+            auteur=request.user
+        )
+        return redirect('liste_annonces')
+
+    return render(request, 'messaging/ajouter_annonce.html')
+@login_required
+def annonces_etudiant(request):
+    try:
+        etudiant = Etudiant.objects.get(user=request.user)
+        # Exclure les annonces que l'étudiant a masquées
+        annonces = Annonce.objects.filter(
+            departement=etudiant.departement
+        ).exclude(
+            id__in=etudiant.annonces_masquees.values_list('id', flat=True)
+        ).order_by('-date_publication')
+        
+        etudiant.last_annonce_vue = timezone.now()
+        etudiant.save()
+        return render(request, 'messaging/annonces_etudiant.html', {
+            'annonces': annonces,
+            'can_delete': True  # Maintenant cela signifie "masquer" plutôt que supprimer
+        })
+    except Etudiant.DoesNotExist:
+        return HttpResponseForbidden("Profil étudiant non trouvé.")
+
+@login_required
+def dashboard_etudiant(request):
+    try:
+        etudiant = Etudiant.objects.get(user=request.user)
+        # Compter seulement les annonces non masquées et nouvelles
+        nouvelles_annonces = Annonce.objects.filter(
+            departement=etudiant.departement,
+            date_publication__gt=etudiant.last_annonce_vue
+        ).exclude(
+            id__in=etudiant.annonces_masquees.values_list('id', flat=True)
+        ).count()
+        return render(request, 'etudiant/dashboard.html', {
+            'nouvelles_annonces': nouvelles_annonces
+        })
+    except Etudiant.DoesNotExist:
+        return HttpResponseForbidden("Profil étudiant non trouvé.")
+
+@login_required
+def supprimer_annonce(request, annonce_id):
+    annonce = get_object_or_404(Annonce, id=annonce_id)
+    try:
+        etudiant = Etudiant.objects.get(user=request.user)
+        if etudiant.departement == annonce.departement:
+            # Au lieu de supprimer, on ajoute à la liste des annonces masquées
+            etudiant.annonces_masquees.add(annonce)
+            messages.success(request, "L'annonce a été masquée avec succès.")
+        else:
+            messages.error(request, "Cette annonce ne concerne pas votre département.")
+    except Etudiant.DoesNotExist:
+        messages.error(request, "Profil étudiant non trouvé.")
+    
+    return redirect('liste_annonces')

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="login-container">
+    <div class="avatar">
+        <img src="{% static 'img/c.jpg' %}" alt="Avatar utilisateur">
+    </div>
+    
+    <h2>Inscription</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Informations de base -->
+        <div class="form-group">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="error-message">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- Autres champs de base... -->
+        
+        <!-- Choix du rôle -->
+        <div class="form-group">
+            <label>Je suis :</label>
+            <div class="role-selector">
+                {% for choice in form.role %}
+                    <label class="role-option">
+                        {{ choice.tag }}
+                        <span class="role-label">{{ choice.choice_label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Formulaire Étudiant (masqué par défaut) -->
+        <div id="etudiant-form" class="role-specific-form" style="display:none;">
+            <h3>Informations étudiant</h3>
+            {% for field in etudiant_form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Formulaire Entreprise (masqué par défaut) -->
+        <div id="entreprise-form" class="role-specific-form" style="display:none;">
+            <h3>Informations entreprise</h3>
+            {% for field in entreprise_form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <button type="submit" class="login-btn">
+            <i data-lucide="user-plus"></i> S'inscrire
+        </button>
+        
+        <div class="bottom-text">
+            Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    lucide.createIcons();
+    
+    // Afficher le formulaire spécifique selon le rôle choisi
+    document.querySelectorAll('input[name="role"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.role-specific-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            if (this.value === 'etudiant') {
+                document.getElementById('etudiant-form').style.display = 'block';
+            } else if (this.value === 'entreprise') {
+                document.getElementById('entreprise-form').style.display = 'block';
+            }
+        });
+    });
+    
+    // Activer le bon formulaire au chargement si erreur
+    const selectedRole = document.querySelector('input[name="role"]:checked');
+    if (selectedRole) {
+        selectedRole.dispatchEvent(new Event('change'));
+    }
+</script>
+
+<style>
+    .role-selector {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .role-option {
+        flex: 1;
+        text-align: center;
+        cursor: pointer;
+    }
+    
+    .role-option input {
+        display: none;
+    }
+    
+    .role-label {
+        display: block;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .role-option input:checked + .role-label {
+        background: rgba(106, 17, 203, 0.3);
+        border-color: rgba(106, 17, 203, 0.5);
+    }
+    
+    .role-specific-form {
+        margin-top: 30px;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

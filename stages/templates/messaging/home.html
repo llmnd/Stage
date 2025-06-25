@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Messages</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="list-group">
+                {% for conversation in conversations %}
+                    {% for participant in conversation.participants.all %}
+                        {% if participant != request.user %}
+                            <a href="{% url 'conversation_detail' conversation.id %}" 
+                               class="list-group-item list-group-item-action">
+                                {{ participant.get_full_name }}
+                                <small class="text-muted float-right">
+                                    {{ conversation.updated_at|timesince }} ago
+                                </small>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% empty %}
+                    <div class="list-group-item">Aucune conversation</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <p>Sélectionnez une conversation ou démarrez-en une nouvelle</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

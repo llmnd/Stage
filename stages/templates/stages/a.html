@@ -1,813 +1,149 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Candidature de {{ candidature.etudiant.nom_complet|default:"Étudiant" }} | {{ candidature.offre.titre }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Détails de la candidature pour l'offre {{ candidature.offre.titre }}">
-    <!-- Préchargement des ressources critiques -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" as="style">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- PDF.js avec préchargement -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js" as="script">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
-        
-        :root {
-            --primary-color: #3f2176;
-            --secondary-color: #592fbb;
-            --accent-blue: #316bca;
-            --accent-purple: #7c3aed;
-        }
-        
-        body {
-            font-family: 'Times New Roman', sans-serif;
-            background-color: #241c5d;
-            line-height: 1.6;
-        }
-        
-        .font-playfair {
-            font-family: 'Times New Roman', serif;
-        }
-        
-        .status-badge {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s ease;
-        }
-        
-        .card-shadow {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .section-divider {
-            background: linear-gradient to right, var(--primary-color), var(--secondary-color);
-            height: 4px;
-            width: 60px;
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-        
-        .hover-scale {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-        }
-        
-        .hover-scale:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-        }
-        
-        .message-container {
-            background-color: #d9e5f2;
-            border-left: 4px solid var(--accent-blue);
-            padding: 1.5rem;
-            border-radius: 0 8px 8px 0;
-            transition: background-color 0.2s ease;
-        }
-        
-        .message-container:hover {
-            background-color: #f1f5f9;
-        }
-        
-        /* Animation pour les badges de statut */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .status-badge.pending {
-            animation: pulse 2s infinite;
-        }
-        
-        /* Améliorations pour la visionneuse PDF */
-        #pdf-viewer {
-            width: 100%;
-            min-height: 500px;
-            border: 1px solid #5047a2;
-            border-radius: 8px;
-            margin-top: 1rem;
-            overflow: auto;
-            background-color: #e5ecf8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #pdf-viewer canvas {
-            max-width: 100%;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.434);
-            margin: 1rem auto;
-        }
-        
-        .pdf-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .pdf-controls button {
-            background-color: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            font-weight: 500;
-        }
-        
-        .pdf-controls button:hover {
-            background-color: #2563eb;
-            transform: translateY(-1px);
-        }
-        
-        .pdf-controls button:disabled {
-            background-color: #cbd5e1;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .pdf-controls span {
-            font-weight: 500;
-            color: #4b5563;
-            min-width: 120px;
-            text-align: center;
-        }
-        
-        /* Améliorations pour les cartes d'information */
-        .info-card {
-            background-color: #ffffff;
-            padding: 1.25rem;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
-            height: 100%;
-        }
-        
-        .info-card:hover {
-            border-color: #c7d2fe;
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.1);
-        }
-        
-        .info-card-label {
-            color: #64748b;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .info-card-value {
-            color: #1e293b;
-            font-size: 1rem;
-            font-weight: 500;
-            word-break: break-word;
-        }
-        
-        /* Boutons améliorés */
-       .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 1.4rem;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.93rem;
-    letter-spacing: 0.015em;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-}
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
 
-.btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+class Departement(models.Model):
+    nom = models.CharField(max_length=100)
 
-.btn:hover::after {
-    opacity: 1;
-}
+    def __str__(self):
+        return self.nom
 
-.btn:active {
-    transform: translateY(1px) scale(0.98);
-}
+class Annonce(models.Model):
+    titre = models.CharField(max_length=255)
+    contenu = models.TextField()
+    date_publication = models.DateTimeField(auto_now_add=True)
+    departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name='annonces')
+    auteur = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fichier = models.FileField(upload_to='annonces_fichiers/', blank=True, null=True)
 
-.btn i {
-    margin-right: 0.5rem;
-    transition: transform 0.2s ease;
-}
+    def __str__(self):
+        return f"{self.titre} ({self.departement.nom})"
 
-.btn:hover i {
-    transform: translateX(2px);
-}
+class Etudiant(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nom_complet = models.CharField(max_length=100)
+    departement = models.ForeignKey(Departement, on_delete=models.SET_NULL, null=True)
+    last_annonce_vue = models.DateTimeField(default=timezone.now)
+    # autres champs...
 
-/* Bouton Primaire */
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(89, 47, 187, 0.3);
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-}
+    def __str__(self):
+        return self.nom_complet
 
-.btn-primary:hover {
-    background: linear-gradient(135deg, #341a62 0%, #4a28a0 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(89, 47, 187, 0.4);
-}
 
-.btn-primary:active {
-    box-shadow: 0 2px 10px rgba(89, 47, 187, 0.4);
-}
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.http import HttpResponseForbidden
+from .models import Annonce, Etudiant
 
-/* Bouton Danger */
-.btn-danger {
-    background: linear-gradient(135deg, #a92c2c 0%, #dc2626 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
-}
+@login_required
+def ajouter_annonce(request):
+    if not hasattr(request.user, 'departement_chef'):
+        return HttpResponseForbidden("Seuls les chefs de département peuvent publier des annonces.")
 
-.btn-danger:hover {
-    background: linear-gradient(135deg, #b01d1d 0%, #851515 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
-}
+    if request.method == 'POST':
+        titre = request.POST['titre']
+        contenu = request.POST['contenu']
+        fichier = request.FILES.get('fichier')
+        Annonce.objects.create(
+            titre=titre,
+            contenu=contenu,
+            fichier=fichier,
+            departement=request.user.departement_chef,
+            auteur=request.user
+        )
+        return redirect('liste_annonces')
 
-.btn-danger:active {
-    box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
-}
+    return render(request, 'messaging/ajouter_annonce.html')
 
-/* Bouton Succès */
-.btn-success {
-    background: linear-gradient(135deg, #116a32 0%, #0f6930 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
-}
+@login_required
+def annonces_etudiant(request):
+    etudiant = Etudiant.objects.get(user=request.user)
+    annonces = Annonce.objects.filter(departement=etudiant.departement).order_by('-date_publication')
+    etudiant.last_annonce_vue = timezone.now()
+    etudiant.save()
+    return render(request, 'messaging/annonces_etudiant.html', {'annonces': annonces})
 
-.btn-success:hover {
-    background: linear-gradient(135deg, #0f6c31 0%, #15803d 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
-}
+@login_required
+def dashboard_etudiant(request):
+    etudiant = Etudiant.objects.get(user=request.user)
+    nouvelles_annonces = Annonce.objects.filter(
+        departement=etudiant.departement,
+        date_publication__gt=etudiant.last_annonce_vue
+    ).count()
+    return render(request, 'etudiant/dashboard.html', {'nouvelles_annonces': nouvelles_annonces})
 
-.btn-success:active {
-    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
-}
 
-/* Bouton Secondaire */
-.btn-secondary {
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    color: #334155;
-    box-shadow: 0 4px 10px rgba(30, 41, 59, 0.05);
-    border: 1px solid rgba(203, 213, 225, 0.5);
-}
+# urls.py
+from django.urls import path
+from . import views
 
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(30, 41, 59, 0.1);
-    color: #1e293b;
-}
+urlpatterns = [
+    path('annonce/ajouter/', views.ajouter_annonce, name='ajouter_annonce'),
+    path('annonces/', views.annonces_etudiant, name='liste_annonces'),
+]
 
-.btn-secondary:active {
-    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.1);
-}
-@keyframes btnClick {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.97); }
-    100% { transform: scale(1); }
-}
 
-.btn-click {
-    animation: btnClick 0.3s ease;
-}
-        
-        /* Animation de chargement */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-spinner {
-            border: 4px solid rgba(59, 130, 246, 0.2);
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 2rem auto;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .section-divider {
-                width: 40px;
-                height: 3px;
-            }
-            
-            #pdf-viewer {
-                min-height: 70px;
-            }
-            
-            .pdf-controls {
-                gap: 0.3rem;
-            }
-            
-            .pdf-controls button {
-                padding: 0.2rem 1rem;
-                font-size: 0.4rem;
-            }
-        }
-        
-        /* Accessibilité : focus styles */
-        button:focus, a:focus {
-            outline: 2px solid var(--accent-blue);
-            outline-offset: 2px;
-        }
-        
-        /* Print styles */
-        @media print {
-            body {
-                background-color: white;
-                font-size: 12pt;
-            }
-            
-            .no-print {
-                display: none !important;
-            }
-            
-            #pdf-viewer {
-                height: auto;
-                min-height: 0;
-                page-break-inside: avoid;
-            }
-            
-            .card-shadow {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-50">
-    <div class="container mx-auto px-4 py-8 max-w-5xl">
-        <!-- Carte Principale -->
-        <div class="bg-white rounded-xl card-shadow overflow-hidden hover-scale">
-            <!-- En-tête avec dégradé -->
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-5 sm:px-8 sm:py-6 text-white">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-bold font-playfair">
-                            <i class="fas fa-file-alt mr-3" aria-hidden="true"></i>
-                            Candidature pour : {{ candidature.offre.titre }}
-                        </h1>
-                        <p class="text-blue-100 mt-1 flex items-center">
-                            <i class="far fa-calendar-alt mr-2" aria-hidden="true"></i>
-                            Soumise le {{ candidature.date_soumission|date:"d/m/Y à H:i" }}
-                        </p>
-                    </div>
-                    <span class="px-4 py-2 rounded-full text-sm font-semibold status-badge {% if candidature.statut == 'en_attente' %}pending{% endif %}
-                                {% if candidature.statut == 'accepte' %}bg-green-100 text-green-800
-                                {% elif candidature.statut == 'refuse' %}bg-red-100 text-red-800
-                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                        <i class="fas fa-{% if candidature.statut == 'accepte' %}check-circle{% elif candidature.statut == 'refuse' %}times-circle{% else %}hourglass-half{% endif %} mr-1" aria-hidden="true"></i>
-                        {{ candidature.get_statut_display }}
-                    </span>
+<!-- ajouter_annonce.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5>Publier une annonce</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="titre" class="form-label">Titre</label>
+                    <input type="text" class="form-control" name="titre" required>
                 </div>
-            </div>
-
-            <!-- Contenu -->
-            <div class="p-6 sm:p-8">
-                <!-- Section Étudiant -->
-                <div class="mb-10">
-                    <div class="flex items-center mb-6">
-                        <h2 class="text-xl md:text-2xl font-semibold text-gray-800 font-playfair">
-                            <i class="fas fa-user-graduate mr-3 text-purple-500" aria-hidden="true"></i>Profil du candidat
-                        </h2>
-                        <div class="section-divider ml-4"></div>
-                    </div>
-                    
-                    <!-- Grille d'informations -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                        <!-- Carte d'information -->
-                        <div class="info-card">
-                            <p class="info-card-label">
-                                <i class="fas fa-user mr-2 text-gray-400" aria-hidden="true"></i>
-                                Nom complet
-                            </p>
-                            <p class="info-card-value">
-                                {{ candidature.etudiant.nom_complet|default:"Non renseigné" }}
-                            </p>
-                        </div>
-                        
-                        <div class="info-card">
-                            <p class="info-card-label">
-                                <i class="fas fa-envelope mr-2 text-gray-400" aria-hidden="true"></i>
-                                Email
-                            </p>
-                            <p class="info-card-value">
-                                {% if candidature.etudiant.email %}
-                                    <a href="mailto:{{ candidature.etudiant.email }}" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors">
-                                        {{ candidature.etudiant.email }}
-                                    </a>
-                                {% else %}
-                                    <span class="text-gray-400">Non renseigné</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                        
-                        <div class="info-card">
-                            <p class="info-card-label">
-                                <i class="fas fa-phone-alt mr-2 text-gray-400" aria-hidden="true"></i>
-                                Téléphone
-                            </p>
-                            <p class="info-card-value">
-                                {% if candidature.etudiant.telephone %}
-                                    <a href="tel:{{ candidature.etudiant.telephone }}" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors">
-                                        {{ candidature.etudiant.telephone }}
-                                    </a>
-                                {% else %}
-                                    <span class="text-gray-400">Non renseigné</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                        
-                        <div class="info-card">
-                            <p class="info-card-label">
-                                <i class="fas fa-graduation-cap mr-2 text-gray-400" aria-hidden="true"></i>
-                                Formation
-                            </p>
-                            <p class="info-card-value">
-                                {{ candidature.etudiant.formation|default:"Non renseignée" }}
-                            </p>
-                        </div>
-                        
-                        {% if candidature.etudiant.universite %}
-                        <div class="info-card">
-                            <p class="info-card-label">
-                                <i class="fas fa-university mr-2 text-gray-400" aria-hidden="true"></i>
-                                Université
-                            </p>
-                            <p class="info-card-value">
-                                {{ candidature.etudiant.universite }}
-                            </p>
-                        </div>
-                        {% endif %}
-                        
-                        {% if candidature.etudiant.niveau_etude %}
-                        <div class="info-card">
-                            <p class="info-card-label">
-                                <i class="fas fa-layer-group mr-2 text-gray-400" aria-hidden="true"></i>
-                                Niveau d'étude
-                            </p>
-                            <p class="info-card-value">
-                                {{ candidature.etudiant.get_niveau_etude_display }}
-                            </p>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Compétences -->
-                    {% if candidature.etudiant.competences %}
-                    <div class="bg-gray-50 p-5 rounded-lg mb-6 transition-all hover:bg-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                            <i class="fas fa-tools text-blue-500 mr-2" aria-hidden="true"></i> 
-                            <span>Compétences</span>
-                        </h3>
-                        <div class="text-gray-700 whitespace-pre-line leading-relaxed">
-                            {{ candidature.etudiant.competences }}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Expérience -->
-                    {% if candidature.etudiant.experience %}
-                    <div class="bg-gray-50 p-5 rounded-lg transition-all hover:bg-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                            <i class="fas fa-briefcase text-purple-500 mr-2" aria-hidden="true"></i> 
-                            <span>Expérience professionnelle</span>
-                        </h3>
-                        <div class="text-gray-700 whitespace-pre-line leading-relaxed">
-                            {{ candidature.etudiant.experience }}
-                        </div>
-                    </div>
-                    {% endif %}
+                <div class="mb-3">
+                    <label for="contenu" class="form-label">Contenu</label>
+                    <textarea class="form-control" name="contenu" rows="5" required></textarea>
                 </div>
-
-                <!-- Section Documents -->
-                <div class="mb-10">
-                    <div class="flex items-center mb-6">
-                        <h2 class="text-xl md:text-2xl font-semibold text-gray-800 font-playfair">
-                            <i class="fas fa-paperclip mr-3 text-blue-500" aria-hidden="true"></i>Éléments de candidature
-                        </h2>
-                        <div class="section-divider ml-4"></div>
-                    </div>
-                    
-                    <!-- Message de motivation -->
-                    <div class="message-container mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                            <i class="fas fa-envelope-open-text text-purple-500 mr-2" aria-hidden="true"></i> 
-                            <span>Lettre de motivation</span>
-                        </h3>
-                        <div class="text-gray-700 whitespace-pre-line leading-relaxed">
-                            {% if candidature.message %}
-                                {{ candidature.message }}
-                            {% else %}
-                                <p class="italic text-gray-400">Aucun message de motivation fourni.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Visionneuse PDF - Section corrigée -->
-                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 transition-all hover:border-gray-300">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-file-pdf text-3xl text-red-500 mr-4" aria-hidden="true"></i>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800">CV du candidat</h3>
-                                <p class="text-sm text-gray-500">
-                                    Document PDF - {% if candidature.cv %}{{ candidature.cv.size|filesizeformat }}{% else %}Aucun fichier disponible{% endif %}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        {% if candidature.cv %}
-                            <div id="pdf-viewer">
-                                <div class="loading-spinner"></div>
-                                <p class="text-center text-gray-600 mt-2">Chargement du document...</p>
-                            </div>
-                            <div class="pdf-controls no-print">
-                                <button id="prev-page" class="btn btn-secondary" aria-label="Page précédente">
-                                    <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>Précédent
-                                </button>
-                                <span id="page-num" class="text-sm">Page 1 sur 1</span>
-                                <button id="next-page" class="btn btn-secondary" aria-label="Page suivante">
-                                    Suivant<i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
-                                </button>
-                                <button id="download-pdf" class="btn btn-primary" aria-label="Télécharger le PDF">
-                                    <i class="fas fa-download mr-2" aria-hidden="true"></i>Télécharger
-                                </button>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-8 text-gray-500 italic">
-                                <i class="fas fa-file-excel text-3xl mb-2" aria-hidden="true"></i>
-                                <p>Aucun CV disponible</p>
-                            </div>
-                        {% endif %}
-                    </div>
+                <div class="mb-3">
+                    <label for="fichier" class="form-label">Fichier joint</label>
+                    <input type="file" class="form-control" name="fichier">
                 </div>
-
-                <!-- Actions -->
-                <div class="flex flex-wrap gap-3 justify-end border-t pt-6 no-print">
-                    {% if is_entreprise %}
-                        <a href="{% url 'profil_entreprise' candidature.offre.entreprise.id %}" 
-                           class="btn btn-secondary">
-                            <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i> 
-                            <span>Retour au profil</span>
-                        </a>
-                        
-                        {% if candidature.statut != 'accepte' %}
-                        <form method="post" action="{% url 'modifier_statut_candidature' candidature.id 'accepte' %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success" aria-label="Accepter la candidature">
-                                <i class="fas fa-check mr-2" aria-hidden="true"></i> 
-                                <span>Accepter</span>
-                            </button>
-                        </form>
-                        {% endif %}
-                        
-                        {% if candidature.statut != 'refuse' %}
-                        <form method="post" action="{% url 'modifier_statut_candidature' candidature.id 'refuse' %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger" aria-label="Refuser la candidature">
-                                <i class="fas fa-times mr-2" aria-hidden="true"></i> 
-                                <span>Refuser</span>
-                            </button>
-                        </form>
-                        {% endif %}
-                        
-                        <button onclick="window.print()" class="btn btn-secondary" aria-label="Imprimer cette page">
-                            <i class="fas fa-print mr-2" aria-hidden="true"></i> 
-                            <span>Imprimer</span>
-                        </button>
-                    {% else %}
-                        <a href="{% url 'liste_offres' %}" 
-                           class="btn btn-primary">
-                            <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i> 
-                            <span>Retour aux offres</span>
-                        </a>
-                        
-                        <button onclick="window.print()" class="btn btn-secondary" aria-label="Imprimer cette page">
-                            <i class="fas fa-print mr-2" aria-hidden="true"></i> 
-                            <span>Imprimer</span>
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
+                <button type="submit" class="btn btn-primary">Publier</button>
+            </form>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- Script pour l'affichage du PDF - Seulement si le CV existe -->
-    {% if candidature.cv %}
-    <script>
-        // Configuration de PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
-        
-        let pdfDoc = null,
-            pageNum = 1,
-            pageRendering = false,
-            pageNumPending = null,
-            scale = 1.0,
-            canvas = null,
-            ctx = null;
-        
-        // Récupération des éléments du DOM
-        const pdfViewer = document.getElementById('pdf-viewer');
-        const pageNumElement = document.getElementById('page-num');
-        const prevButton = document.getElementById('prev-page');
-        const nextButton = document.getElementById('next-page');
-        const downloadButton = document.getElementById('download-pdf');
-        const pdfControls = document.querySelector('.pdf-controls');
-        
-        // Fonction pour afficher une page
-        function renderPage(num) {
-            pageRendering = true;
-            
-            // Afficher l'indicateur de chargement
-            pdfViewer.innerHTML = '<div class="loading-spinner"></div><p class="text-center text-gray-600 mt-2">Chargement de la page...</p>';
-            
-            pdfDoc.getPage(num).then(function(page) {
-                const viewport = page.getViewport({ scale: scale });
-                
-                // Créer le canvas si nécessaire
-                if (!canvas) {
-                    canvas = document.createElement('canvas');
-                    ctx = canvas.getContext('2d');
-                    canvas.style.maxWidth = '100%';
-                    canvas.style.height = 'auto';
-                }
-                
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                
-                // Effacer le contenu précédent
-                pdfViewer.innerHTML = '';
-                pdfViewer.appendChild(canvas);
-                
-                // Rendu de la page
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                
-                const renderTask = page.render(renderContext);
-                
-                renderTask.promise.then(function() {
-                    pageRendering = false;
-                    if (pageNumPending !== null) {
-                        renderPage(pageNumPending);
-                        pageNumPending = null;
-                    }
-                });
-            });
-            
-            // Mettre à jour l'affichage du numéro de page
-            pageNumElement.textContent = `Page ${num} sur ${pdfDoc.numPages}`;
-            
-            // Gestion des boutons de navigation
-            prevButton.disabled = num <= 1;
-            nextButton.disabled = num >= pdfDoc.numPages;
-        }
-        
-        function queueRenderPage(num) {
-            if (pageRendering) {
-                pageNumPending = num;
-            } else {
-                renderPage(num);
-            }
-        }
-        
-        function onPrevPage() {
-            if (pageNum <= 1) return;
-            pageNum--;
-            queueRenderPage(pageNum);
-        }
-        
-        function onNextPage() {
-            if (pageNum >= pdfDoc.numPages) return;
-            pageNum++;
-            queueRenderPage(pageNum);
-        }
-        
-        function onDownloadPdf() {
-            const link = document.createElement('a');
-            link.href = "{{ candidature.cv.url }}";
-            link.download = 'CV_{{ candidature.etudiant.nom_complet|default:"candidat" }}.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        // Écouteurs d'événements
-        prevButton.addEventListener('click', onPrevPage);
-        nextButton.addEventListener('click', onNextPage);
-        downloadButton.addEventListener('click', onDownloadPdf);
-        
-        // Chargement du document PDF
-        pdfjsLib.getDocument("{{ candidature.cv.url }}").promise.then(function(pdfDoc_) {
-            pdfDoc = pdfDoc_;
-            
-            // Ajuster l'échelle pour s'adapter à la largeur du conteneur
-            const containerWidth = pdfViewer.clientWidth - 40; // 20px de marge de chaque côté
-            pdfDoc.getPage(1).then(function(firstPage) {
-                const viewport = firstPage.getViewport({ scale: 1.0 });
-                scale = Math.min(containerWidth / viewport.width, 1.5);
-                
-                // Rendre la première page
-                renderPage(pageNum);
-            });
-        }).catch(function(error) {
-            pdfViewer.innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <i class="fas fa-exclamation-triangle text-3xl mb-2" aria-hidden="true"></i>
-                    <p class="font-medium">Erreur lors du chargement du PDF</p>
-                    <p class="text-sm mt-2">${error.message}</p>
-                    <a href="{{ candidature.cv.url }}" class="inline-block mt-4 text-blue-600 hover:underline" download>
-                        <i class="fas fa-download mr-1" aria-hidden="true"></i>
-                        Télécharger le fichier
-                    </a>
-                </div>`;
-            pdfControls.classList.add('hidden');
-        });
-        
-        // Gestion du redimensionnement de la fenêtre
-        let resizeTimer;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function() {
-                if (pdfDoc) {
-                    const containerWidth = pdfViewer.clientWidth - 40;
-                    pdfDoc.getPage(pageNum).then(function(page) {
-                        const viewport = page.getViewport({ scale: 1.0 });
-                        scale = Math.min(containerWidth / viewport.width, 1.5);
-                        renderPage(pageNum);
-                    });
-                }
-            }, 250);
-        });
-        
-        // Amélioration de l'accessibilité
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft') {
-                onPrevPage();
-            } else if (e.key === 'ArrowRight') {
-                onNextPage();
-            }
-        });
-    </script>
+
+<!-- annonces_etudiant.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <h4>Annonces de votre département</h4>
+    {% for annonce in annonces %}
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">{{ annonce.titre }}</div>
+        <div class="card-body">
+            <p>{{ annonce.contenu }}</p>
+            <small class="text-muted">Publié {{ annonce.date_publication|timesince }} ago</small>
+            {% if annonce.fichier %}
+                <br><a href="{{ annonce.fichier.url }}" class="btn btn-sm btn-outline-dark mt-2" download>📎 Télécharger le fichier joint</a>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <p>Aucune annonce disponible.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
+<!-- Exemple dans base.html pour notification -->
+<a href="{% url 'liste_annonces' %}" class="nav-link">
+    Annonces
+    {% if nouvelles_annonces > 0 %}
+    <span class="badge bg-danger">{{ nouvelles_annonces }}</span>
     {% endif %}
-    
-    <!-- Script pour améliorer les performances -->
-    <script>
-        // Différer le chargement des éléments non critiques
-        document.addEventListener('DOMContentLoaded', function() {
-            // Précharger les polices si nécessaire
-            if ('fonts' in document) {
-                document.fonts.load('1rem "Poppins"');
-                document.fonts.load('1rem "Playfair Display"');
-            }
-            
-            // Lazy load pour les éléments non visibles immédiatement
-            const observerOptions = {
-                rootMargin: '200px',
-                threshold: 0.1
-            };
-            
-            // Vous pourriez ajouter ici un observer pour d'autres éléments si nécessaire
-        });
-    </script>
-</body>
-</html>
+</a>

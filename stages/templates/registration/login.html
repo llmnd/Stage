@@ -4,32 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion | InternAI - Matching intelligent de stages</title>
+    <title>InternAI - Plateforme intelligente de stages</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <style>
         :root {
-            --primary: #6a11cb;
-            --primary-light: #8a2be2;
-            --primary-dark: #4b0082;
-            --secondary: #2575fc;
+            --primary: #4a3aff;
+            --primary-light: #7b6eff;
+            --primary-dark: #2a1b9e;
+            --secondary: #8e2de2;
             --accent: #ff6b6b;
             --light: #f8f9fa;
-            --dark: #1a1a2e;
-            --gray: #4a4a4a;
-            --gray-light: #e6e6e6;
-            --gray-lighter: #f5f5f7;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --gray-light: #dfe6e9;
             --white: #ffffff;
             --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
             --shadow-md: 0 6px 20px rgba(0,0,0,0.12);
             --shadow-lg: 0 15px 40px rgba(0,0,0,0.15);
-            --border-radius: 40px;
-            --border-radius-sm: 12px;
-            --glass: rgba(255, 255, 255, 0.171);
-            --glass-border: rgba(255, 255, 255, 0.18);
+            --border-radius: 8px;
         }
 
         * {
@@ -41,424 +37,473 @@
         body {
             font-family: 'Times New Roman', sans-serif;
             -webkit-font-smoothing: antialiased;
-            background: linear-gradient(135deg, #d1cbedd0 0%, #e0dbfb 100%);
-            color: rgb(0, 0, 0);
-            min-height: 100vh;
+            color: var(--dark);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        /* Header avec effet de verre amélioré */
-        header {
-            min-height: 100vh;
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.922) 100%),
-                        url('{% static "img/F.jpg" %}') center/cover no-repeat fixed;
+        /* Navigation principale */
+        .main-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            padding: 1rem 2rem;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            text-align: center;
-            padding: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(74, 58, 255, 0.3);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 58, 255, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0e9ff 100%);
             position: relative;
             overflow: hidden;
         }
 
-        header::before {
+        .hero::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
+            top: -50%;
+            right: -50%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 75% 25%, rgba(106, 17, 203, 0.15) 0%, transparent 60%);
-            pointer-events: none;
+            background: radial-gradient(circle, rgba(74, 58, 255, 0.05) 0%, transparent 70%);
         }
 
-        header h1 {
-            font-family: 'Times New Roman', serif;
-            font-size: clamp(3rem, 7vw, 5rem);
-            margin-bottom: 1.5rem;
-            line-height: 1.1;
-            font-weight: 700;
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #ffffff, #d4b5ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        header p {
-            font-size: clamp(1.1rem, 2.5vw, 1.8rem);
-            max-width: 800px;
-            margin-bottom: 3rem;
-            opacity: 0.9;
-            font-weight: 300;
-            backdrop-filter: blur(5px);
-            background: var(--glass);
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius);
-           
-        }
-
-        /* Conteneur principal */
-        .container {
-            max-width: 1400px;
+        .hero-content {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 4rem 2rem;
             width: 100%;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
             align-items: center;
-            position: relative;
         }
 
-        /* Section Hero */
-        .hero-section {
-            text-align: center;
-            margin-bottom: 5rem;
-            max-width: 900px;
-            width: 100%;
-            animation: fadeIn 1s ease-out;
+        .hero-text {
+            animation: fadeInUp 0.8s ease-out;
         }
 
         .hero-title {
             font-family: 'Times New Roman', serif;
-            font-size: 2.8rem;
-            margin-bottom: 2rem;
-            background: linear-gradient(to right, #ffffff, #d4b5ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 3.5rem;
             font-weight: 700;
             line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
         }
 
         .hero-subtitle {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
             line-height: 1.7;
-            opacity: 0.9;
-            margin-bottom: 3rem;
         }
 
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 0 auto;
+        .hero-cta {
+            display: inline-flex;
+            gap: 0.75rem;
+            align-items: center;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(74, 58, 255, 0.3);
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(74, 58, 255, 0.4);
+        }
+
+        .hero-image {
+            position: relative;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .hero-image img {
             width: 100%;
-            max-width: 1200px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            transform: perspective(1000px) rotateY(-10deg);
+            transition: var(--transition);
+        }
+
+        .hero-image:hover img {
+            transform: perspective(1000px) rotateY(-5deg);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
             margin-bottom: 4rem;
         }
 
-        .feature {
-            background: var(--glass);
-            padding: 2.5rem;
-            border-radius: var(--border-radius);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            transition: var(--transition);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-        }
-
-        .feature:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(106, 17, 203, 0.4);
-        }
-
-        .feature-icon {
+        .section-title h2 {
+            font-family: 'Times New Roman', serif;
             font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            color: #1e0449;
-            background: rgba(180, 136, 255, 0.055);
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 1px solid rgba(179, 136, 255, 0.3);
-        }
-
-        .feature-title {
-            font-weight: 600;
+            color: var(--primary-dark);
             margin-bottom: 1rem;
-            font-size: 1.5rem;
-            color: rgb(29, 14, 52);
         }
 
-        .feature-desc {
-            font-size: 1.3rem;
-            opacity: 0.85;
-            line-height: 1.6;
+        .section-title p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-        /* Login Container */
-        .login-container {
-            background: rgba(143, 141, 236, 0.11);
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--light);
             border-radius: var(--border-radius);
-            padding: 3rem;
-            text-align: center;
-            width: 50%;
-            color: #1a1a2e;
-          
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            animation: fadeInUp 0.8s ease-out;
-            margin-top: 2rem;
-        }
-
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-            transform: rotate(45deg);
-            z-index: -1;
-        }
-
-        .login-container::after {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(106, 17, 203, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: -1;
-        }
-
-        .avatar {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 2rem;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-md);
+            padding: 2.5rem 2rem;
             transition: var(--transition);
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 1px solid var(--gray-light);
         }
 
-        .avatar:hover {
-            transform: scale(1.05) rotate(5deg);
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-md);
             border-color: var(--primary-light);
         }
 
-        .avatar img {
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon i {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .feature-desc {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
-        h2 {
-            margin: 0 0 1.5rem;
-            font-weight: 600;
-            font-size: 2rem;
-            font-family: 'Times New Roman', serif;
-            color: rgb(31, 8, 67);
+        .login-modal.active {
+            opacity: 1;
+            pointer-events: all;
         }
 
-        .login-subtitle {
+        .login-container {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .login-modal.active .login-container {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        .login-title {
+            text-align: center;
             margin-bottom: 2rem;
-            opacity: 0.85;
-            font-size: 1.1rem;
+            font-family: 'Times New Roman', serif;
+            color: var(--primary-dark);
         }
 
         .form-group {
             margin-bottom: 1.5rem;
-            text-align: left;
-            position: relative;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.8rem;
-            font-size: 1rem;
-            opacity: 0.9;
-            color: rgb(31, 6, 55);
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
 
         .form-control {
             width: 100%;
-            padding: 1rem 1.5rem;
-            border-radius: var(--border-radius-sm);
-            border: 1px solid var(--glass-border);
-            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
             font-size: 1rem;
             transition: var(--transition);
-            box-shadow: var(--shadow-sm);
-            color: rgb(15, 1, 1);
-        }
-
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.6);
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-light);
-            background-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 58, 255, 0.2);
         }
 
         .login-btn {
             width: 100%;
-            padding: 1.2rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
             color: white;
             border: none;
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-top: 1rem;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
+            margin-top: 1rem;
         }
 
         .login-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(106, 17, 203, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 58, 255, 0.3);
         }
 
-        .login-btn:hover::before {
-            left: 100%;
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--gray);
         }
 
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .bottom-text {
-            margin-top: 2rem;
-            font-size: 0.95rem;
-            opacity: 0.85;
-        }
-
-        .bottom-text a {
-            color: #b388ff;
+        .login-footer a {
+            color: var(--primary);
             font-weight: 500;
             text-decoration: none;
-            transition: var(--transition);
-            position: relative;
         }
 
-        .bottom-text a::after {
+        /* Footer */
+        footer {
+            background: var(--primary-dark);
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-logo img {
+            height: 40px;
+        }
+
+        .footer-about {
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+            opacity: 0.8;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .footer-title::after {
             content: '';
             position: absolute;
-            bottom: -2px;
+            bottom: 0;
             left: 0;
-            width: 0;
-            height: 1px;
-            background-color: #b388ff;
+            width: 50px;
+            height: 2px;
+            background: white;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-link a {
+            color: white;
+            opacity: 0.8;
+            text-decoration: none;
             transition: var(--transition);
         }
 
-        .bottom-text a:hover::after {
-            width: 100%;
+        .footer-link a:hover {
+            opacity: 1;
+            padding-left: 5px;
         }
 
-        .error-message {
-            color: var(--accent);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            text-align: left;
-            padding-left: 0.5rem;
+        .footer-contact-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: flex-start;
         }
 
-        /* Background Decor */
-        .background-decor .shape {
-            position: fixed;
-            border-radius: 50%;
-            opacity: 0.15;
-            z-index: -1;
+        .footer-contact-item i {
+            margin-top: 3px;
         }
 
-        .shape.one { 
-            width: 200px; 
-            height: 200px; 
-            top: 10%; 
-            left: 5%; 
-            background: var(--primary);
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        .shape.two { 
-            width: 200px; 
-            height: 200px; 
-            bottom: 10%; 
-            right: 5%; 
-            background: var(--secondary);
-            animation: float 10s ease-in-out infinite 2s;
-        }
-        
-        .shape.three { 
-            width: 200px; 
-            height: 200px; 
-            top: 20%; 
-            right: 5%; 
-            background: #b388ff;
-            animation: float 3s ease-in-out infinite 1s;
+        .copyright {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
         }
 
         /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(5deg); }
-        }
-
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes fadeInUp {
             from { 
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to { 
                 opacity: 1;
@@ -468,32 +513,34 @@
 
         /* Responsive */
         @media (max-width: 992px) {
-            .features {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 20px;
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .hero-text {
+                order: 2;
+                text-align: center;
+            }
+            
+            .hero-image {
+                order: 1;
+                max-width: 600px;
+                margin: 0 auto;
             }
         }
 
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 3.5rem;
-            }
-            
-            header p {
-                font-size: 1.2rem;
-                padding: 0.8rem 1.5rem;
-            }
-            
             .hero-title {
-                font-size: 2.2rem;
+                font-size: 2.5rem;
             }
             
             .hero-subtitle {
                 font-size: 1.1rem;
             }
             
-            .feature {
-                padding: 2rem;
+            .nav-links {
+                gap: 1.5rem;
             }
             
             .login-container {
@@ -502,122 +549,247 @@
         }
 
         @media (max-width: 576px) {
-            header h1 {
-                font-size: 2.8rem;
+            .main-nav {
+                padding: 1rem;
             }
             
-            .container {
-                padding: 2rem 1rem;
+            .nav-links {
+                gap: 1rem;
             }
             
-            .login-container {
-                padding: 1.5rem;
+            .nav-cta {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
             
-            .shape.one, .shape.two, .shape.three {
-                display: none;
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .feature-card {
+                padding: 2rem 1.5rem;
             }
         }
     </style>
 
-    <!-- Header -->
-    <header>
-        <h1>InternAI</h1>
-        <p>
-          La rencontre entre potentiel et opportunité
-        </p>
-    </header>
-
-    <main class="container">
-        <div class="background-decor">
-            <div class="shape one"></div>
-            <div class="shape two"></div>
-            <div class="shape three"></div>
+    <!-- Navigation principale -->
+    <nav class="main-nav">
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'img/F.jpg' %}" alt="InternAI Logo">
+            InternAI
+        </a>
+        
+        <div class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link">Accueil</a>
+            <a href="#features" class="nav-link">Fonctionnalités</a>
+            <a href="#about" class="nav-link">À propos</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            <button id="login-btn" class="nav-cta">
+                <i data-lucide="log-in"></i> Connexion
+            </button>
         </div>
+    </nav>
 
-        <div class="hero-section">
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-icon"><i data-lucide="zap"></i></div>
-                    <h3 class="feature-title">Matching Intelligent</h3>
-                    <p class="feature-desc">Notre IA analyse votre profil pour trouver les stages parfaitement adaptés à vos compétences et aspirations</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon"><i data-lucide="bar-chart-2"></i></div>
-                    <h3 class="feature-title">Recommandations Personnalisées</h3>
-                    <p class="feature-desc">Des offres de stage sélectionnées sur mesure selon votre profil et vos préférences</p>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Trouvez le stage parfait avec notre intelligence artificielle</h1>
+                <p class="hero-subtitle">
+                    InternAI analyse votre profil et vos compétences pour vous recommander les offres de stage les plus adaptées à vos aspirations professionnelles.
+                </p>
+                <button id="hero-login-btn" class="hero-cta">
+                    <i data-lucide="zap"></i> Commencer maintenant
+                </button>
+            </div>
+            <div class="hero-image">
+                <img src="{% static 'img/F.jpg' %}" alt="Aperçu de la plateforme InternAI">
             </div>
         </div>
+    </section>
 
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>Pourquoi choisir InternAI ?</h2>
+            <p>Notre plateforme révolutionnaire utilise des algorithmes avancés pour transformer votre recherche de stage</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="brain"></i>
+                </div>
+                <h3 class="feature-title">Matching Intelligent</h3>
+                <p class="feature-desc">
+                    Notre IA analyse votre profil académique, vos compétences et vos centres d'intérêt pour trouver les stages qui correspondent parfaitement à vos aspirations.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="bar-chart-2"></i>
+                </div>
+                <h3 class="feature-title">Recommandations Personnalisées</h3>
+                <p class="feature-desc">
+                    Recevez des suggestions de stage basées sur vos performances académiques, vos compétences techniques et vos préférences géographiques.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="clock"></i>
+                </div>
+                <h3 class="feature-title">Gain de Temps</h3>
+                <p class="feature-desc">
+                    Plus besoin de passer des heures à chercher des offres. Notre système vous présente uniquement les opportunités pertinentes pour vous.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
         <div class="login-container">
-            <div class="avatar">
-                <img src="{% static 'img/a.jpg' %}" alt="Logo InternAI">
-            </div>
+            <button class="close-modal" id="closeModal">
+                <i data-lucide="x"></i>
+            </button>
             
-            <h2>Connectez-vous</h2>
-            <p class="login-subtitle">Accédez à votre espace personnalisé</p>
+            <h2 class="login-title">Connectez-vous à votre compte</h2>
             
-            <form method="post">
+            <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
                 
                 <div class="form-group">
                     <label for="id_username">Nom d'utilisateur</label>
-                    <input type="text" name="username" id="id_username" class="form-control" placeholder="Entrez votre nom d'utilisateur" required>
-                    {% if form.username.errors %}
-                        <div class="error-message">{{ form.username.errors }}</div>
-                    {% endif %}
+                    <input type="text" name="username" id="id_username" class="form-control" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="id_password">Mot de passe</label>
-                    <input type="password" name="password" id="id_password" class="form-control" placeholder="Entrez votre mot de passe" required>
-                    {% if form.password.errors %}
-                        <div class="error-message">{{ form.password.errors }}</div>
-                    {% endif %}
+                    <input type="password" name="password" id="id_password" class="form-control" required>
                 </div>
                 
                 <button type="submit" class="login-btn">
                     <i data-lucide="log-in"></i> Se connecter
                 </button>
                 
-                <p class="bottom-text">
-                    Nouveau sur InternAI ? <a href="#">Créer un compte</a>
-                </p>
+                <div class="login-footer">
+                    Pas encore de compte ? <a href="{% url 'register' %}">S'inscrire</a>
+                </div>
             </form>
         </div>
-    </main>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-col">
+                <a href="#" class="footer-logo">
+                    <img src="{% static 'img/F.jpg' %}" alt="InternAI Logo">
+                    InternAI
+                </a>
+                <p class="footer-about">
+                    Plateforme intelligente de mise en relation entre étudiants et entreprises pour des stages adaptés aux compétences et aspirations de chacun.
+                </p>
+            </div>
+            
+            <div class="footer-col">
+                <h3 class="footer-title">Liens rapides</h3>
+                <ul class="footer-links">
+                    <li class="footer-link"><a href="{% url 'home' %}">Accueil</a></li>
+                    <li class="footer-link"><a href="#features">Fonctionnalités</a></li>
+                    <li class="footer-link"><a href="#about">À propos</a></li>
+                    <li class="footer-link"><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3 class="footer-title">Contactez-nous</h3>
+                <div class="footer-contact-item">
+                    <i data-lucide="mail"></i>
+                    <span>contact@internai.com</span>
+                </div>
+                <div class="footer-contact-item">
+                    <i data-lucide="phone"></i>
+                    <span>78 466 69 12</span>
+                </div>
+                <div class="footer-contact-item">
+                    <i data-lucide="map-pin"></i>
+                    <span>Sacre coeur, Dakar</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            &copy; 2023 InternAI. Tous droits réservés.
+        </div>
+    </footer>
 
     <script>
+        // Initialisation des icônes Lucide
         lucide.createIcons();
         
-        // Animation des labels des champs de formulaire
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentNode.querySelector('label').style.opacity = '1';
-                this.parentNode.querySelector('label').style.transform = 'translateY(-5px)';
-            });
-            
-            input.addEventListener('blur', function() {
-                if (!this.value) {
-                    this.parentNode.querySelector('label').style.opacity = '0.9';
-                    this.parentNode.querySelector('label').style.transform = 'translateY(0)';
-                }
-            });
-            
-            // Initial state
-            if (input.value) {
-                input.parentNode.querySelector('label').style.opacity = '1';
-                input.parentNode.querySelector('label').style.transform = 'translateY(-5px)';
+        // Gestion du modal de connexion
+        const loginBtn = document.getElementById('login-btn');
+        const heroLoginBtn = document.getElementById('hero-login-btn');
+        const loginModal = document.getElementById('loginModal');
+        const closeModal = document.getElementById('closeModal');
+        
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.add('active');
+        });
+        
+        heroLoginBtn.addEventListener('click', () => {
+            loginModal.classList.add('active');
+        });
+        
+        closeModal.addEventListener('click', () => {
+            loginModal.classList.remove('active');
+        });
+        
+        // Fermer le modal en cliquant à l'extérieur
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.classList.remove('active');
             }
         });
         
-        // Effet de parallaxe sur le header
-        window.addEventListener('scroll', function() {
-            const scrollPosition = window.pageYOffset;
-            const header = document.querySelector('header');
-            header.style.backgroundPositionY = scrollPosition * 0.5 + 'px';
+        // Animation au scroll
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('.feature-card, .section-title');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.2;
+                
+                if (elementPosition < screenPosition) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        };
+        
+        // Initialiser les éléments animés
+        document.querySelectorAll('.feature-card, .section-title').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         });
+        
+        // Écouter l'événement scroll
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Déclencher une première fois au chargement
+        window.addEventListener('load', animateOnScroll);
     </script>
 </body>
 </html>

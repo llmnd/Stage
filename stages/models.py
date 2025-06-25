@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 import os
 from datetime import date
+from django.utils import timezone
+
 
 # Rôles possibles
 ROLES = (
@@ -16,9 +18,17 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLES)
     is_validated = models.BooleanField(default=False)
+    departement = models.ForeignKey('Departement', on_delete=models.SET_NULL, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
+
+class Departement(models.Model):
+    nom = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nom    
 
 class Enseignant(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -28,7 +38,6 @@ class Enseignant(models.Model):
     specialite = models.CharField(max_length=100)
     departement = models.CharField(max_length=100)
     est_valide = models.BooleanField(default=False)
-
     def __str__(self):
         return self.nom_complet
 
@@ -86,6 +95,9 @@ class Etudiant(models.Model):
     cv = models.FileField(upload_to='cvs/', blank=True, null=True)
     est_valide = models.BooleanField(default=False)
     enseignant_referent = models.ForeignKey(Enseignant, on_delete=models.SET_NULL, null=True, blank=True)
+    departement = models.ForeignKey(Departement, on_delete=models.SET_NULL, null=True)
+    last_annonce_vue = models.DateTimeField(default=timezone.now)
+    annonces_masquees = models.ManyToManyField('Annonce', blank=True)
 
     def __str__(self):
         return self.nom_complet
@@ -336,4 +348,26 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    read = models.BooleanField(default=False)    
+    read = models.BooleanField(default=False) 
+
+
+class Annonce(models.Model):
+    titre = models.CharField(max_length=255)
+    contenu = models.TextField()
+    date_publication = models.DateTimeField(auto_now_add=True)
+    departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name='annonces')
+    auteur = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fichier = models.FileField(upload_to='annonces_fichiers/', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.titre} ({self.departement.nom})"
+
+
+class ChefDepartement(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    departement = models.OneToOneField(Departement, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.departement.nom}"
+
+
