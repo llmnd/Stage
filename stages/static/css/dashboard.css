@@ -1,0 +1,288 @@
+:root {
+    --primary: #4a3aff;
+    --primary-light: #7b6eff;
+    --primary-dark: #2a1b9e;
+    --secondary: #8e2de2;
+    --accent: #ff6b6b;
+    --light: #f8f9fa;
+    --dark: #2d3436;
+    --gray: #636e72;
+    --gray-light: #dfe6e9;
+    --gray-lighter: #f1f3f5;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --border-radius: 12px;
+    --border-radius-sm: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f5f5;
+    color: var(--dark);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.mobile-container {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--white);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+/* Header Mobile */
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-light);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    color: var(--gray);
+}
+
+/* Profil Étudiant */
+.profile-section {
+    padding: 1.5rem;
+    background: var(--white);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.profile-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    color: var(--dark);
+}
+
+.profile-header p {
+    color: var(--gray);
+    margin-bottom: 0.5rem;
+}
+
+.profile-id {
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+}
+
+.contact-info, .academic-info {
+    margin-bottom: 1.5rem;
+}
+
+.contact-info h3, .academic-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+/* Navigation Mobile */
+.mobile-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 0.75rem 0;
+    background: var(--white);
+    position: sticky;
+    bottom: 0;
+    border-top: 1px solid var(--gray-light);
+    z-index: 100;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--gray);
+    cursor: pointer;
+}
+
+.nav-item.active {
+    color: var(--primary);
+}
+
+.nav-item .icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Contenu Principal */
+.main-content {
+    padding: 1rem;
+    padding-bottom: 70px; /* Pour éviter que le contenu soit caché par la navigation */
+}
+
+.section {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dark);
+}
+
+/* Offres Recommandées */
+.offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.offer-card {
+    background: var(--gray-lighter);
+    border-radius: var(--border-radius-sm);
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.offer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-sm);
+}
+
+.offer-badge {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.offer-card h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.offer-card p {
+    font-size: 0.8rem;
+    color: var(--gray);
+}
+
+/* Section IA */
+.ai-section {
+    background: linear-gradient(135deg, rgba(106, 17, 203, 0.05) 0%, rgba(42, 35, 125, 0.05) 100%);
+    border: 1px solid rgba(106, 17, 203, 0.1);
+}
+
+.ai-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.view-all {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.ai-content p {
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.featured-internships h4 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--dark);
+}
+
+.internship-card {
+    background: var(--white);
+    border-radius: var(--border-radius-sm);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--gray-light);
+}
+
+.internship-card h5 {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.internship-card p {
+    font-size: 0.8rem;
+    color: var(--gray);
+    margin-bottom: 0.75rem;
+}
+
+.apply-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .mobile-container {
+        max-width: 100%;
+    }
+    
+    .offers-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

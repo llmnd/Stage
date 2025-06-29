@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Demandes d'inscription en attente</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Utilisateur</th>
+            <th>Rôle</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for profile in pending_users %}
+        <tr>
+            <td>{{ profile.user.username }}</td>
+            <td>{{ profile.get_role_display }}</td>
+            <td>{{ profile.user.email }}</td>
+            <td>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ profile.id }}">
+                    <button type="submit" name="action" value="approve" class="button">Approuver</button>
+                </form>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ profile.id }}">
+                    <button type="submit" name="action" value="reject" class="button">Rejeter</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">Aucune demande en attente</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

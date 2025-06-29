@@ -132,7 +132,7 @@ urlpatterns = [
     path('annonces/', views.annonces_etudiant, name='liste_annonces'),
     path('annonces/', views.annonces_etudiant, name='liste_annonces'),
     path('annonces/supprimer/<int:annonce_id>/', views.supprimer_annonce, name='supprimer_annonce'),
-
+    path('chatbot/', include('chatbot.urls')),
     # Détails
     
 

@@ -717,6 +717,10 @@
                 <a href="{% url 'register' %}" class="header-nav-link header-nav-primary">
                     <i data-lucide="user-plus"></i> Inscription
                 </a>
+            <a class="header-nav" href="{% url 'chatbot' %}">
+                <i class="fas fa-robot"></i> Assistant
+            </a>
+        </li>
             {% endif %}
         </nav>
     </div>
@@ -731,9 +735,9 @@
                     <i data-lucide="user-plus"></i> Commencez maintenant
                 </a>
             {% endif %}
-            <a href="#how-it-works" class="btn btn-outline animate-in delay-3">
-                <i data-lucide="help-circle"></i> Comment ça marche
-            </a>
+        <a href="{% url 'chatbot:chatbot' %}" class="btn btn-outline animate-in delay-3">
+            <i data-lucide="message-square"></i> Parler à l'Assistant IA
+        </a>
         </div>
     </header>
     {% if user.is_authenticated and user.etudiant %}

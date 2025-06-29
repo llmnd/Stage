@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accueil',
     'stages',
+    'chatbot',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +144,4 @@ ALLOWED_HOSTS = [
 # Configuration des médias
 MEDIA_URL = '/media/' if DEBUG else '/protected-media/'  # ← Changez en prod
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+BASE_URL = 'http://localhost:8000'
