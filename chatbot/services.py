@@ -28,7 +28,7 @@ class GroqClient:
     @classmethod
     def get_client(cls):
         if cls._instance is None:
-            api_key = os.getenv('GROQ_API_KEY', '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')
+            api_key = os.getenv('GROQ_API_KEY', '')
             if not api_key:
                 raise ValueError("GROQ_API_KEY environment variable not set")
             cls._instance = groq.Client(api_key=api_key)
@@ -449,6 +449,7 @@ class ChatbotService:
         self.reco_ia = RecommandationIA()
         self.groq_client = GroqClient.get_client()
         self._setup_intents()
+        self.bot_name = "ESP CareerBot"  # Ajoutez cette ligne pour définir le nom du chatbot
         self.context = {}
         self.cache_timeout = getattr(settings, 'CHATBOT_CACHE_TIMEOUT', 3600)
     
@@ -541,7 +542,7 @@ class ChatbotService:
         
         if intent == "GREETING":
             return self._generate_groq_response(
-                f"Génère une salutation personnalisée pour {user.first_name} en tant que chatbot d'une plateforme de stages. "
+                f"Génère une salutation personnalisée pour {user.first_name} en tant que {self.bot_name}, "
                 "Sois amical et professionnel. En français."
             )
         
