@@ -64,21 +64,30 @@ class Entreprise(models.Model):
     def __str__(self):
         return self.nom_entreprise
 
+    def is_active(self):
+        return self.est_valide    
+
 class Etudiant(models.Model):
     NIVEAU_ETUDE_CHOICES = [
-        ('bac', 'Baccalauréat'),
-        ('bac+2', 'Bac+2 (BTS, DUT)'),
-        ('bac+3', 'Licence'),
-        ('bac+5', 'Master'),
-        ('bac+8', 'Doctorat'),
+        ('licence1', 'Licence 1'),
+        ('licence2', 'Licence 2'),
+        ('licence3', 'Licence 3'),
+        ('master1', 'Master 1'),
+        ('master2', 'Master 2'),
+        ('ingenieur1', 'Cycle Ingénieur 1'),
+        ('ingenieur2', 'Cycle Ingénieur 2'),
+        ('ingenieur3', 'Cycle Ingénieur 3'),
     ]
-    
+
     DOMAINE_ETUDE_CHOICES = [
-        ('info', 'Informatique'),
-        ('gestion', 'Gestion'),
-        ('droit', 'Droit'),
-        ('sante', 'Santé'),
-        ('ingenieur', 'Ingénierie'),
+        ('gc', 'Génie Civil'),
+        ('geii', 'Génie Électrique et Informatique Industrielle'),
+        ('gtr', 'Génie Télécom et Réseaux'),
+        ('ginfo', 'Génie Informatique'),
+        ('gindus', 'Génie Industriel'),
+        ('chimie', 'Génie Chimique et Biologique'),
+        ('gme', 'Génie Mécanique et Énergétique'),
+        ('ges', 'Gestion'),
         ('autre', 'Autre'),
     ]
 
@@ -98,9 +107,13 @@ class Etudiant(models.Model):
     departement = models.ForeignKey(Departement, on_delete=models.SET_NULL, null=True)
     last_annonce_vue = models.DateTimeField(default=timezone.now)
     annonces_masquees = models.ManyToManyField('Annonce', blank=True)
+    linkedin = models.URLField(max_length=200, blank=True, null=True, verbose_name="Profil LinkedIn")
+    portfolio = models.URLField(max_length=200, blank=True, null=True, verbose_name="Portfolio en ligne")
 
     def __str__(self):
         return self.nom_complet
+    def is_active(self):
+        return self.est_valide
 
 class OffreDeStage(models.Model):
     TYPE_STAGE_CHOICES = [
@@ -144,6 +157,7 @@ class Candidature(models.Model):
     cv = models.FileField(upload_to='candidatures_cvs/', blank=True, null=True)
     score_ia = models.FloatField(null=True, blank=True, help_text="Score de correspondance calculé par l'IA")
     feedback_ia = models.TextField(blank=True, null=True, help_text="Feedback généré par l'IA")
+    lettre_motivation = models.FileField(upload_to='candidatures_lettres/', blank=True, null=True)
 
     class Meta:
         unique_together = ('etudiant', 'offre')

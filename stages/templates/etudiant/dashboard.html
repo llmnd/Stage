@@ -709,7 +709,11 @@
                 </a>
                 <a href="{% url 'logout' %}" class="header-nav-link">
                     <i data-lucide="log-out"></i> Déconnexion
-                </a>
+                <a href="{% url 'modifier_profil_etudiant' %}" class="header-nav-link">
+                <i data-lucide="edit-3"></i> Modifier mon profil
+            </a>
+
+                        
             {% else %}
                 <a href="{% url 'login' %}" class="header-nav-link">
                     <i data-lucide="log-in"></i> Connexion

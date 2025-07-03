@@ -10,12 +10,16 @@ from django.conf.urls.static import static
 from .views import mes_candidatures
 from .views import voir_recommandations
 from .views import offres_recommandees
+from .views import register_choice, register_etudiant, register_entreprise
+from stages.views import admin_validation, valider_utilisateur
+from .views import modifier_profil_etudiant
+
+
 
 
 from stages.views import (
     RegisterView,
     dashboard,
-    register_view,
     liste_offres,
     ajouter_offre,
     signup_entreprise,
@@ -112,8 +116,8 @@ urlpatterns = [
     # Enseignants
     path('register/enseignant/', views.register_enseignant, name='register_enseignant'),
     path('enseignant/dashboard/', views.enseignant_dashboard, name='enseignant_dashboard'),
-     path('offre/<int:offre_id>/candidatures/', views.candidatures_offre, name='candidature_offre'),
-     path('offre/<int:offre_id>/candidatures/', views.liste_candidatures_offre, name='candidatures_offre'),
+    path('offre/<int:offre_id>/candidatures/', views.candidatures_offre, name='candidature_offre'),
+    path('offre/<int:offre_id>/candidatures/', views.liste_candidatures_offre, name='candidatures_offre'),
     path('offre/<int:offre_id>/evaluer-candidatures/', views.evaluer_candidatures_ia, name='evaluer_candidatures'),
     path('entreprise/offre/<int:offre_id>/reevaluer/', views.reevaluer_candidatures, name='reevaluer_candidatures'),
     path('conventions/', views.mes_conventions, name='mes_conventions'),
@@ -121,7 +125,7 @@ urlpatterns = [
     path('convention/creer/<int:candidature_id>/', views.creer_convention, name='creer_convention'),
 
     path('convention/<int:convention_id>/pdf/', views.generer_pdf_convention, name='generer_pdf_convention'),
-    path('register/', RegisterView.as_view(), name='register'),
+    path('register/', RegisterView.as_view(), name='register_choice'),
     path('register/success/', TemplateView.as_view(template_name='registration/register_success.html'), name='register_success'),
     path('etudiant/recommandations/', offres_recommandees, name='offres_recommandees'),
     path('recommander-candidats/<int:offre_id>/', views.recommander_candidats, name='recommander_candidats'),
@@ -133,8 +137,15 @@ urlpatterns = [
     path('annonces/', views.annonces_etudiant, name='liste_annonces'),
     path('annonces/supprimer/<int:annonce_id>/', views.supprimer_annonce, name='supprimer_annonce'),
     path('chatbot/', include('chatbot.urls')),
-    # Détails
-    
+    path('register/', register_choice, name='register_choice'),
+    path('register/etudiant/', register_etudiant, name='register_etudiant'),
+    path('register/entreprise/', register_entreprise, name='register_entreprise'),
+    path('admin/validation/', admin_validation, name='admin_validation'),
+    path('admin/valider/<int:user_id>/', valider_utilisateur, name='valider_utilisateur'),
+    path('etudiant/modifier_profil/', modifier_profil_etudiant, name='modifier_profil_etudiant'),
+    path('entreprise/modifier-profil/', views.modifier_profil_entreprise, name='modifier_profil_entreprise'),
+
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:

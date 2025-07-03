@@ -34,6 +34,14 @@ from django.http import JsonResponse
 
 # --- Authentification et inscriptions ---
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import login   
+from django.contrib import messages    
+
+from django.views import View
+from .forms import EtudiantSignupForm, EntrepriseSignupForm
+
+# ✅ Vue de type classe (au cas où tu l'utilises ailleurs)
 class RegisterView(View):
     def get(self, request):
         form = EtudiantSignupForm()
@@ -47,16 +55,31 @@ class RegisterView(View):
             return redirect('dashboard')
         return render(request, 'registration/register.html', {'form': form})
 
-def register_view(request):
+# ✅ Nouvelles vues fonctionnelles pour les rôles
+def register_choice(request):
+    return render(request, 'registration/register_choice.html')
+
+def register_etudiant(request):
     if request.method == 'POST':
         form = EtudiantSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('dashboard')
+            messages.success(request, "Votre compte a été créé avec succès. Il doit être validé par un administrateur.")
+            return redirect('login')
     else:
         form = EtudiantSignupForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'registration/register_etudiant.html', {'form': form})
+
+def register_entreprise(request):
+    if request.method == 'POST':
+        form = EntrepriseSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, "Votre compte a été créé avec succès. Il doit être validé par un administrateur.")
+            return redirect('login')
+    else:
+        form = EntrepriseSignupForm()
+    return render(request, 'registration/register_entreprise.html', {'form': form})
 
 @login_required
 def dashboard(request):
@@ -215,21 +238,6 @@ def mon_profil_entreprise(request):
     entreprise = getattr(request.user, 'entreprise', None)
     return render(request, 'stages/mon_profil.html', {'entreprise': entreprise})
 
-@login_required
-def modifier_profil_entreprise(request):
-    entreprise = getattr(request.user, 'entreprise', None)
-    if not entreprise:
-        return redirect('login')
-
-    if request.method == 'POST':
-        form = EntrepriseForm(request.POST, instance=entreprise)
-        if form.is_valid():
-            form.save()
-            return redirect('mon_profil_entreprise')
-    else:
-        form = EntrepriseForm(instance=entreprise)
-
-    return render(request, 'stages/modifier_profil.html', {'form': form})
 
 def voir_profil_entreprise(request, id):
     entreprise = get_object_or_404(Entreprise, id=id)
@@ -1277,3 +1285,93 @@ def supprimer_annonce(request, annonce_id):
         messages.error(request, "Profil étudiant non trouvé.")
     
     return redirect('liste_annonces')
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+
+@staff_member_required
+def admin_validation(request):
+    users = User.objects.filter(is_active=False)
+    return render(request, 'admin_validation.html', {'users': users})
+
+@staff_member_required
+def valider_utilisateur(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.is_active = True
+    user.save()
+    return redirect('admin_validation')
+
+# stages/views.py
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .forms import EtudiantForm
+
+@login_required
+def modifier_profil_etudiant(request):
+    etudiant = request.user.etudiant
+    if request.method == 'POST':
+        form = EtudiantForm(request.POST, request.FILES, instance=etudiant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profil mis à jour avec succès.")
+            return redirect('etudiant_dashboard')  # ✅ Redirige proprement
+    else:
+        form = EtudiantForm(instance=etudiant)
+    
+    return render(request, 'etudiant/modifier_profil.html', {'form': form})
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import EntrepriseForm
+
+@login_required
+def modifier_profil_entreprise(request,):
+    entreprise = request.user.entreprise
+    if request.method == 'POST':
+        form = EntrepriseForm(request.POST, request.FILES, instance=entreprise)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profil mis à jour avec succès.")
+            
+    else:
+        form = EntrepriseForm(instance=entreprise)
+
+    return render(request, 'stages/modifier_profil_entreprise.html', {'form': form})
+
+import logging
+from django.contrib import messages
+from django.core.mail import send_mail
+from smtplib import SMTPException
+import socket
+
+logger = logging.getLogger(__name__)
+
+def register_entreprise(request):
+    if request.method == "POST":
+        form = EntrepriseForm(request.POST)
+        if form.is_valid():
+            entreprise = form.save(commit=False)
+            entreprise.est_valide = False  # Par exemple, en attente de validation admin
+            entreprise.save()
+
+            # Essayer d’envoyer un mail de confirmation
+            try:
+                send_mail(
+                    subject="Confirmation de votre inscription",
+                    message="Merci pour votre inscription. Votre compte est en attente de validation.",
+                    from_email="noreply@tonsite.com",
+                    recipient_list=[entreprise.email_contact],
+                    fail_silently=False,
+                )
+                messages.success(request, "Votre compte a été créé. Un email de confirmation a été envoyé.")
+            except (SMTPException, socket.gaierror) as e:
+                logger.error(f"Erreur lors de l'envoi de l'email d'inscription: {e}")
+                messages.warning(request, "Compte créé, mais l'email de confirmation n'a pas pu être envoyé.")
+
+            return redirect('login')  # Ou autre page
+    else:
+        form = EntrepriseForm()
+
+    return render(request, 'entreprise/register.html', {'form': form})

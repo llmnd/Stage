@@ -51,6 +51,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
+                'django.template.context_processors.media',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -68,6 +72,17 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}
+
 
 
 # Password validation
@@ -145,3 +160,4 @@ ALLOWED_HOSTS = [
 MEDIA_URL = '/media/' if DEBUG else '/protected-media/'  # ← Changez en prod
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 BASE_URL = 'http://localhost:8000'
+
