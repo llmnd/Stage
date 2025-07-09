@@ -13,6 +13,9 @@ from .views import offres_recommandees
 from .views import register_choice, register_etudiant, register_entreprise
 from stages.views import admin_validation, valider_utilisateur
 from .views import modifier_profil_etudiant
+from .views import SupprimerMemoireView
+from .views import liste_annonces
+
 
 
 
@@ -112,7 +115,9 @@ urlpatterns = [
     path('memoires/deposer/', views.deposer_memoire, name='deposer_memoire'),
     path('memoires/mes-memoires/', views.mes_memoires, name='mes_memoires'),
     path('memoire/<int:memoire_id>/evaluer/', views.evaluer_memoire, name='evaluer_memoire'),
-    
+    path('memoire/<int:memoire_id>/modifier/', views.modifier_memoire, name='modifier_memoire'),
+    path('memoires/<int:memoire_id>/', views.detail_memoire, name='detail_memoire'),
+
     # Enseignants
     path('register/enseignant/', views.register_enseignant, name='register_enseignant'),
     path('enseignant/dashboard/', views.enseignant_dashboard, name='enseignant_dashboard'),
@@ -133,9 +138,13 @@ urlpatterns = [
     path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
     path('conversations/', views.liste_conversations, name='liste_conversations'),
     path('annonce/ajouter/', views.ajouter_annonce, name='ajouter_annonce'),
-    path('annonces/', views.annonces_etudiant, name='liste_annonces'),
-    path('annonces/', views.annonces_etudiant, name='liste_annonces'),
     path('annonces/supprimer/<int:annonce_id>/', views.supprimer_annonce, name='supprimer_annonce'),
+    path('messaging/liste_annonces/', views.liste_annonces, name='liste_annonces'),
+    path('annonce/<int:annonce_id>/modifier/', views.modifier_annonce, name='modifier_annonce'),
+    path('annonce/<int:annonce_id>/masquer/', views.masquer_annonce, name='masquer_annonce'),
+    path('annonce/<int:annonce_id>/afficher/', views.afficher_annonce, name='afficher_annonce'),
+    path('annonce/<int:annonce_id>/supprimer/', views.supprimer_annonce, name='supprimer_annonce'),
+    path('annonces/', liste_annonces, name='liste_annonces'),
     path('chatbot/', include('chatbot.urls')),
     path('register/', register_choice, name='register_choice'),
     path('register/etudiant/', register_etudiant, name='register_etudiant'),
@@ -144,6 +153,7 @@ urlpatterns = [
     path('admin/valider/<int:user_id>/', valider_utilisateur, name='valider_utilisateur'),
     path('etudiant/modifier_profil/', modifier_profil_etudiant, name='modifier_profil_etudiant'),
     path('entreprise/modifier-profil/', views.modifier_profil_entreprise, name='modifier_profil_entreprise'),
+    path('memoires/<int:pk>/supprimer/', SupprimerMemoireView.as_view(), name='supprimer_memoire'),
 
 
 

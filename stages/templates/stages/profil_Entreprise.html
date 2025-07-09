@@ -10,6 +10,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+    <div class="header-top">
+    <nav class="header-nav">
+      {% if user.is_authenticated %}
+        <a href="{% url 'liste_offres' %}" class="header-nav-link header-nav-primary">
+          <i data-lucide="layout-dashboard"></i> Liste des Offres
+        </a>
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+          {% csrf_token %}
+          <button type="submit" class="header-nav-link">Déconnexion</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="header-nav-link">
+          <i data-lucide="log-in"></i> Connexion
+        </a>
+        <a href="{% url 'register' %}" class="header-nav-link header-nav-primary">
+          <i data-lucide="user-plus"></i> Inscription
+        </a>
+        <a href="{% url 'chatbot' %}" class="header-nav-link">
+          <i class="fas fa-robot"></i> Assistant
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+
     <style>
         :root {
             --primary: #6a11cb;
@@ -32,6 +56,57 @@
             --glass: rgba(255, 255, 255, 0.171);
             --glass-border: rgba(255, 255, 255, 0.18);
         }
+          /* Header Top Navigation */
+        .header-top {
+            position: fixed;
+            top: 1;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 0.1rem 1rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .header-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-sm);
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            color: var(--primary-dark);
+        }
+
+        .header-nav-link:hover {
+            background: rgba(202, 200, 224, 0.842);
+        }
+
+        .header-nav-link i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .header-nav-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(74, 58, 255, 0.3);
+        }
+
+        .header-nav-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 58, 255, 0.4);
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
+        }
 
         * {
             box-sizing: border-box;
@@ -51,7 +126,7 @@
         /* Header avec effet de verre amélioré */
         header {
             min-height: 60vh;
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.922) 100%),
+            background: linear-gradient(135deg, rgba(19, 19, 82, 0.9) 0%, rgba(22, 33, 62, 0.922) 100%),
                         url('{% static "img/F.jpg" %}') center/cover no-repeat fixed;
             display: flex;
             flex-direction: column;
@@ -695,35 +770,51 @@
         <!-- Section Candidatures -->
         <div class="applications-section">
             <div class="section-header">
-                <h2><i class="fas fa-users"></i> Candidatures</h2>
-                <span class="count-badge">{{ candidatures.count }} candidature(s)</span>
+                <h2><i class="fas fa-users"></i> Candidatures reçues par offre</h2>
             </div>
-            
-            {% if candidatures %}
-                <div class="applications-grid">
-                    {% for candidature in candidatures %}
-                        <div class="application-card">
-                            <div class="application-header">
-                                <span class="application-status 
-                                    {% if candidature.statut == 'acceptee' %}status-accepted
-                                    {% elif candidature.statut == 'refusee' %}status-rejected
-                                    {% else %}status-pending{% endif %}">
-                                    {{ candidature.get_statut_display }}
-                                </span>
-                                <span class="application-date">{{ candidature.date_postulation|date:"d/m/Y" }}</span>
-                            </div>
-                            <h3 class="application-title">{{ candidature.offre.titre }}</h3>
-                            {% if candidature.message %}
-                                <p class="application-message">"{{ candidature.message|truncatewords:15 }}"</p>
+            {% if candidatures_grouped %}
+                {% for offre, candidatures in candidatures_grouped.items %}
+                    <div style="margin-bottom:2.5rem;">
+                        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+                            <h3 style="margin:0; color:var(--primary-dark);">
+                                <i class="fas fa-briefcase"></i> {{ offre.titre }}
+                                <span class="count-badge">{{ candidatures|length }} candidature(s)</span>
+                            </h3>
+                            {% if offre in offres_actives %}
+                                <form method="post" action="{% url 'evaluer_candidatures_ia' offre.id %}" style="margin:0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-ia btn-sm" style="margin-left:1rem;">
+                                        <i class="fas fa-bolt"></i> Lancer l'IA
+                                    </button>
+                                </form>
                             {% endif %}
-                            <div class="application-actions">
-                                <a href="{% url 'detail_candidature' candidature.id %}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-eye"></i> Détails
-                                </a>
-                            </div>
                         </div>
-                    {% endfor %}
-                </div>
+                        <div class="applications-grid">
+                            {% for candidature in candidatures %}
+                                <div class="application-card">
+                                    <div class="application-header">
+                                        <span class="application-status 
+                                            {% if candidature.statut == 'acceptee' %}status-accepted
+                                            {% elif candidature.statut == 'refusee' %}status-rejected
+                                            {% else %}status-pending{% endif %}">
+                                            {{ candidature.get_statut_display }}
+                                        </span>
+                                        <span class="application-date">{{ candidature.date_postulation|date:"d/m/Y" }}</span>
+                                    </div>
+                                    <h3 class="application-title">{{ candidature.etudiant.nom_complet }}</h3>
+                                    {% if candidature.message %}
+                                        <p class="application-message">"{{ candidature.message|truncatewords:15 }}"</p>
+                                    {% endif %}
+                                    <div class="application-actions">
+                                        <a href="{% url 'detail_candidature' candidature.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Détails
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
             {% else %}
                 <div class="empty-state">
                     <i class="fas fa-user-times"></i>
@@ -739,15 +830,6 @@
             <p>Utilisez notre IA pour analyser les candidatures et trouver les meilleurs profils</p>
             
             <div class="ia-actions">
-                {% if offres_actives %}
-                    <form method="post" action="{% url 'evaluer_candidatures_ia' offres_actives.0.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-ia">
-                            <i class="fas fa-bolt"></i> Lancer l'IA
-                        </button>
-                    </form>
-                {% endif %}
-
                 <a href="{% url 'ajouter_offre' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Créer une offre
                 </a>

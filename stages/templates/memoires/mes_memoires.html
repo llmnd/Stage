@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container" style="max-width:800px;margin:2rem auto;">
+    <h2>Mes Mémoires / Rapports</h2>
+    <a href="{% url 'deposer_memoire' %}" class="btn btn-primary" style="margin-bottom:1.5rem;">
+        <i data-lucide="plus"></i> Déposer un mémoire / rapport
+    </a>
+    {% if memoires %}
+        <table class="table" style="width:100%;background:#fff;border-radius:8px;box-shadow:0 2px 8px #eee;">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Date de dépôt</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for memoire in memoires %}
+                <tr>
+                    <td>{{ memoire.titre|default:"Mémoire / Rapport" }}</td>
+                    <td>{{ memoire.date_depot|date:"d/m/Y" }}</td>
+                    <td>{{ memoire.get_type_display|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'detail_memoire' memoire.id %}" class="btn btn-sm btn-primary">
+                            <i data-lucide="eye"></i> Voir
+                        </a>
+                        <a href="{% url 'modifier_memoire' memoire.id %}" class="btn btn-sm btn-outline">
+                            <i data-lucide="edit"></i> Modifier
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state" style="margin-top:2rem;">
+            <i data-lucide="book-open" width="48" height="48"></i>
+            <h3>Aucun mémoire ou rapport</h3>
+            <p>Vous n'avez pas encore déposé de mémoire ou rapport.</p>
+        </div>
+    {% endif %}
+</div>
+<script>
+    if(window.lucide){lucide.createIcons();}
+</script>
+{% endblock %}

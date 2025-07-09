@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord Administrateur{% endblock %}
+
+{% block content %}
+<div class="dashboard" style="max-width: 1100px; margin: auto;">
+    <h1 style="font-size:2.2rem; color:#0f172a; margin-bottom:1.5rem;">
+        <i class="fas fa-user-shield" style="color:#2563eb;"></i>
+        Bienvenue sur le Tableau de bord Administrateur
+    </h1>
+    <p style="font-size:1.1rem; color:#475569; margin-bottom:2rem;">
+        Retrouvez ici un aperçu global de la plateforme, les actions à valider et l'activité récente.
+    </p>
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom:2rem;">
+        <div style="flex:1; background:#f1f5f9; border-radius:10px; padding:1.2rem;">
+            <span style="font-size:2.2rem; color:#0ea5e9;"><i class="fas fa-users"></i></span>
+            <div><strong>Utilisateurs</strong></div>
+            <div style="font-size:1.5rem;">{{ stats.users }}</div>
+        </div>
+        <div style="flex:1; background:#fef9c3; border-radius:10px; padding:1.2rem;">
+            <span style="font-size:2.2rem; color:#f59e42;"><i class="fas fa-briefcase"></i></span>
+            <div><strong>Offres de stage</strong></div>
+            <div style="font-size:1.5rem;">{{ stats.offers }}</div>
+        </div>
+        <div style="flex:1; background:#e0f2fe; border-radius:10px; padding:1.2rem;">
+            <span style="font-size:2.2rem; color:#0ea5e9;"><i class="fas fa-building"></i></span>
+            <div><strong>Entreprises</strong></div>
+            <div style="font-size:1.5rem;">{{ stats.companies }}</div>
+        </div>
+        <div style="flex:1; background:#f3e8ff; border-radius:10px; padding:1.2rem;">
+            <span style="font-size:2.2rem; color:#a21caf;"><i class="fas fa-file-alt"></i></span>
+            <div><strong>Candidatures</strong></div>
+            <div style="font-size:1.5rem;">{{ stats.applications }}</div>
+        </div>
+    </div>
+
+    <div class="card-container" style="display: flex; gap: 2rem; margin: 2rem 0;">
+        <div class="card" style="flex: 1; background: #fef9c3; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.07);">
+            <h3 style="margin-bottom: 0.5rem; color:#92400e;"><i class="fas fa-user-graduate"></i> Étudiants à valider</h3>
+            <p style="font-size: 2rem; font-weight: bold; color: #92400e;">{{ etudiants_en_attente }}</p>
+            <a href="{% url 'admin:stages_etudiant_changelist' %}?est_valide__exact=0" class="btn" style="color: white; background-color: #facc15; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none;">Voir les étudiants</a>
+        </div>
+
+        <div class="card" style="flex: 1; background: #e0f2fe; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.07);">
+            <h3 style="margin-bottom: 0.5rem; color:#0369a1;"><i class="fas fa-building"></i> Entreprises à valider</h3>
+            <p style="font-size: 2rem; font-weight: bold; color: #0369a1;">{{ entreprises_en_attente }}</p>
+            <a href="{% url 'admin:stages_entreprise_changelist' %}?est_valide__exact=0" class="btn" style="color: white; background-color: #38bdf8; padding: 0.5rem 1rem; border-radius: 5px; text-decoration: none;">Voir les entreprises</a>
+        </div>
+    </div>
+
+    <h2 style="margin-top: 2rem; color:#0f172a;"><i class="fas fa-history"></i> Activité récente</h2>
+    <ul style="margin-left: 1rem; font-size:1.1rem;">
+        {% for activity in recent_activity %}
+            <li style="margin-bottom: 0.5rem;">
+                <i class="fas fa-{{ activity.icon }}" style="color:#64748b;"></i>
+                <strong>{{ activity.title }}</strong>
+                <span style="color:#64748b;">– <em>{{ activity.date }}</em></span>
+            </li>
+        {% empty %}
+            <li>Aucune activité récente.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

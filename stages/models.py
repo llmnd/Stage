@@ -68,6 +68,10 @@ class Entreprise(models.Model):
         return self.est_valide    
 
 class Etudiant(models.Model):
+    SEXE_CHOICES = [
+        ('M', 'Masculin'),
+        ('F', 'Féminin'),
+    ]
     NIVEAU_ETUDE_CHOICES = [
         ('licence1', 'Licence 1'),
         ('licence2', 'Licence 2'),
@@ -109,6 +113,13 @@ class Etudiant(models.Model):
     annonces_masquees = models.ManyToManyField('Annonce', blank=True)
     linkedin = models.URLField(max_length=200, blank=True, null=True, verbose_name="Profil LinkedIn")
     portfolio = models.URLField(max_length=200, blank=True, null=True, verbose_name="Portfolio en ligne")
+    sexe = models.CharField(max_length=1, choices=SEXE_CHOICES)
+    date_naissance = models.DateField()
+    lieu_naissance = models.CharField(max_length=100)
+    nationalite = models.CharField(max_length=50, default='Sénégalaise')
+    ville = models.CharField(max_length=50, default='Dakar')
+    pays = models.CharField(max_length=50, default='Sénégal')
+    code_postal = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return self.nom_complet
@@ -174,31 +185,68 @@ class ConventionDeStage(models.Model):
         ('refusee', 'Refusée'),
     ]
     
+    # Informations de base
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE)
     offre = models.ForeignKey(OffreDeStage, on_delete=models.CASCADE)
     entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE)
+    
+    # Dates et durée
     date_debut = models.DateField()
     date_fin = models.DateField()
     heures_semaine = models.PositiveIntegerField()
+    annee_universitaire = models.CharField(max_length=20, default="2024-2025")
+    
+    # Rémunération
     gratification = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    frais_remboursement = models.TextField(blank=True, null=True)
+    
+    # Encadrement
     tuteur_entreprise = models.CharField(max_length=100)
+    fonction_tuteur = models.CharField(max_length=100, blank=True, null=True)
     email_tuteur = models.EmailField()
     telephone_tuteur = models.CharField(max_length=20)
     enseignant_referent = models.ForeignKey(Enseignant, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Statut et validation
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='brouillon')
     date_creation = models.DateTimeField(auto_now_add=True)
     date_validation = models.DateTimeField(null=True, blank=True)
+    
+    # Documents
     document = models.FileField(upload_to='conventions/', null=True, blank=True)
+    rapport_stage = models.FileField(upload_to='rapports/', null=True, blank=True)
     commentaires = models.TextField(blank=True, null=True)
+    
+    # Signatures
     signature_etudiant = models.ImageField(upload_to='signatures/', null=True, blank=True)
     signature_entreprise = models.ImageField(upload_to='signatures/', null=True, blank=True)
-
-
+    signature_enseignant = models.ImageField(upload_to='signatures/', null=True, blank=True)
+    
+    # Informations complémentaires du modèle fourni
+    confidentialite_rapport = models.BooleanField(default=False)
+    avenant = models.FileField(upload_to='avenants/', null=True, blank=True)
+    materiel_fourni = models.TextField(blank=True, null=True)
+    assurance = models.TextField(blank=True, null=True, default="Couverture par l'assurance de l'établissement")
+    
     def __str__(self):
         return f"Convention {self.etudiant} - {self.entreprise}"
 
     def est_valide(self):
         return self.statut == 'validee'
+    
+    def duree_stage_jours(self):
+        return (self.date_fin - self.date_debut).days
+    
+    def save(self, *args, **kwargs):
+        # Génération automatique de l'année universitaire si vide
+        if not self.annee_universitaire:
+            debut_year = self.date_debut.year
+            fin_year = self.date_fin.year
+            if self.date_debut.month >= 9:  # Si le stage commence après septembre
+                self.annee_universitaire = f"{debut_year}-{debut_year+1}"
+            else:
+                self.annee_universitaire = f"{debut_year-1}-{debut_year}"
+        super().save(*args, **kwargs)
 
 class SuiviStage(models.Model):
     convention = models.ForeignKey(ConventionDeStage, on_delete=models.CASCADE)
@@ -223,6 +271,12 @@ class SuiviStage(models.Model):
     def __str__(self):
         return f"Suivi {self.type_rapport} - {self.convention.etudiant}"
 
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+import PyPDF2
+import docx
+from io import BytesIO
+
 class Memoire(models.Model):
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE)
     titre = models.CharField(max_length=200)
@@ -237,13 +291,31 @@ class Memoire(models.Model):
     )
     jury = models.ManyToManyField(Enseignant, blank=True)
     est_public = models.BooleanField(default=False)
+    contenu_textuel = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # Extraction du contenu textuel
+        if self.document:
+            try:
+                if self.document.name.lower().endswith('.pdf'):
+                    pdf = PyPDF2.PdfReader(self.document)
+                    self.contenu_textuel = "\n".join([page.extract_text() for page in pdf.pages])
+                elif self.document.name.lower().endswith(('.docx', '.doc')):
+                    doc = docx.Document(BytesIO(self.document.read()))
+                    self.contenu_textuel = "\n".join([para.text for para in doc.paragraphs])
+                elif self.document.name.lower().endswith(('.txt', '.md')):
+                    self.contenu_textuel = self.document.read().decode('utf-8')
+            except Exception as e:
+                print(f"Erreur lors de l'extraction du texte: {e}")
+                self.contenu_textuel = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.titre} - {self.etudiant}"
 
-    def extension(self):
-        name, extension = os.path.splitext(self.document.name)
-        return extension
+    class Meta:
+        verbose_name = "Mémoire"
+        verbose_name_plural = "Mémoires"
 
 class EvaluationStage(models.Model):
     convention = models.OneToOneField(ConventionDeStage, on_delete=models.CASCADE)
@@ -369,12 +441,15 @@ class Annonce(models.Model):
     titre = models.CharField(max_length=255)
     contenu = models.TextField()
     date_publication = models.DateTimeField(auto_now_add=True)
+    modifie_le = models.DateTimeField(auto_now=True)  # ✅ Ajout ici
     departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name='annonces')
     auteur = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     fichier = models.FileField(upload_to='annonces_fichiers/', blank=True, null=True)
+    est_visible = models.BooleanField(default=True, help_text="Indique si l'annonce est visible par les étudiants")
 
     def __str__(self):
         return f"{self.titre} ({self.departement.nom})"
+
 
 
 class ChefDepartement(models.Model):
@@ -383,5 +458,30 @@ class ChefDepartement(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.departement.nom}"
+
+class Stage(models.Model):
+    STATUT_STAGE_CHOICES = [
+        ('entretien_passe', 'Entretien passé'),
+        ('en_attente', 'En attente de démarrage'),
+        ('en_cours', 'En cours'),
+        ('termine', 'Terminé'),
+        ('annule', 'Annulé'),
+    ]
+    
+    etudiant = models.OneToOneField(Etudiant, on_delete=models.CASCADE)
+    offre = models.ForeignKey(OffreDeStage, on_delete=models.CASCADE)
+    entreprise = models.ForeignKey(Entreprise, on_delete=models.CASCADE)
+    convention = models.OneToOneField(ConventionDeStage, on_delete=models.SET_NULL, null=True, blank=True)
+    statut = models.CharField(max_length=20, choices=STATUT_STAGE_CHOICES, default='en_attente')
+    
+    date_debut_reelle = models.DateField(null=True, blank=True)
+    date_fin_reelle = models.DateField(null=True, blank=True)
+    commentaire_entreprise = models.TextField(blank=True, null=True)
+    commentaire_etudiant = models.TextField(blank=True, null=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.etudiant.nom_complet} - {self.statut}"
+
 
 

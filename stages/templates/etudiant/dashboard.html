@@ -707,13 +707,16 @@
                 <a href="{% url 'mes_candidatures' %}" class="header-nav-link">
                     <i data-lucide="file-text"></i> Mes Candidatures
                 </a>
-                <a href="{% url 'logout' %}" class="header-nav-link">
-                    <i data-lucide="log-out"></i> Déconnexion
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="header-nav-link">Déconnexion</button>
+                </form>
+
                 <a href="{% url 'modifier_profil_etudiant' %}" class="header-nav-link">
                 <i data-lucide="edit-3"></i> Modifier mon profil
             </a>
 
-                        
+
             {% else %}
                 <a href="{% url 'login' %}" class="header-nav-link">
                     <i data-lucide="log-in"></i> Connexion
@@ -768,6 +771,10 @@
                     <div class="detail-item">
                         <div class="detail-label">Téléphone</div>
                         <div class="detail-value">{{ user.etudiant.telephone|default:"Non renseigné" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Competences</div>
+                        <div class="detail-value">{{ user.etudiant.competences|default:"Non renseigné" }}</div>
                     </div>
                 </div>
             </div>
@@ -922,39 +929,46 @@
                     {% endif %}
                 </div>
 
-                <!-- Section Annonces -->
+                <!-- Section Mes Mémoires / Rapports -->
                 <div class="annonces-section">
                     <h2 class="section-title">
-                        <i data-lucide="bell"></i> Dernières Annonces
-                        {% if nouvelles_annonces > 0 %}
-                            <span class="notification-badge">{{ nouvelles_annonces }} nouvelles</span>
-                        {% endif %}
+                        <i data-lucide="book-open"></i> Mes Mémoires / Rapports
                     </h2>
-                    
-                    {% for annonce in annonces|slice:":3" %}
-                    <div class="annonce-card">
-                        <h3 class="annonce-title">
-                            <i data-lucide="megaphone"></i> {{ annonce.titre }}
-                        </h3>
-                        <p class="annonce-date">
-                            Publié le {{ annonce.date_publication|date:"d/m/Y à H:i" }} par {{ annonce.auteur.nom|default:"le chef de département" }}
-                        </p>
-                        <div class="annonce-content">
-                            {{ annonce.contenu }}
-                        </div>
-                        {% if annonce.fichier %}
-                            <a href="{{ annonce.fichier.url }}" class="annonce-file" download>
-                                <i data-lucide="paperclip"></i> Télécharger le fichier joint
-                            </a>
-                        {% endif %}
-                    </div>
-                    {% empty %}
-                   
-                    {% endfor %}
-                    
-                    <a href="{% url 'liste_annonces' %}" class="btn btn-primary" style="margin-top: 1.5rem;">
-                        <i data-lucide="list"></i> Voir toutes les annonces
+                    <a href="{% url 'deposer_memoire' %}" class="btn btn-primary" style="margin-bottom: 1.5rem;">
+                        <i data-lucide="plus"></i> Déposer un mémoire / rapport
                     </a>
+                    {% if memoires %}
+                        {% for memoire in memoires %}
+                        <div class="convention-card">
+                            <div class="convention-header">
+                                <div>
+                                    <h3 class="convention-title">{{ memoire.titre|default:"Mémoire / Rapport" }}</h3>
+                                    <p class="convention-date">
+                                        Déposé le {{ memoire.date_depot|date:"d/m/Y" }}
+                                    </p>
+                                </div>
+                                <span class="convention-status status-validated">
+                                    <i data-lucide="file-text" width="14"></i>
+                                    {{ memoire.get_type_display|default:"Mémoire/Rapport" }}
+                                </span>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <a href="{% url 'detail_memoire' memoire.id %}" class="action-button action-button-primary">
+                                    <i data-lucide="eye"></i> Visualiser
+                                </a>
+                                <a href="{% url 'modifier_memoire' memoire.id %}" class="action-button action-button-secondary">
+                                    <i data-lucide="edit"></i> Modifier
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i data-lucide="book-open" width="48" height="48"></i>
+                            <h3>Aucun mémoire ou rapport</h3>
+                            <p>Vous n'avez pas encore déposé de mémoire ou rapport.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

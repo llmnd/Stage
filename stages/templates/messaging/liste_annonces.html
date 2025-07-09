@@ -1,0 +1,292 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Annonces</title>
+    <link rel="stylesheet" href="{% static 'css/annonces.css' %}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header avec titre et boutons -->
+        <div class="header">
+            <div>
+                <h1>Tableau de Bord</h1>
+                <p class="subtitle">{{ departement.nom|default:"Administration" }}</p>
+            </div>
+            <div class="actions">
+                <a href="{% url 'ajouter_annonce' %}" class="btn-primary">
+                    Nouvelle Annonce
+                </a>
+            </div>
+        </div>
+
+        <!-- Cartes de statistiques -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon bg-blue"></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Étudiants</p>
+                        <p class="stat-value">{{ stats.total_etudiants }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon bg-green"></div>
+                    <div class="stat-info">
+                        <p class="stat-label">En stage</p>
+                        <p class="stat-value">{{ stats.etudiants_stages }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon bg-purple"></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Offres actives</p>
+                        <p class="stat-value">{{ stats.offres_actives }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-icon bg-yellow"></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Mémoires</p>
+                        <p class="stat-value">{{ memoires|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglets -->
+        <div class="tabs-container">
+            <nav class="tabs">
+                <button class="tab active" data-target="annonces">Annonces</button>
+                <button class="tab" data-target="etudiants">Étudiants</button>
+                <button class="tab" data-target="stages">Stages</button>
+                <button class="tab" data-target="entreprises">Entreprises</button>
+                <button class="tab" data-target="memoires">Mémoires</button>
+            </nav>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div id="annonces" class="tab-content active">
+            <div class="content-card">
+                <div class="content-header">
+                    <h2>Dernières Annonces</h2>
+                </div>
+                <div class="content-body">
+                    {% for annonce in annonces %}
+                    <div class="annonce-item">
+                        <div class="annonce-header">
+                            <div>
+                                <h3>{{ annonce.titre }}</h3>
+                                <p class="annonce-date">{{ annonce.date_publication|date:"d/m/Y H:i" }}</p>
+                            </div>
+                            {% if annonce.fichier %}
+                            <a href="{{ annonce.fichier.url }}" class="btn-download">
+                                Télécharger
+                            </a>
+                            {% endif %}
+                        </div>
+                       <p class="annonce-content">{{ annonce.contenu }}</p>
+
+<div class="annonce-actions">
+    <a href="{% url 'modifier_annonce' annonce.id %}" class="btn-secondary">✏️ Modifier</a>
+
+    <form action="{% url 'supprimer_annonce' annonce.id %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">🗑️ Supprimer</button>
+    </form>
+</div>
+
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        Aucune annonce disponible
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div id="etudiants" class="tab-content hidden">
+            <div class="content-card">
+                <div class="content-header">
+                    <h2>Étudiants du Département</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Niveau</th>
+                                <th>Enseignant</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for etudiant in etudiants %}
+                            <tr>
+                                <td>
+                                    <div class="student-info">
+                                        <div class="student-avatar bg-indigo">
+                                            {{ etudiant.nom_complet|first|upper }}
+                                        </div>
+                                        <div class="student-name">
+                                            {{ etudiant.nom_complet }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ etudiant.email }}</td>
+                                <td>
+                                    <span class="badge bg-green">
+                                        {{ etudiant.get_niveau_etude_display }}
+                                    </span>
+                                </td>
+                                <td>{{ etudiant.enseignant_referent|default:"-" }}</td>
+                                <td class="actions">
+                                    <a href="#">Voir</a>
+                                    <a href="#">Éditer</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-state">Aucun étudiant trouvé</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="stages" class="tab-content hidden">
+            <div class="content-card">
+                <div class="content-header">
+                    <h2>Stages en Cours</h2>
+                </div>
+                <div class="grid-container">
+                   {% for stage in stages_en_cours %}
+    <div class="stage-card bg-blue">
+        <div class="stage-header">
+            <div class="stage-icon bg-blue">S</div>
+            <div class="stage-info">
+                <h3>{{ stage.etudiant.nom_complet }}</h3>
+                <p>
+                    <span class="font-medium">{{ stage.entreprise.nom_entreprise }}</span> |
+                    Du {{ stage.date_debut_reelle|date:"d/m/Y" }} au {{ stage.date_fin_reelle|date:"d/m/Y" }}
+                </p>
+                <div class="stage-details">
+                    <p><span class="font-medium">Offre:</span> {{ stage.offre.titre }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% empty %}
+    <div class="empty-state">
+        <h3>Aucun stage en cours</h3>
+        <p>Aucun étudiant n'est actuellement en stage.</p>
+    </div>
+{% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+        <div id="entreprises" class="tab-content hidden">
+            <div class="content-card">
+                <div class="content-header">
+                    <h2>Entreprises Partenaires</h2>
+                </div>
+                <div class="grid-container">
+                    {% for entreprise in entreprises_offres %}
+                    <div class="entreprise-card">
+                        <div class="entreprise-content">
+                            <div class="entreprise-header">
+                                <div class="entreprise-avatar bg-purple">
+                                    {{ entreprise.nom_entreprise|first|upper }}
+                                </div>
+                                <div>
+                                    <h3>{{ entreprise.nom_entreprise }}</h3>
+                                    <p class="entreprise-sector">{{ entreprise.secteur }}</p>
+                                </div>
+                            </div>
+                            <p class="entreprise-description">{{ entreprise.description|truncatewords:20 }}</p>
+                            <div class="entreprise-footer">
+                                <span class="badge bg-green">
+                                    {{ entreprise.offredestage_set.count }} offre(s)
+                                </span>
+                                <a href="#" class="btn-secondary">
+                                    Voir les offres
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <h3>Aucune entreprise partenaire</h3>
+                        <p>Aucune entreprise n'a encore publié d'offre pour votre département.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div id="memoires" class="tab-content hidden">
+            <div class="content-card">
+                <div class="content-header">
+                    <h2>Mémoires du Département</h2>
+                </div>
+                <div class="content-body">
+                    {% for memoire in memoires %}
+                    <div class="memoire-item">
+                        <div class="memoire-header">
+                            <div>
+                                <h3>{{ memoire.titre }}</h3>
+                                <p>
+                                    Par {{ memoire.etudiant.nom_complet }} - {{ memoire.date_soutenance|date:"Y"|default:"Date inconnue" }}
+                                    {% if memoire.note %}
+                                    <span class="badge bg-blue">
+                                        Note: {{ memoire.note }}/20
+                                    </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <a href="{{ memoire.document.url }}" class="btn-download">
+                                Télécharger
+                            </a>
+                        </div>
+                        <p class="memoire-content">{{ memoire.resume|truncatewords:30 }}</p>
+                        {% if memoire.mots_cles %}
+                        <div class="memoire-tags">
+                            {% for mot in memoire.mots_cles.all %}
+                            <span class="tag">
+                                {{ mot.nom }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <h3>Aucun mémoire disponible</h3>
+                        <p>Aucun mémoire n'a encore été déposé pour votre département.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/annonces.js' %}"></script>
+</body>
+</html>

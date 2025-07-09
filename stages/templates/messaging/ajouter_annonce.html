@@ -1,29 +1,69 @@
-<!-- ajouter_annonce.html -->
-{% extends 'base.html' %}
-{% block content %}
-<div class="container py-4">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5>Publier une annonce</h5>
-        </div>
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publier une annonce</title>
+    <link rel="stylesheet" href="{% static 'css/ajouter_annonces.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="annonce-container">
+        <div class="annonce-card">
+            <div class="annonce-header">
+                <h1>Publier une nouvelle annonce</h1>
+                <p>Remplissez les détails ci-dessous pour partager une annonce avec les étudiants</p>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" class="annonce-form">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="titre" class="form-label">Titre</label>
-                    <input type="text" class="form-control" name="titre" required>
+                
+                <div class="form-group">
+                    <label for="titre">Titre de l'annonce</label>
+                    <input type="text" id="titre" name="titre" placeholder="Ex: Offre de stage en informatique" required>
                 </div>
-                <div class="mb-3">
-                    <label for="contenu" class="form-label">Contenu</label>
-                    <textarea class="form-control" name="contenu" rows="5" required></textarea>
+                
+                <div class="form-group">
+                    <label for="contenu">Contenu détaillé</label>
+                    <textarea id="contenu" name="contenu" rows="6" placeholder="Décrivez l'annonce en détail..." required></textarea>
                 </div>
-                <div class="mb-3">
-                    <label for="fichier" class="form-label">Fichier joint</label>
-                    <input type="file" class="form-control" name="fichier">
+                <div class="form-group file-upload">
+    <label for="fichier">Fichier joint (optionnel)</label>
+    
+    <label for="fichier" class="upload-area">
+        <input type="file" id="fichier" name="fichier" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden onchange="afficherNomFichier(event)">
+        <span class="upload-text">📎 Cliquez pour parcourir ou glissez un fichier ici</span>
+        <span class="file-format">Formats acceptés : PDF, DOC, JPG, PNG</span>
+        <span id="nom-fichier" class="file-name" style="display: block; margin-top: 8px; font-weight: bold;"></span>
+    </label>
+</div>
+{% if messages %}
+    <div class="alert-container">
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+                
+               
+                
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">
+                        <span>Publier l'annonce</span>
+                    </button>
                 </div>
-                <button type="submit" class="btn btn-primary">Publier</button>
             </form>
         </div>
     </div>
-</div>
-{% endblock %}
+</body>
+<script>
+    function afficherNomFichier(event) {
+        const input = event.target;
+        const nomFichier = input.files.length > 0 ? input.files[0].name : "Aucun fichier sélectionné";
+        document.getElementById('nom-fichier').textContent = nomFichier;
+    }
+</script>
+
+</html>

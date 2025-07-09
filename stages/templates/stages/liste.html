@@ -402,15 +402,7 @@
               <i class="fas fa-briefcase"></i> Entreprise
             </a>
           {% endif %}
-          
-          {% if user.is_authenticated and user.userprofile.role == 'etudiant' %}
-            <form method="post" action="{% url 'postuler_offre' offre.id %}" style="display: inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-accent">
-                <i class="fas fa-paper-plane"></i> Postuler
-              </button>
-            </form>
-          {% endif %}
+         
         </div>
       </div>
       {% empty %}
@@ -460,12 +452,10 @@
     {% endif %}
     
     <div style="text-align: center; margin-top: 3rem;" data-scroll>
-      <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-outline">
-          <i class="fas fa-sign-out-alt"></i> Se déconnecter
-        </button>
-      </form>
+      <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="header-nav-link">Déconnexion</button>
+                </form>
     </div>
   </div>
 

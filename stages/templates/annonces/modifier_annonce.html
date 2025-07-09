@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modifier une annonce</title>
+    <link rel="stylesheet" href="{% static 'css/ajouter_annonces.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="annonce-container">
+        <div class="annonce-card">
+            <div class="annonce-header">
+                <h1>Modifier l'annonce</h1>
+                <p>Modifiez les détails ci-dessous puis validez.</p>
+            </div>
+
+            {% if messages %}
+            <div class="alert-container">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="annonce-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.titre.id_for_label }}">Titre de l'annonce</label>
+                    {{ form.titre }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.contenu.id_for_label }}">Contenu détaillé</label>
+                    {{ form.contenu }}
+                </div>
+
+                <div class="form-group file-upload">
+                    <label for="{{ form.fichier.id_for_label }}">Fichier joint (optionnel)</label>
+                    <label for="{{ form.fichier.id_for_label }}" class="upload-area">
+                        {{ form.fichier }}
+                        <span class="upload-text">📎 Cliquez pour parcourir ou glissez un fichier ici</span>
+                        <span class="file-format">Formats acceptés : PDF, DOC, JPG, PNG</span>
+                        <span id="nom-fichier" class="file-name" style="display: block; margin-top: 8px; font-weight: bold;">
+                            {% if form.fichier.value %}{{ form.fichier.value.name|default:"Aucun fichier sélectionné" }}{% endif %}
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">
+                        <span>Enregistrer les modifications</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // Affiche le nom du fichier sélectionné
+    const fileInput = document.getElementById("{{ form.fichier.id_for_label }}");
+    if(fileInput) {
+        fileInput.addEventListener('change', function(event) {
+            const nomFichier = this.files.length > 0 ? this.files[0].name : "Aucun fichier sélectionné";
+            document.getElementById('nom-fichier').textContent = nomFichier;
+        });
+    }
+</script>
+</body>
+</html>

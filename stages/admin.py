@@ -104,3 +104,11 @@ from .models import ChefDepartement, Departement, Annonce, Etudiant  # importe t
 admin.site.register(ChefDepartement)
 admin.site.register(Departement)
 admin.site.register(Annonce)
+
+from .models import Stage
+
+@admin.register(Stage)
+class StageAdmin(admin.ModelAdmin):
+    list_display = ('etudiant', 'entreprise', 'statut', 'date_debut_reelle', 'date_fin_reelle')
+    list_filter = ('statut', 'entreprise')
+    search_fields = ('etudiant__nom_complet', 'entreprise__nom_entreprise')

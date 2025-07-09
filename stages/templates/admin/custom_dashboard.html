@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>Tableau de bord personnalisé</h1>
+  <ul>
+    <li>Utilisateurs : {{ stats.users }}</li>
+    <li>Étudiants validés : {{ stats.etudiants_valides }}</li>
+    <li>Étudiants non validés : {{ stats.etudiants_non_valides }}</li>
+    <li>Entreprises validées : {{ stats.entreprises_valides }}</li>
+    <li>Entreprises non validées : {{ stats.entreprises_non_valides }}</li>
+    <li>Offres actives : {{ stats.offres_actives }}</li>
+    <li>Candidatures : {{ stats.applications }}</li>
+  </ul>
+  <h2>Activité récente</h2>
+  <ul>
+    {% for activity in recent_activity %}
+      <li><i class="fas fa-{{ activity.icon }}"></i> {{ activity.title }} – {{ activity.date }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

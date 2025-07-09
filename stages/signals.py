@@ -66,3 +66,17 @@ def notify_admin_new_entreprise(sender, instance, created, **kwargs):
             message=f"Nouvelle entreprise : {instance.nom_entreprise} ({instance.user.email})",
         )
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Candidature, Stage
+
+
+@receiver(post_save, sender=Candidature)
+def creer_stage_apres_acceptation(sender, instance, created, **kwargs):
+    if instance.statut == 'acceptee':
+        Stage.objects.get_or_create(
+            etudiant=instance.etudiant,
+            offre=instance.offre,
+            entreprise=instance.offre.entreprise,
+        )
+

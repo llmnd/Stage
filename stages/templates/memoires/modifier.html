@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+  
+  .memoire-edit-container {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f8f9ff 0%, #eef1ff 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .memoire-edit-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(74, 58, 255, 0.1);
+    width: 100%;
+    max-width: 800px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .memoire-edit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, #4a3aff 0%, #8e2de2 100%);
+  }
+  
+  .memoire-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .memoire-header h2 {
+    color: #2d3748;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #4a3aff 0%, #8e2de2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .memoire-header p {
+    color: #64748b;
+    font-size: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 2rem;
+  }
+  
+  .form-group label {
+    display: block;
+    color: #334155;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus {
+    border-color: #4a3aff;
+    box-shadow: 0 0 0 4px rgba(74, 58, 255, 0.15);
+    background: white;
+    outline: none;
+  }
+  
+  textarea.form-control {
+    min-height: 250px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+  
+  .error-message {
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: block;
+  }
+  
+  .help-text {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+  
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #4a3aff 0%, #8e2de2 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(74, 58, 255, 0.2);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(74, 58, 255, 0.3);
+    background: linear-gradient(90deg, #3a2ad4 0%, #7d25c7 100%);
+  }
+  
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border: 2px solid #4a3aff;
+    border-radius: 12px;
+    background: white;
+    color: #4a3aff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-outline:hover {
+    background: #f5f3ff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(74, 58, 255, 0.1);
+  }
+  
+  .btn-assistant {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border: 2px solid #10b981;
+    border-radius: 12px;
+    background: white;
+    color: #10b981;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-assistant:hover {
+    background: #ecfdf5;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+  }
+  
+  .btn-example {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    background: white;
+    color: #f59e0b;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-example:hover {
+    background: #fffbeb;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+  }
+  
+  .btn-icon {
+    margin-right: 0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  /* Structure améliorée pour le chatbot */
+  .ai-assistance {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid #4a3aff;
+  }
+  
+  .ai-assistance h3 {
+    color: #4a3aff;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .ai-assistance h3 i {
+    margin-right: 0.75rem;
+  }
+  
+  .ai-tips {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #475569;
+  }
+  
+  .ai-tips ul {
+    padding-left: 1.25rem;
+  }
+  
+  .ai-tips li {
+    margin-bottom: 0.5rem;
+  }
+</style>
+
+<div class="memoire-edit-container">
+  <div class="memoire-edit-card">
+    <div class="memoire-header">
+      <h2>Modifier mon mémoire / rapport</h2>
+      <p>Optimisez votre travail académique avec notre assistance intelligente</p>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.name == "description" %}
+            <textarea id="{{ field.id_for_label }}" name="{{ field.html_name }}" class="form-control" rows="12">{{ field.value|default_if_none:"" }}</textarea>
+          {% else %}
+            {{ field }}
+          {% endif %}
+          {% if field.errors %}
+            <span class="error-message">{{ field.errors.0 }}</span>
+          {% endif %}
+          {% if field.help_text %}
+            <span class="help-text">{{ field.help_text }}</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+      
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary">
+          <i data-lucide="save" class="btn-icon"></i> Enregistrer
+        </button>
+        <a href="{% url 'detail_memoire' memoire.id %}" class="btn-outline">
+          <i data-lucide="x" class="btn-icon"></i> Annuler
+        </a>
+        <a href="{% static 'pdf/exemple_memoire_esp.pdf' %}" class="btn-example" target="_blank">
+          <i data-lucide="file-text" class="btn-icon"></i> Modèle ESP
+        </a>
+      
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Initialisation des icônes Lucide
+  if(window.lucide){
+    lucide.createIcons();
+  }
+
+  // Fonctionnalité pour l'assistant IA
+  document.addEventListener('DOMContentLoaded', function() {
+    // Pré-remplir le prompt du chatbot avec des informations utiles
+   
+    if(chatbotLink) {
+      chatbotLink.addEventListener('click', function(e) {
+        // Stocker le contexte du mémoire pour le chatbot
+        localStorage.setItem('chatbotContext', 'assistance_memoire');
+        
+        // Vous pouvez aussi capturer le texte sélectionné pour une aide plus ciblée
+        const selection = window.getSelection().toString();
+        if(selection) {
+          localStorage.setItem('selectedText', selection);
+        }
+      });
+    }
+    
+    // Highlight des champs importants
+    const importantFields = ['title', 'description', 'keywords'];
+    importantFields.forEach(fieldName => {
+      const field = document.querySelector(`[name="${fieldName}"]`);
+      if(field) {
+        field.addEventListener('focus', function() {
+          this.parentElement.style.borderLeft = '3px solid #4a3aff';
+          this.parentElement.style.paddingLeft = '1rem';
+        });
+        field.addEventListener('blur', function() {
+          this.parentElement.style.borderLeft = 'none';
+          this.parentElement.style.paddingLeft = '0';
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -121,7 +121,7 @@ class EtudiantForm(forms.ModelForm):
     class Meta:
         model = Etudiant
         fields = ['universite', 'niveau_etude', 'domaine_etude', 'competences', 
-                  'cv', 'linkedin', 'portfolio', 'enseignant_referent', 'departement']
+                  'cv', 'linkedin', 'portfolio', 'enseignant_referent', 'departement', 'nom_complet', 'telephone', 'competences']
         widgets = {
             'competences': forms.Textarea(attrs={'rows': 3, 'placeholder': "Langages, outils, frameworks..."}),
         }

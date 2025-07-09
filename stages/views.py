@@ -54,6 +54,7 @@ class RegisterView(View):
             login(request, user)
             return redirect('dashboard')
         return render(request, 'registration/register.html', {'form': form})
+   
 
 # ✅ Nouvelles vues fonctionnelles pour les rôles
 def register_choice(request):
@@ -272,6 +273,14 @@ def profil_entreprise(request, id):
         date_debut__gte=timezone.now()
     )
     
+    # Regrouper les candidatures par offre
+    candidatures_grouped = {}
+    for offre in offres:
+        candidatures_grouped[offre] = list(candidatures.filter(offre=offre))
+
+    # Récupérer les conventions de stage de l'entreprise
+    conventions = ConventionDeStage.objects.filter(entreprise=entreprise).order_by('-date_creation')
+
     # Obtenir les meilleures recommandations
     top_recommandations = []
     ia = RecommandationIA()
@@ -291,6 +300,8 @@ def profil_entreprise(request, id):
         'candidatures': candidatures,
         'offres_actives': offres_actives,
         'top_recommandations': top_recommandations,
+        'candidatures_grouped': candidatures_grouped,
+        'conventions': conventions,  # <-- Ajouté ici
     }
     
     return render(request, 'stages/profil_entreprise.html', context)
@@ -307,17 +318,21 @@ def etudiant_dashboard(request):
 
     # Récupérer les candidatures récentes
     candidatures_recentes = Candidature.objects.filter(etudiant=etudiant).order_by('-date_postulation')[:3]
-    
-    # Obtenir les recommandations IA - MODIFICATION ICI
+    conventions = ConventionDeStage.objects.filter(etudiant=etudiant).order_by('-date_creation')
+    memoires = Memoire.objects.filter(etudiant=etudiant).order_by('-date_depot')  # Ajouté
+
+    # Obtenir les recommandations IA
     ia = RecommandationIA()
     offres_recommandees = ia.recommander_offres(etudiant.id)
-    
+
     context = {
         'etudiant': etudiant,
         'candidatures_recentes': candidatures_recentes,
         'offres_recommandees': offres_recommandees,
+        'conventions': conventions,
+        'memoires': memoires,  # Ajouté
     }
-    
+
     return render(request, 'etudiant/dashboard.html', context)
 def page_etudiant(request):
     return render(request, 'registration/login_etudiant.html')
@@ -748,7 +763,7 @@ def deposer_memoire(request):
             memoire.save()
 
             messages.success(request, "Votre mémoire a été déposé avec succès.")
-            return redirect('mes_memoires')
+            return redirect('detail_memoire', memoire_id=memoire.id)
     else:
         form = MemoireForm()
 
@@ -954,112 +969,255 @@ def mes_conventions(request):
 
     return render(request, 'conventions/liste.html', {'conventions': conventions})
 
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from django.conf import settings
-import os
 
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm
-from reportlab.pdfgen import canvas
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.conf import settings
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+from reportlab.lib import colors
+from django.utils import timezone
 import os
+from django.conf import settings
+from django.contrib.staticfiles import finders
+from reportlab.platypus import Image
 
 @login_required
 def generer_pdf_convention(request, convention_id):
     convention = get_object_or_404(ConventionDeStage, id=convention_id)
 
-    # Vérifie les permissions
-    if not (request.user == convention.etudiant.user or request.user == convention.entreprise.user):
+    if not (request.user == convention.etudiant.user or request.user == convention.entreprise.user or request.user.is_staff):
         raise PermissionDenied
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Convention_{convention.id}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="Convention_{convention.etudiant.nom_complet.replace(" ", "_")}.pdf"'
 
-    c = canvas.Canvas(response, pagesize=A4)
-    width, height = A4
+    doc = SimpleDocTemplate(response, pagesize=A4,
+                          leftMargin=1*cm, rightMargin=1*cm,
+                          topMargin=1.5*cm, bottomMargin=2*cm)
+    elements = []
+    styles = getSampleStyleSheet()
 
-    margin = 2 * cm
-    y = height - margin
+    # === Styles ===
+    header_style = ParagraphStyle(
+        name="Header",
+        fontSize=10,
+        alignment=1,
+        fontName="Helvetica"
+    )
+    
+    title_style = ParagraphStyle(
+        name="Title",
+        fontSize=14,
+        alignment=1,
+        spaceAfter=12,
+        fontName="Helvetica-Bold"
+    )
+    
+    section_title_style = ParagraphStyle(
+        name="SectionTitle",
+        fontSize=11,
+        alignment=0,
+        spaceAfter=6,
+        fontName="Helvetica-Bold"
+    )
+    
+    normal_style = ParagraphStyle(
+        name="Normal",
+        fontSize=10,
+        alignment=4,  # Justifié
+        leading=14,
+        spaceAfter=8,
+        fontName="Helvetica"
+    )
+    
+    article_title_style = ParagraphStyle(
+        name="ArticleTitle",
+        fontSize=10,
+        alignment=0,
+        spaceAfter=4,
+        fontName="Helvetica-Bold"
+    )
+    
+    article_content_style = ParagraphStyle(
+        name="ArticleContent",
+        fontSize=10,
+        alignment=4,  # Justifié
+        leading=14,
+        spaceAfter=12,
+        fontName="Helvetica"
+    )
 
-    # Titre
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(margin, y, f"Convention de stage n°{convention.id}")
-    y -= 1.5*cm
+    # === En-tête ===
+    logo_path = finders.find('img/logo.png')
+    if logo_path:
+        logo = Image(logo_path, width=2*cm, height=2*cm)
+        logo.hAlign = 'CENTER'
+        elements.append(logo)
+    elements.append(Paragraph("UNIVERSITE CHEIKH ANTA DIOP", header_style))
+    elements.append(Spacer(1, 6))
+    elements.append(Paragraph("ECOLE SUPERIEURE POLYTECHNIQUE", header_style))
+    elements.append(Paragraph("Département Génie Informatique", header_style))
+    elements.append(Paragraph("B.P. : 5085 Dakar-Fann (Sénégal)", header_style))
+    elements.append(Paragraph("Tél : (221) 33 825 75 28", header_style))
+    elements.append(Paragraph("Fax : (221) 33 825 37 24", header_style))
+    elements.append(Spacer(1, 12))
+    elements.append(Paragraph(f"Année universitaire : {convention.annee_universitaire}", header_style))
+    elements.append(Spacer(1, 15))
+    
+    # === Titre Convention ===
+    elements.append(Paragraph("CONVENTION DE STAGE", title_style))
+    elements.append(Paragraph("ENTRE", title_style))
+    elements.append(Spacer(1, 15))
 
-    c.setFont("Helvetica", 12)
-    # Informations principales
-    c.drawString(margin, y, f"Étudiant : {convention.etudiant.nom_complet}")
-    y -= 0.7*cm
-    c.drawString(margin, y, f"Entreprise : {convention.entreprise.nom_entreprise}")
-    y -= 0.7*cm
-    c.drawString(margin, y, f"Date de début : {convention.date_debut.strftime('%d/%m/%Y') if convention.date_debut else 'N/A'}")
-    y -= 0.7*cm
-    c.drawString(margin, y, f"Date de fin : {convention.date_fin.strftime('%d/%m/%Y') if convention.date_fin else 'N/A'}")
-    y -= 1*cm
+    # === Partie 1: Etablissement ===
+    elements.append(Paragraph("1- L'ETABLISSEMENT D'ENSEIGNEMENT OU DE FORMATION", section_title_style))
+    
+    etab_data = [
+        ["Nom :", "Département Génie Informatique de l'Ecole Supérieure Polytechnique (ESP) de Dakar"],
+        ["Adresse :", "UCAD, Dakar, SENEGAL"],
+        ["Tél. :", "33 825 75 28"],
+        ["Représenté par (signataire de la convention) :", "Professeur Ibrahima FALL"],
+        ["Qualité du représentant :", "Chef du Département Génie Informatique"],
+        ["Composante/Département :", ""],
+        ["Tél. :", ""],
+        ["Email :", "secretariat-dgi@esp.sn"],
+        ["Adresse (si différente de celle de l'établissement) :", ""]
+    ]
+    
 
-    # Articles exemples
-    c.setFont("Helvetica-Bold", 13)
-    c.drawString(margin, y, "Articles de la Convention :")
-    y -= 1*cm
+    etab_table = Table(etab_data, colWidths=[7*cm, 10*cm])
+    etab_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4), # Espace sous chaque cellule
+        ('TOPPADDING', (0, 0), (-1, -1), 4), 
+    ]))
+    elements.append(etab_table)
+    elements.append(Spacer(1, 15))
 
-    c.setFont("Helvetica", 11)
+    # === Partie 2: Organisme ===
+    elements.append(Paragraph("2- L'ORGANISME D'ACCUEIL", section_title_style))
+    
+    org_data = [
+        ["Nom :", convention.entreprise.nom_entreprise],
+        ["Adresse :", convention.entreprise.adresse],
+        ["Tél. :", convention.entreprise.telephone],
+        ["Représenté par (signataire de la convention) :", convention.tuteur_entreprise],
+        ["Qualité du représentant :", convention.fonction_tuteur if hasattr(convention, 'fonction_tuteur') else ""],
+        ["Composante/Département :", ""],
+        ["Tél. :", ""],
+        ["Email :", convention.email_tuteur],
+        ["Adresse (si différente de celle de l'organisme) :", ""]
+    ]
+    
+    org_table = Table(org_data, colWidths=[6*cm, 10*cm])
+    org_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(org_table)
+    elements.append(Spacer(1, 15))
+
+    # === Partie 3: Stagiaire ===
+    elements.append(Paragraph("3- LE STAGIAIRE", section_title_style))
+    
+    etudiant = convention.etudiant
+    sexe = "M" if etudiant.sexe == 'M' else "F"
+    
+    stagiaire_data = [
+        ["Nom et prénom :", etudiant.nom_complet],
+        ["Sexe:", f"{sexe} ☑"],
+        ["Né(e) le :", f"{etudiant.date_naissance.strftime('%d/%m/%Y') if etudiant.date_naissance else ''} à {etudiant.lieu_naissance if etudiant.lieu_naissance else ''}"],
+        ["Adresse :", etudiant.adresse],
+        ["Tél. :", etudiant.telephone],
+        ["Email :", etudiant.email],
+        ["", ""],
+        ["Intitulé de la formation ou du cursus suivi à l'ESP-UCAD :", 
+         f"{etudiant.niveau_etude}, option {etudiant.domaine_etude}"]
+    ]
+    
+    stagiaire_table = Table(stagiaire_data, colWidths=[6*cm, 10*cm])
+    stagiaire_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(stagiaire_table)
+    elements.append(Spacer(1, 15))
+
+    # === Texte introductif ===
+    elements.append(Paragraph("Il est convenu ce qui suit :", normal_style))
+    elements.append(Spacer(1, 15))
+
+    # === Articles ===
     articles = [
-        "Article 1 : Objet du stage - Le présent contrat a pour objet de définir les conditions du stage.",
-        "Article 2 : Durée du stage - La durée du stage est fixée conformément aux dates ci-dessus.",
-        "Article 3 : Gratification - Le stagiaire percevra une gratification mensuelle de {gratification} FCFA.".format(
-            gratification=convention.gratification if convention.gratification else "N/A"),
-        "Article 4 : Obligations de l'étudiant - L'étudiant s'engage à respecter le règlement intérieur de l'entreprise.",
-        "Article 5 : Encadrement - Le tuteur en entreprise est {tuteur}.".format(
-            tuteur=convention.tuteur_entreprise if convention.tuteur_entreprise else "Non défini"),
+        ("Article 1 :", 
+         f"L'étudiant(e) sera accueilli(e) comme stagiaire dans l'établissement susnommé pour réaliser un travail sur un projet en informatique ou en télécoms."),
+         
+        ("Article 2 :", 
+         f"Pendant la durée du stage, le(la) stagiaire sera placé(e) sous l'autorité scientifique de l'encadrant désigné par l'établissement de formation et du maître de stage désigné par l'organisme d'accueil."),
+         
+        ("Article 3 :", 
+         f"Le stage est prévu du {convention.date_debut.strftime('%d %B %Y')} au {convention.date_fin.strftime('%d %B %Y')}."),
+         
+        ("Article 4 :", 
+         "Durant son séjour dans l'organisme, le(la) stagiaire conservera son statut d'étudiant(e) de l'ESP et sera couvert par une assurance."),
+         
+        ("Article 5 :", 
+         "Au cours de ce stage, il appartient à l'organisme de décider s'il y a lieu, de l'opportunité de remboursements de frais à accorder au stagiaire. La rémunération n'étant pas due expressément au titre du stage, l'organisme pourra accorder une indemnité forfaitaire."),
+         
+        ("Article 6 :", 
+         "Pendant son séjour dans l'organisme, le(la) stagiaire est soumis(e) au règlement intérieur de celui-ci, notamment en ce qui concerne l'organisation du travail, les règlements d'hygiène et de sécurité."),
+         
+        ("Article 7 :", 
+         "En cas de dérogation à ce règlement, le Directeur de l'organisme d'accueil peut interrompre le stage après en avoir dûment informé le Chef du Département Génie Informatique."),
+         
+        ("Article 8 :", 
+         "Le(la) stagiaire pourra bénéficier, dans le cadre de son travail de l'infrastructure et du matériel nécessaire."),
+         
+        ("Article 9 :", 
+         "Le(la) stagiaire est tenu par le secret professionnel le plus strict durant la réalisation des procédés de fabrication exploités ou étudiés par l'organisme ainsi que les recherches poursuivies et les renseignements recueillis lors des travaux."),
+         
+        ("Article 10 :", 
+         "En fin de stage, le(la) stagiaire présentera un rapport destiné aux signataires de la présente convention, qui fera l'objet d'une présentation orale en présence des enseignants du département et des représentants de l'organisme. En cas de confidentialité des travaux du(de la) stagiaire, mention en sera faite sur ledit rapport, qui fera l'objet d'une diffusion restreinte précisée par un avenant à ladite convention.")
     ]
 
-    for article in articles:
-        if y < margin + 3*cm:
-            c.showPage()
-            y = height - margin
-            c.setFont("Helvetica", 11)
-        c.drawString(margin, y, article)
-        y -= 0.7*cm
+    for article_num, article_content in articles:
+        elements.append(Paragraph(article_num, article_title_style))
+        elements.append(Paragraph(article_content, article_content_style))
 
-    # Signatures
-    y -= 1.5*cm
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(margin, y, "Signatures :")
-    y -= 1*cm
+    elements.append(Spacer(1, 20))
 
-    # Signature Étudiant
-    if convention.signature_etudiant:
-        path_etudiant = os.path.join(settings.MEDIA_ROOT, convention.signature_etudiant.name)
-        if os.path.exists(path_etudiant):
-            c.drawString(margin, y, "Signature Étudiant :")
-            c.drawImage(path_etudiant, margin + 5*cm, y - 0.5*cm, width=5*cm, height=2*cm, preserveAspectRatio=True)
-        else:
-            c.drawString(margin, y, "Signature Étudiant (fichier manquant)")
-    else:
-        c.drawString(margin, y, "Signature Étudiant : Non fournie")
-    y -= 3*cm
+    # === Signatures ===
+    elements.append(Paragraph("LE(LA) STAGIAIRE (signature)", normal_style))
+    elements.append(Spacer(1, 30))
+    elements.append(Paragraph(f"Dakar, le ......... {timezone.now().strftime('%d/%m/%Y')}", normal_style))
+    elements.append(Spacer(1, 30))
 
-    # Signature Entreprise
-    if convention.signature_entreprise:
-        path_entreprise = os.path.join(settings.MEDIA_ROOT, convention.signature_entreprise.name)
-        if os.path.exists(path_entreprise):
-            c.drawString(margin, y, "Signature Entreprise :")
-            c.drawImage(path_entreprise, margin + 5*cm, y - 0.5*cm, width=5*cm, height=2*cm, preserveAspectRatio=True)
-        else:
-            c.drawString(margin, y, "Signature Entreprise (fichier manquant)")
-    else:
-        c.drawString(margin, y, "Signature Entreprise : Non fournie")
-    y -= 3*cm
+    elements.append(Paragraph("POUR L'ORGANISME D'ACCUEIL (nom, prénom, signature et cachet)", normal_style))
+    elements.append(Spacer(1, 30))
+    elements.append(Paragraph(f"Dakar, le ......... {timezone.now().strftime('%d/%m/%Y')}", normal_style))
+    elements.append(Spacer(1, 30))
 
-    c.showPage()
-    c.save()
+    elements.append(Paragraph("POUR LE DEPARTEMENT GENIE INFORMATIQUE (nom, prénom, signature et cachet)", normal_style))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph("Professeur Ibrahima FALL", normal_style))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(f"Dakar, le ......... {timezone.now().strftime('%d/%m/%Y')}", normal_style))
+    elements.append(Spacer(1, 15))
+
+    elements.append(Paragraph("Document établi en trois (03) exemplaires", normal_style))
+
+    doc.build(elements)
     return response
-
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -1119,12 +1277,6 @@ from .models import Conversation, Message
 
 User = get_user_model()
 
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from .models import Conversation, User
-
 @login_required
 def start_conversation(request, user_id):
     other_user = get_object_or_404(User, id=user_id)
@@ -1163,7 +1315,7 @@ def view_conversation(request, conversation_id):
                 sender=request.user,
                 content=content
             )
-        return redirect('view_conversation', conversation_id=conversation.id)
+        return redirect('view_conversation', conversation_id=conversation_id)
 
     messages = conversation.messages.order_by('timestamp')
 
@@ -1212,25 +1364,44 @@ from django.http import HttpResponseForbidden
 from .models import Annonce, Etudiant
 
 @login_required
+@login_required
 def ajouter_annonce(request):
-    profil = getattr(request.user, 'userprofile', None)
+    # Vérifier si l'utilisateur est admin ou chef de département
+    is_admin = request.user.is_superuser
+    is_chef = hasattr(request.user, 'chefdepartement')  # Utilise la relation OneToOne
     
-    if not profil or profil.role != 'admin' or not profil.departement:
-        return HttpResponseForbidden("Seuls les chefs de département peuvent publier des annonces.")
+    if not (is_admin or is_chef):
+        messages.error(request, "Seuls les administrateurs et chefs de département peuvent publier des annonces.")
+        return redirect('dashboard')
 
     if request.method == 'POST':
-        titre = request.POST['titre']
-        contenu = request.POST['contenu']
-        fichier = request.FILES.get('fichier')
+        try:
+            titre = request.POST['titre']
+            contenu = request.POST['contenu']
+            fichier = request.FILES.get('fichier')
+            
+            # Déterminer le département
+            if is_chef:
+                departement = request.user.chefdepartement.departement
+            else:  # Cas admin
+                # Vous pourriez avoir besoin d'un sélecteur de département dans le formulaire
+                # Pour l'instant, nous retournons une erreur
+                messages.error(request, "Les administrateurs doivent spécifier un département.")
+                return redirect('ajouter_annonce')
 
-        Annonce.objects.create(
-            titre=titre,
-            contenu=contenu,
-            fichier=fichier,
-            departement=profil.departement,
-            auteur=request.user
-        )
-        return redirect('liste_annonces')
+            # Créer l'annonce
+            Annonce.objects.create(
+                titre=titre,
+                contenu=contenu,
+                fichier=fichier,
+                departement=departement,
+                auteur=request.user
+            )
+            messages.success(request, "Annonce publiée avec succès!")
+            
+        except Exception as e:
+            messages.error(request, f"Erreur lors de la publication: {str(e)}")
+            return redirect('ajouter_annonce')
 
     return render(request, 'messaging/ajouter_annonce.html')
 @login_required
@@ -1375,3 +1546,184 @@ def register_entreprise(request):
         form = EntrepriseForm()
 
     return render(request, 'entreprise/register.html', {'form': form})
+
+@login_required
+def modifier_memoire(request, memoire_id):
+    memoire = get_object_or_404(Memoire, id=memoire_id, etudiant=request.user.etudiant)
+    if request.method == 'POST':
+        form = MemoireForm(request.POST, request.FILES, instance=memoire)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Mémoire/rapport modifié avec succès.")
+            return redirect('detail_memoire', memoire_id=memoire.id)
+    else:
+        form = MemoireForm(instance=memoire)
+    return render(request, 'memoires/modifier.html', {'form': form, 'memoire': memoire})
+
+from django.views.generic import DeleteView
+from django.urls import reverse_lazy
+from .models import Memoire
+
+class SupprimerMemoireView(DeleteView):
+    model = Memoire
+    template_name = 'memoires/confirmation_suppression.html'  # Créez ce template si nécessaire
+    success_url = reverse_lazy('mes_memoire')  # Redirection après suppression
+    
+    # Si vous voulez utiliser le même template que detail.html pour la confirmation
+    def get_template_names(self):
+        if 'delete' in self.request.GET:
+            return ['memoires/detail.html']
+        return super().get_template_names()
+
+from .models import (Annonce, Etudiant, OffreDeStage, Entreprise, 
+                    ConventionDeStage, Memoire, ChefDepartement)
+
+from django.shortcuts import render
+from django.http import HttpResponseForbidden
+from datetime import date
+from .models import (
+    Annonce, ChefDepartement, Etudiant, ConventionDeStage, Entreprise,
+    OffreDeStage, Memoire, Stage
+)
+
+def liste_annonces(request):
+    # Détection du rôle
+    try:
+        chef = ChefDepartement.objects.get(user=request.user)
+        departement = chef.departement
+        is_etudiant = False
+    except ChefDepartement.DoesNotExist:
+        if request.user.is_superuser:
+            departement = None
+            is_etudiant = False
+        else:
+            try:
+                etudiant = Etudiant.objects.get(user=request.user)
+                departement = etudiant.departement
+                is_etudiant = True
+            except Etudiant.DoesNotExist:
+                return HttpResponseForbidden("Accès non autorisé")
+
+    # Date du jour
+    today = date.today()
+
+    # Contexte général
+    context = {
+        # Annonces du département
+        'annonces': Annonce.objects.filter(departement=departement).order_by('-date_publication') if departement else Annonce.objects.all().order_by('-date_publication'),
+
+        # Étudiants du département (seulement pour chefs/admin)
+        'etudiants': Etudiant.objects.filter(departement=departement, est_valide=True) if departement and not is_etudiant else None,
+
+        # Conventions validées
+        'etudiants_avec_stage': ConventionDeStage.objects.filter(
+            etudiant__departement=departement,
+            statut='validee'
+        ).select_related('etudiant', 'entreprise') if departement and not is_etudiant else None,
+
+        # 🔵 Stages en cours
+        'stages_en_cours': Stage.objects.filter(
+            etudiant__departement=departement,
+            statut='en_cours',
+            date_debut_reelle__lte=today,
+            date_fin_reelle__gte=today
+        ) if departement and not is_etudiant else None,
+
+        # 🟡 Stages en attente (optionnel)
+        'stages_en_attente': Stage.objects.filter(
+            etudiant__departement=departement,
+            statut='en_attente'
+        ) if departement and not is_etudiant else None,
+
+        # 🟢 Stages terminés (optionnel)
+        'stages_termines': Stage.objects.filter(
+            etudiant__departement=departement,
+            statut='termine'
+        ) if departement and not is_etudiant else None,
+
+        # Entreprises ayant publié des offres
+        'entreprises_offres': Entreprise.objects.filter(
+            offredestage__est_valide=True,
+            offredestage__domaine__in=[departement.nom] if departement else None
+        ).distinct() if departement and not is_etudiant else None,
+
+        # Mémoires
+        'memoires': Memoire.objects.filter(
+            etudiant__departement=departement
+        ).select_related('etudiant') if departement and not is_etudiant else None,
+
+        # Statistiques
+        'stats': {
+            'total_etudiants': Etudiant.objects.filter(departement=departement).count() if departement and not is_etudiant else None,
+            'etudiants_stages': ConventionDeStage.objects.filter(
+                etudiant__departement=departement,
+                statut='validee'
+            ).count() if departement and not is_etudiant else None,
+            'offres_actives': OffreDeStage.objects.filter(
+                est_valide=True,
+                domaine__in=[departement.nom] if departement else None
+            ).count() if departement and not is_etudiant else None,
+        },
+
+        'departement': departement,
+        'is_chef': hasattr(request.user, 'chefdepartement'),
+        'is_admin': request.user.is_superuser,
+        'is_etudiant': is_etudiant
+    }
+
+    return render(request, 'messaging/liste_annonces.html', context)
+
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Annonce
+
+def masquer_annonce(request, annonce_id):
+    annonce = get_object_or_404(Annonce, id=annonce_id)
+    annonce.est_visible = False
+    annonce.save()
+    messages.info(request, "Annonce masquée.")
+    return redirect('liste_annonces')
+
+def afficher_annonce(request, annonce_id):
+    annonce = get_object_or_404(Annonce, id=annonce_id)
+    annonce.est_visible = True
+    annonce.save()
+    messages.success(request, "Annonce rendue visible.")
+    return redirect('liste_annonces')
+
+def supprimer_annonce(request, annonce_id):
+    annonce = get_object_or_404(Annonce, id=annonce_id)
+    if request.method == "POST":
+        annonce.delete()
+        messages.success(request, "Annonce supprimée avec succès.")
+    return redirect('liste_annonces')
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Annonce
+from .forms import AnnonceForm  # à adapter selon ton projet
+
+def modifier_annonce(request, annonce_id):
+    annonce = get_object_or_404(Annonce, id=annonce_id)
+    if request.method == 'POST':
+        form = AnnonceForm(request.POST, request.FILES, instance=annonce)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Annonce mise à jour avec succès.")
+    else:
+        form = AnnonceForm(instance=annonce)
+    return render(request, 'annonces/modifier_annonce.html', {'form': form})
+
+from .models import Stage
+from datetime import date
+
+def dashboard_chef(request):
+    today = date.today()
+    stages_en_cours = Stage.objects.filter(
+        statut='en_cours',
+        date_debut_reelle__lte=today,
+        date_fin_reelle__gte=today
+    )
+    return render(request, 'dashboard.html', {
+        'stages_en_cours': stages_en_cours
+    })

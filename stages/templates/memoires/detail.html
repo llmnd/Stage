@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail du Mémoire - {{ memoire.titre }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/css/lucide.min.css">
+    <style>
+        /* Styles globaux */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        /* Styles spécifiques à la page de détail */
+        .detail-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Header */
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .detail-title {
+            color: #2563eb;
+            font-weight: 700;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        .detail-title i {
+            margin-right: 0.5rem;
+        }
+
+        .breadcrumb-custom {
+            --bs-breadcrumb-divider: '›';
+            background: transparent;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item a {
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb-item a:hover {
+            color: #2563eb;
+        }
+
+        .breadcrumb-item.active {
+            color: #2563eb;
+        }
+
+        /* Carte principale */
+        .detail-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header-custom {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-title-custom {
+            color: #111827;
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 1.25rem;
+        }
+
+        .dropdown-toggle-custom {
+            border: none;
+            background: transparent;
+            padding: 0.25rem;
+            color: #6b7280;
+        }
+
+        .dropdown-menu-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 0.375rem;
+        }
+
+        .dropdown-item-custom {
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            color: #374151;
+        }
+
+        .dropdown-item-custom:hover {
+            background-color: #f3f4f6;
+        }
+
+        .dropdown-item-custom i {
+            margin-right: 0.5rem;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Badges */
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .info-badge i {
+            margin-right: 0.25rem;
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Section Auteur */
+        .author-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .section-title i {
+            margin-right: 0.5rem;
+            width: 20px;
+            height: 20px;
+            color: #6b7280;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .author-name {
+            font-weight: 500;
+            margin-bottom: 0;
+            color: #111827;
+        }
+
+        .co-authors {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Description */
+        .description-content {
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+            white-space: pre-line;
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        /* Fichier */
+        .file-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+        }
+
+        .file-icon-container {
+            background-color: #e0e7ff;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-icon {
+            color: #2563eb;
+            width: 24px;
+            height: 24px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #111827;
+        }
+
+        .file-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Statut */
+        .visibility-status {
+            margin-top: 1.5rem;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+
+        .visibility-status.private {
+            background-color: #fffbeb;
+            color: #92400e;
+        }
+
+        /* Cartes stats */
+        .stats-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stats-icon-container {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            background-color: #e0e7ff;
+        }
+
+        .stats-icon {
+            color: #2563eb;
+            width: 24px;
+            height: 24px;
+        }
+
+        .stats-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2563eb;
+        }
+
+        .stats-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Contenu du mémoire */
+        .memoire-content {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .memoire-content iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+            border-radius: 0.375rem;
+        }
+
+        .memoire-content pre {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+        }
+
+        .content-placeholder {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        /* Modals */
+        .modal-content-custom {
+            border: none;
+            border-radius: 0.5rem;
+        }
+
+        .modal-header-custom {
+            border: none;
+            padding-bottom: 0;
+        }
+
+        .modal-title-custom {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* Styles spécifiques pour les informations de soutenance */
+        .soutenance-info {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .note-badge {
+            font-size: 1.25rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .note-excellente {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .note-bonne {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .note-moyenne {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .note-faible {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Liste des membres du jury */
+        .jury-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .jury-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .jury-item i {
+            margin-right: 0.5rem;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .file-container {
+                flex-direction: column;
+            }
+            
+            .file-actions {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            .file-actions .btn {
+                width: 100%;
+            }
+
+            .memoire-content iframe {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <!-- Header avec bouton retour -->
+        <div class="detail-header">
+            <div>
+                <h2 class="detail-title">
+                    <i data-lucide="file-text" class="me-2"></i>
+                    Détail du Mémoire
+                </h2>
+                <nav aria-label="breadcrumb" class="breadcrumb-custom">
+                    <ol class="breadcrumb breadcrumb-custom">
+                        <li class="breadcrumb-item"><a href="{% url 'mes_memoires' %}">Mes Mémoires</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ memoire.titre|truncatechars:20 }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <a href="{% url 'mes_memoires' %}" class="btn btn-outline-primary">
+                <i data-lucide="arrow-left" class="me-1"></i> Retour
+            </a>
+        </div>
+
+        <!-- Carte principale -->
+        <div class="detail-card">
+            <!-- En-tête avec options -->
+            <div class="card-header card-header-custom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-custom">{{ memoire.titre }}</h3>
+                    {% if user == memoire.etudiant.user or user.is_superuser %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm dropdown-toggle-custom" type="button" data-bs-toggle="dropdown">
+                            <i data-lucide="more-horizontal"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
+                            {% if user == memoire.etudiant.user %}
+                            <li>
+                                <a class="dropdown-item dropdown-item-custom" href="{% url 'modifier_memoire' memoire.id %}">
+                                    <i data-lucide="edit-2" class="me-2"></i> Modifier
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item dropdown-item-custom" href="#" data-bs-toggle="modal" data-bs-target="#shareModal">
+                                    <i data-lucide="share-2" class="me-2"></i> Partager
+                                </a>
+                            </li>
+                            {% if user == memoire.etudiant.user or user.is_superuser %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item dropdown-item-custom text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i data-lucide="trash-2" class="me-2"></i> Supprimer
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Corps de la carte -->
+            <div class="card-body p-4">
+                <!-- Informations de base -->
+                <div class="badge-container">
+                    <span class="info-badge">
+                        <i data-lucide="user" class="me-1"></i>
+                        {{ memoire.etudiant }}
+                    </span>
+                    <span class="info-badge">
+                        <i data-lucide="calendar" class="me-1"></i>
+                        Déposé le {{ memoire.date_depot|date:"d/m/Y" }}
+                    </span>
+                    {% if memoire.date_soutenance %}
+                    <span class="info-badge">
+                        <i data-lucide="calendar-check" class="me-1"></i>
+                        Soutenance le {{ memoire.date_soutenance|date:"d/m/Y" }}
+                    </span>
+                    {% endif %}
+                    {% if memoire.est_public %}
+                    <span class="info-badge bg-primary bg-opacity-10 text-primary">
+                        <i data-lucide="globe" class="me-1"></i>
+                        Public
+                    </span>
+                    {% else %}
+                    <span class="info-badge bg-secondary bg-opacity-10 text-secondary">
+                        <i data-lucide="lock" class="me-1"></i>
+                        Privé
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Mots-clés -->
+                {% if memoire.mots_cles %}
+                <div class="author-section">
+                    <h5 class="section-title">
+                        <i data-lucide="tags" class="me-2"></i>
+                        Mots-clés
+                    </h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for mot in memoire.mots_cles.split %}
+                        <span class="info-badge">
+                            <i data-lucide="tag" class="me-1"></i>
+                            {{ mot }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Résumé -->
+                <div class="author-section">
+                    <h5 class="section-title">
+                        <i data-lucide="align-left" class="me-2"></i>
+                        Résumé
+                    </h5>
+                    <div class="description-content">
+                        <p class="mb-0">{{ memoire.resume }}</p>
+                    </div>
+                </div>
+
+                <!-- Fichier -->
+                <div class="author-section">
+                    <h5 class="section-title">
+                        <i data-lucide="paperclip" class="me-2"></i>
+                        Document
+                    </h5>
+                    <div class="file-card p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="file-icon-container">
+                                <i data-lucide="file-text" class="file-icon"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="file-name">{{ memoire.document.name|slice:"20:" }}</h6>
+                                <small class="file-meta">
+                                    {{ memoire.document.size|filesizeformat }} • 
+                                    {{ memoire.document.url|slice:"-3:"|upper }} • 
+                                    Déposé le {{ memoire.date_depot|date:"d/m/Y" }}
+                                </small>
+                            </div>
+                            <div class="btn-group">
+                                <a href="{{ memoire.document.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i data-lucide="eye" class="me-1"></i> Prévisualiser
+                                </a>
+                                <a href="{{ memoire.document.url }}" download class="btn btn-primary btn-sm">
+                                    <i data-lucide="download" class="me-1"></i> Télécharger
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+                </div>
+              
+
+                <!-- Informations de soutenance -->
+                {% if memoire.date_soutenance or memoire.jury.all.exists or memoire.note %}
+                <div class="soutenance-info">
+                    <h5 class="section-title">
+                        <i data-lucide="gavel" class="me-2"></i>
+                        Informations de soutenance
+                    </h5>
+                    
+                    {% if memoire.date_soutenance %}
+                    <div class="mb-3">
+                        <strong>Date de soutenance:</strong> {{ memoire.date_soutenance|date:"d/m/Y" }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if memoire.jury.all.exists %}
+                    <div class="mb-3">
+                        <strong>Membres du jury:</strong>
+                        <ul class="jury-list mt-2">
+                            {% for enseignant in memoire.jury.all %}
+                            <li class="jury-item">
+                                <i data-lucide="user-check"></i>
+                                {{ enseignant }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if memoire.note %}
+                    <div>
+                        <strong>Note:</strong>
+                        <span class="note-badge 
+                            {% if memoire.note >= 16 %}note-excellente
+                            {% elif memoire.note >= 14 %}note-bonne
+                            {% elif memoire.note >= 10 %}note-moyenne
+                            {% else %}note-faible
+                            {% endif %}">
+                            {{ memoire.note }}/20
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title modal-title-custom" id="shareModalLabel">
+                        <i data-lucide="share-2" class="me-2"></i>
+                        Partager ce mémoire
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="shareLink" class="form-label">Lien de partage</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="shareLink" 
+                                   value="{{ request.build_absolute_uri }}" readonly>
+                            <button class="btn btn-primary" type="button" onclick="copyShareLink()">
+                                <i data-lucide="copy" class="me-1"></i> Copier
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i data-lucide="info" class="me-2"></i>
+                        Ce lien sera accessible uniquement si le mémoire est marqué comme public.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title modal-title-custom" id="deleteModalLabel">
+                        <i data-lucide="alert-triangle" class="me-2 text-danger"></i>
+                        Confirmer la suppression
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer définitivement ce mémoire ?</p>
+                    <p class="text-danger"><strong>Cette action est irréversible.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form method="post" action="{% url 'supprimer_memoire' memoire.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i data-lucide="trash-2" class="me-1"></i> Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+        if(window.lucide){ lucide.createIcons(); }
+        
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink');
+            shareLink.select();
+            shareLink.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            
+            // Créer une notification toast simple
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '11';
+            toast.innerHTML = `
+                <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i data-lucide="check-circle" class="me-2"></i>
+                            Lien copié dans le presse-papier !
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Supprimer après 3 secondes
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+            
+            // Recréer les icônes Lucide
+            if(window.lucide){ lucide.createIcons(); }
+        }
+    </script>
+</body>
+</html>
