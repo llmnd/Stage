@@ -1,10 +1,10 @@
 /* Base styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    color: #333;
-    background-color: #b199ab;
+    color: #ffffff;
+    background-color: #0c0839;
 }
 
 .container {

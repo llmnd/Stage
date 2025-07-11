@@ -1,5 +1,17 @@
 from pathlib import Path
 import os
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Charger le .env
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+# Exemple d'utilisation :
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accueil',
     'stages',
-    'chatbot',
 ]
 
 MIDDLEWARE = [
@@ -160,4 +171,8 @@ ALLOWED_HOSTS = [
 MEDIA_URL = '/media/' if DEBUG else '/protected-media/'  # ← Changez en prod
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 BASE_URL = 'http://localhost:8000'
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'  # Empêche l’inclusion en iframe
 

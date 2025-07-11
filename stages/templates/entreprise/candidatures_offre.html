@@ -369,6 +369,53 @@
         @keyframes scanning {
             100% { left: 100%; }
         }
+
+         /* Header Styles */
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background: rgba(15, 12, 41, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 999;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.header-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  background: linear-gradient(to right, var(--primary), var(--primary-light));
+  color: white;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-home-btn:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.header-home-btn i {
+  font-size: 0.9rem;
+}
     </style>
 </head>
 <body>
@@ -397,8 +444,9 @@
                         </span>
                     </div>
                 </div>
-                <a href="{% url 'liste_offres' %}" class="btn btn-glass btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i> Retour
+                <a href="{% url 'profil_entreprise' id=user.entreprise.id %}" class="header-home-btn">
+            <i class="fas fa-home"></i> Retour
+          </a>
                 </a>
             </div>
         </div>
@@ -426,11 +474,7 @@
                                     <option>Récent</option>
                                 </select>
                             </div>
-                            <form method="post" action="{% url 'reevaluer_candidatures' offre.id %}" id="rescanForm">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-neon btn-sm" id="rescanBtn">
-                                    <i class="fas fa-sync-alt me-1"></i> Rescan
-                                </button>
+                           
                             </form>
                         </div>
                     </div>
@@ -488,7 +532,7 @@
                                                 <div class="neuro-progress mb-2">
                                                     <div class="neuro-progress-bar" style="--score: {{ candidature.score_ia }}"></div>
                                                 </div>
-                                                <small class="text-muted d-block text-truncate" style="max-width: 200px;" 
+                                                <small class="" style="max-width: 200px;" 
                                                        data-bs-toggle="tooltip" 
                                                        data-bs-placement="top" 
                                                        title="{{ candidature.feedback_ia }}">
@@ -558,7 +602,7 @@
                         </div>
                         {% if candidatures.0 %}
                         <div class="mt-2 text-center">
-                            <small class="text-muted">
+                            <small class="">
                                 <i class="fas fa-user me-1"></i>
                                 {{ candidatures.0.etudiant.nom_complet }}
                             </small>
@@ -586,21 +630,7 @@
                         {% endif %}
                     </div>
                     
-                    <div class="neuro-card p-3">
-                        <h3 class="h6 mb-2">Paramètres du Scan</h3>
-                        <div class="mb-2">
-                            <small class="text-muted">Modèle Neural</small>
-                            <div class="fw-medium">NeuroNet v3.2</div>
-                        </div>
-                        <div class="mb-2">
-                            <small class="text-muted">Dernière analyse</small>
-                            <div class="fw-medium"><span id="scanTime">{% now "j F Y à H:i" %}</span></div>
-                        </div>
-                        <button class="btn btn-neon w-100 mt-2" id="optimizeBtn">
-                            <i class="fas fa-tune me-1"></i> Optimiser
-                        </button>
-                    </div>
-                </div>
+                   
                 
                 <div class="neuro-card p-4">
                     <h2 class="h5 mb-3">
@@ -613,7 +643,7 @@
                                 <i class="fas fa-wave-pulse text-neon"></i>
                             </div>
                             <div>
-                                <small class="text-muted">Intégrité du Scan</small>
+                                <small class="">Intégrité du Scan</small>
                                 <div class="fw-medium">
                                     <span class="text-success">98% Optimal</span>
                                     <div class="neuro-progress mt-1">
@@ -627,7 +657,7 @@
                                 <i class="fas fa-cogs text-neon"></i>
                             </div>
                             <div>
-                                <small class="text-muted">Précision</small>
+                                <small class="">Précision</small>
                                 <div class="fw-medium">
                                     <span class="text-warning">94.7% Confidence</span>
                                     <div class="neuro-progress mt-1">
@@ -651,32 +681,7 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            // Gestion du feedback pour le rescan
-            const rescanForm = document.getElementById('rescanForm');
-            if (rescanForm) {
-                rescanForm.addEventListener('submit', function(e) {
-                    const btn = document.getElementById('rescanBtn');
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Scanning...';
-                    btn.disabled = true;
-                    
-                    // Simuler un traitement (à remplacer par une vraie requête AJAX)
-                    setTimeout(() => {
-                        showFeedback('Scan terminé avec succès', 'success');
-                        btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Rescan';
-                        btn.disabled = false;
-                        document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                        document.getElementById('scanTime').textContent = new Date().toLocaleString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit'});
-                    }, 2000);
-                });
-            }
-
-            // Gestion du bouton Optimiser
-            const optimizeBtn = document.getElementById('optimizeBtn');
-            if (optimizeBtn) {
-                optimizeBtn.addEventListener('click', function() {
-                    showFeedback('Paramètres optimisés', 'success');
-                });
-            }
+          
 
             // Gestion du bouton "Voir plus" pour les tags
             const showMoreTags = document.getElementById('showMoreTags');

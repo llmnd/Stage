@@ -31,11 +31,10 @@
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Times New Roman', sans-serif;
             background-color: var(--light-bg);
             color: var(--dark);
-            line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
+          
         }
 
         /* Header Élégant avec Gradient Animé */
@@ -76,7 +75,7 @@
         }
 
         .entreprise-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Times New Roman', serif;
             font-size: clamp(2.5rem, 6vw, 4rem);
             margin-bottom: 0.8rem;
             font-weight: 700;
@@ -107,7 +106,7 @@
         .logo-wrapper {
             background: linear-gradient(135deg, var(--primary-light), var(--accent));
             padding: 10px;
-            border-radius: 50%;
+            border-radius: 20%;
             box-shadow: 0 15px 40px rgba(114, 9, 183, 0.4);
             transition: var(--transition);
             position: relative;
@@ -135,8 +134,8 @@
         }
 
         .logo {
-            width: 180px;
-            height: 180px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
             border: 6px solid var(--white);
@@ -145,10 +144,15 @@
             position: relative;
             z-index: 2;
         }
+         .logo-container img {
+    object-fit: contain; /* Affiche toute l'image sans crop */
+    object-position: center;
+    background-color: white; /* Fond uni si l'image a des transparences */
+}
 
         /* Contenu Principal */
         .main-container {
-            max-width: 1200px;
+           
             margin: 0 auto 4rem;
             padding: 0 2rem;
             position: relative;
@@ -306,6 +310,7 @@
             box-shadow: var(--box-shadow);
             position: relative;
             overflow: hidden;
+            text-decoration: none;
         }
 
         .content-section::before {
@@ -319,13 +324,14 @@
         }
 
         .section-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Times New Roman', serif;
             font-size: 2.2rem;
             color: var(--primary);
             margin-bottom: 2rem;
             position: relative;
             padding-bottom: 1rem;
             font-weight: 700;
+            text-decoration: none;
         }
 
         .section-title::after {
@@ -404,6 +410,7 @@
             color: var(--gray);
             margin-bottom: 1.5rem;
             flex-grow: 1;
+            text-decoration: none;
         }
 
         .offre-meta {
@@ -671,6 +678,54 @@
                 font-size: 1.8rem;
             }
         }
+
+        
+    /* Header Styles */
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background: rgba(15, 12, 41, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 999;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.header-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  background: linear-gradient(to right, var(--primary), var(--primary-light));
+  color: white;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-home-btn:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.header-home-btn i {
+  font-size: 0.9rem;
+}
     </style>
 </head>
 <body>
@@ -787,16 +842,14 @@
                 {{ entreprise.description|linebreaks|default:"<p style='color:var(--gray); font-style: italic;'>Aucune description fournie.</p>" }}
             </div>
         </div>
-
-         Section Réalisations Élégante 
+        
         <div class="content-section" data-scroll>
             <h2 class="section-title">Réalisations</h2>
             <div class="section-content">
                 {{ entreprise.realisations|linebreaks|default:"<p style='color:var(--gray); font-style: italic;'>Aucune réalisation renseignée.</p>" }}
             </div>
         </div>
-
-         Section Offres avec Design Moderne 
+         
         <div class="content-section" data-scroll>
             <h2 class="section-title">Offres disponibles</h2>
             {% if offres %}
@@ -827,11 +880,14 @@
         <a href="javascript:history.back()" class="back-btn" data-scroll>
             <i class="fas fa-arrow-left"></i> Retour à la liste
         </a>
+         <a href="{% url 'profil_entreprise' id=user.entreprise.id %}" class="header-home-btn">
+            <i class="fas fa-home"></i> Home
+          </a>
     </div>
 
     
     <footer class="footer" data-scroll>
-        Plateforme de Stages ESP – © {% now "Y" %}
+        Plateforme de Stages ESP © {% now "Y" %}
     </footer>
 
     <script>

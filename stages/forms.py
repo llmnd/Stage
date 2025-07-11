@@ -5,6 +5,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 import os
+from .models import Departement
+
 from .models import (
     OffreDeStage, Etudiant, UserProfile, Entreprise, 
     Candidature, ConventionDeStage, SuiviStage, 
@@ -64,6 +66,12 @@ class EtudiantSignupForm(BaseUserForm):
     universite = forms.CharField(max_length=100, required=True)
     niveau_etude = forms.ChoiceField(choices=Etudiant.NIVEAU_ETUDE_CHOICES)
     domaine_etude = forms.ChoiceField(choices=Etudiant.DOMAINE_ETUDE_CHOICES)
+    date_naissance = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    sexe = forms.ChoiceField(choices=Etudiant.SEXE_CHOICES)
+    lieu_naissance = forms.CharField(max_length=100)
+    departement = forms.ModelChoiceField(queryset=Departement.objects.all())
+    ville = forms.CharField(max_length=50, initial='Dakar')  # facultatif avec default
+    adresse = forms.CharField(widget=forms.Textarea, required=False)
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -71,13 +79,20 @@ class EtudiantSignupForm(BaseUserForm):
         if commit:
             user.save()
             Etudiant.objects.create(
-    user=user,
-    email=user.email,  # ⚠️ Ajout crucial
-    universite=self.cleaned_data['universite'],
-    niveau_etude=self.cleaned_data['niveau_etude'],
-    domaine_etude=self.cleaned_data['domaine_etude'],
-    est_valide=True
-)
+                user=user,
+                nom_complet=self.cleaned_data['nom_complet'],
+                email=user.email,
+                universite=self.cleaned_data['universite'],
+                niveau_etude=self.cleaned_data['niveau_etude'],
+                domaine_etude=self.cleaned_data['domaine_etude'],
+                date_naissance=self.cleaned_data['date_naissance'],
+                sexe=self.cleaned_data['sexe'],
+                lieu_naissance=self.cleaned_data['lieu_naissance'],
+                departement=self.cleaned_data['departement'],
+                adresse=self.cleaned_data.get('adresse'),
+                ville=self.cleaned_data.get('ville', 'Dakar'),
+                est_valide=True
+            )
 
             UserProfile.objects.create(
                 user=user,
@@ -85,6 +100,7 @@ class EtudiantSignupForm(BaseUserForm):
                 is_validated=True
             )
         return user
+
 
 class EnseignantSignupForm(BaseUserForm):
     specialite = forms.CharField(max_length=100, required=True)

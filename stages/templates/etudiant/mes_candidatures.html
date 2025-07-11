@@ -7,6 +7,17 @@
     <title>Mes Candidatures | Plateforme ESP</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+     <header class="main-header">
+  <div class="container">
+    <nav class="header-nav">
+      <form action="{% url 'etudiant_dashboard' %}" method="get">
+        <button type="submit" class="header-home-btn">
+          <i class="fas fa-home"></i> Home
+        </button>
+      </form>
+    </nav>
+  </div>
+</header>
     <style>
           :root {
             --primary: #1a1180;
@@ -326,6 +337,53 @@
                 font-size: 1.5rem;
             }
         }
+
+          /* Header Styles */
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background: rgba(15, 12, 41, 0);
+ 
+  z-index: 999;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0);
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
+}
+
+.header-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.797);
+  color: rgb(7, 3, 31);
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-home-btn:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.header-home-btn i {
+  font-size: 0.9rem;
+}
     </style>
 </head>
 <body>

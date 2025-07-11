@@ -30,9 +30,6 @@ from stages.views import (
     etudiant_dashboard,
     post_login_redirect,
     modifier_profil_entreprise,
-    PrivacyPolicyView,
-    TermsView,
-    ContactView,
     detail_offre,
     postuler_offre,
     mon_profil_entreprise,
@@ -40,7 +37,8 @@ from stages.views import (
     page_etudiant,
     modifier_offre,
     supprimer_offre,
-    detail_candidature
+    detail_candidature,
+    dashboard_chef
 )
 
 urlpatterns = [
@@ -56,13 +54,7 @@ urlpatterns = [
 
     # Accueil : redirection vers login
     path('', lambda request: redirect('login'), name='home'),
-
-    # Pages statiques
-    path('privacy/', PrivacyPolicyView.as_view(), name='privacy'),
-    path('terms/', TermsView.as_view(), name='terms'),
-    path('contact/', ContactView.as_view(), name='contact'),
-    path('faq/', TemplateView.as_view(template_name='faq.html'), name='faq'),
-    path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
+  
 
     # Offres de stage
     path('offres/', liste_offres, name='liste_offres'),
@@ -81,15 +73,15 @@ urlpatterns = [
     path('entreprise/mon-profil/', mon_profil_entreprise, name='mon_profil_entreprise'),
     path('entreprise/espace/', profil_entreprise, name='espace_entreprise'),
     path('entreprise/modifier-profil/', modifier_profil_entreprise, name='modifier_profil_entreprise'),
-    path('entreprise/profil/', profil_entreprise, name='profil_entreprise'),
     path('entreprise/profil/<int:id>/', views.profil_entreprise, name='profil_entreprise'),
+    path('entreprise/profil/', views.profil_entreprise, name='profil_entreprise'),
+
 
 
     # Espace Étudiant
     path('etudiant/', etudiant_dashboard, name='page_etudiant'),
     path('etudiant/dashboard/', etudiant_dashboard, name='etudiant_dashboard'),
     path('login/etudiant/', page_etudiant, name='login_etudiant'),
-    path('dashboard/', dashboard, name='dashboard'),
     path('entreprise/voir/<int:id>/', views.voir_profil_entreprise, name='voir_profil_entreprise'),
     path('offre/<int:pk>/', views.detail_offre, name='offre_detail'),
     path('candidature/<int:candidature_id>/telecharger-cv/', views.telecharger_cv, name='telecharger_cv'),
@@ -102,6 +94,7 @@ urlpatterns = [
           path('offre/<int:offre_id>/recommandations/', views.recommander_candidats, name='recommandations_ia'),
     path('offre/<int:offre_id>/evaluer-candidatures/', views.evaluer_candidatures_ia, name='evaluer_candidatures_ia'),
     path('api/offre/<int:offre_id>/analyse-candidatures/', views.api_candidatures_analyse, name='api_analyse_candidatures'),
+    path('chef/chef_dashboard', dashboard_chef, name='chef_dashboard'),
     
     # Conventions
     path('candidature/<int:candidature_id>/convention/', views.creer_convention, name='creer_convention'),
@@ -145,7 +138,8 @@ urlpatterns = [
     path('annonce/<int:annonce_id>/afficher/', views.afficher_annonce, name='afficher_annonce'),
     path('annonce/<int:annonce_id>/supprimer/', views.supprimer_annonce, name='supprimer_annonce'),
     path('annonces/', liste_annonces, name='liste_annonces'),
-    path('chatbot/', include('chatbot.urls')),
+    path('etudiant/annonces/', views.annonces_etudiant, name='annonces_etudiant'),
+    path('etudiant/dashboard/', views.dashboard_etudiant, name='dashboard_etudiant'),
     path('register/', register_choice, name='register_choice'),
     path('register/etudiant/', register_etudiant, name='register_etudiant'),
     path('register/entreprise/', register_entreprise, name='register_entreprise'),

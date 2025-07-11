@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des conversations</title>
+    <header class="main-header">
+  <div class="container">
+    <nav class="header-nav">
+      <form action="{% url 'etudiant_dashboard' %}" method="get">
+        <button type="submit" class="header-home-btn">
+          <i class="fas fa-home"></i> Home
+        </button>
+      </form>
+    </nav>
+  </div>
+</header>
     <style>
         :root {
             --whatsapp-green: #25D366;
@@ -129,6 +140,51 @@
         .new-message {
             animation: newMessage 2s ease-out;
         }
+
+        .main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background: rgba(15, 12, 41, 0);
+  z-index: 999;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.header-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  background: linear-gradient(to right, var(--primary), var(--primary-light));
+  color: white;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-home-btn:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.header-home-btn i {
+  font-size: 0.9rem;
+}
     </style>
 </head>
 <body>

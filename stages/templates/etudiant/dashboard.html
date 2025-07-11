@@ -724,9 +724,6 @@
                 <a href="{% url 'register' %}" class="header-nav-link header-nav-primary">
                     <i data-lucide="user-plus"></i> Inscription
                 </a>
-            <a class="header-nav" href="{% url 'chatbot' %}">
-                <i class="fas fa-robot"></i> Assistant
-            </a>
         </li>
             {% endif %}
         </nav>
@@ -742,9 +739,7 @@
                     <i data-lucide="user-plus"></i> Commencez maintenant
                 </a>
             {% endif %}
-        <a href="{% url 'chatbot:chatbot' %}" class="btn btn-outline animate-in delay-3">
-            <i data-lucide="message-square"></i> Parler à l'Assistant IA
-        </a>
+        
         </div>
     </header>
     {% if user.is_authenticated and user.etudiant %}
@@ -839,7 +834,7 @@
                                 </button>
                             </form>
                             
-                            <a href="{% url 'liste_annonces' %}" class="action-button action-button-primary">
+                            <a href="{% url 'annonces_etudiant' %}" class="action-button action-button-primary">
                                 <i data-lucide="bell"></i> Annonces
                                 {% if nouvelles_annonces > 0 %}
                                     <span class="notification-badge">{{ nouvelles_annonces }}</span>

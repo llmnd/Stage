@@ -1,0 +1,450 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 3796
+>>
+stream
+0.5670000000000001 w
+0 G
+0.39 0.4 0.95 rg
+0. 841.8899999999999864 595.2799999999999727 -113.3858267716535551 re
+f
+BT
+/F2 24 Tf
+27.5999999999999979 TL
+1. g
+56.6929133858267775 771.0238582677164914 Td
+(Meeting Summary Report) Tj
+ET
+BT
+/F1 12 Tf
+13.7999999999999989 TL
+1. g
+56.6929133858267775 742.6774015748030706 Td
+(Generated on Saturday, July 5, 2025 at 06:28 PM) Tj
+ET
+0.9 0.91 0.92 RG
+2.8346456692913389 w
+56.6929133858267775 700.1577165354329964 m
+538.5870866141731312 700.1577165354329964 l
+S
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 657.6380314960629221 Td
+(Meeting Summary) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 623.6222834645668627 Td
+(Executive Summary) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 600.9451181102361943 Td
+(The team discussed the project's progress, focusing on backend, frontend, QA, and deployment) Tj
+T* (updates. The meeting covered the current status, addressed open issues, and outlined the plan for) Tj
+T* (the upcoming sprint.) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 532.9136220472440755 Td
+(Key Points Discussed) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 498.8978740157479592 Td
+(* Backend progress: Completed new endpoints for user profile management, awaiting QA testing) Tj
+T* (and review ) Tj
+T* ( * Frontend progress: New profile page UI is almost complete, with state management and form) Tj
+T* (submission caching ) Tj
+T* ( * QA updates: Tested auth flows and profile API endpoints, reported bugs, and planned Cypress) Tj
+T* (tests ) Tj
+T* ( * Deployment and ops: CI pipeline is stable, with auto-deployment to staging and manual) Tj
+T* (deployment to production ) Tj
+T* ( * Timeline discussion: Targeting feature freeze by July 5th, with a backup plan for analytics module) Tj
+T* () Tj
+T* ( * Next sprint planning: Focus on admin portal features, with tickets and spec doc available) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 294.8033858267715459 Td
+(Decisions Made) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 260.7876377952754865 Td
+(* Feature freeze date set to July 3rd ) Tj
+T* ( * Backup plan for analytics module using dummy data and placeholders ) Tj
+T* ( * Standardization of commit messages using conventional commits \(feat/fix/chore types\) ) Tj
+T* ( * Enforcement of commit message format using a pre-commit hook) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 175.748267716535338 Td
+(Action Items) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 141.7325196850392786 Td
+(* Raj: ) Tj
+T* ( + Fix environment variable fallback on JWT_SECRET ) Tj
+T* ( + Complete validation issue fix for email field update ) Tj
+T* ( * Lina: ) Tj
+T* ( + Finish state management for form submission ) Tj
+T* ( + Check Lighthouse for performance and bundle size impact ) Tj
+T* ( + Integrate updated form field specs from UX team ) Tj
+T* ( * Michael: ) Tj
+T* ( + Complete Cypress tests for profile UI ) Tj
+T* ( + Update QA test suite by Thursday ) Tj
+T* ( * Ethan: ) Tj
+T* ( + Review PR for backend endpoints ) Tj
+T* ( + Prep new namespace and DB schema for admin roles ) Tj
+T* ( + Add pre-commit hook for commit message format enforcement ) Tj
+T* ( * Sarah: ) Tj
+T* ( + Create dummy data and placeholders for analytics module ) Tj
+T* ( * Alice: ) Tj
+T* ( + Update onboarding doc with standardized commit message format ) Tj
+T* ( + Send out action item summary doc by EOD) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.612 0.639 0.686 rg
+56.6929133858267775 28.3464566929134207 Td
+(Meeting Summarizer Pro - Generated Report) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.612 0.639 0.686 rg
+481.8941732283464034 28.3464566929134207 Td
+(Page 1 of 2) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 1940
+>>
+stream
+2.8346456692913389 w
+0.9 0.91 0.92 RG
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 745.5120472440944468 Td
+(Next Steps) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 711.4962992125983874 Td
+(* Review and test backend endpoints ) Tj
+T* ( * Complete frontend profile page UI and state management ) Tj
+T* ( * Update QA test suite and add Cypress tests ) Tj
+T* ( * Prepare for next sprint focusing on admin portal features ) Tj
+T* ( * Reconvene on Monday, same time, to discuss progress and address any new issues) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 609.4490551181102092 Td
+(Open Questions) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 575.4333070866141497 Td
+(* Will the external vendor provide SDK updates on time for the analytics module? ) Tj
+T* ( * Are there any potential blockers for the July 5th feature freeze deadline?) Tj
+ET
+BT
+/F2 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 524.4096850393700606 Td
+(Emotional Insight) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0.2 g
+56.6929133858267775 501.7325196850393354 Td
+(The meeting tone was collaborative and productive, with team members actively discussing and) Tj
+T* (addressing open issues. There was a sense of urgency around the upcoming feature freeze) Tj
+T* (deadline, but the team seemed confident in their ability to meet it. The discussion around) Tj
+T* (standardizing commit messages and adding a pre-commit hook showed a focus on process) Tj
+T* (improvement and attention to detail. Overall, the meeting fostered a sense of teamwork and) Tj
+T* (collective responsibility for the project's success.) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.612 0.639 0.686 rg
+56.6929133858267775 28.3464566929134207 Td
+(Meeting Summarizer Pro - Generated Report) Tj
+ET
+BT
+/F1 8 Tf
+9.1999999999999993 TL
+0.612 0.639 0.686 rg
+481.8941732283464034 28.3464566929134207 Td
+(Page 2 of 2) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R ]
+/Count 2
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+/F4 10 0 R
+/F5 11 0 R
+/F6 12 0 R
+/F7 13 0 R
+/F8 14 0 R
+/F9 15 0 R
+/F10 16 0 R
+/F11 17 0 R
+/F12 18 0 R
+/F13 19 0 R
+/F14 20 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+21 0 obj
+<<
+/Producer (jsPDF 2.5.1)
+/CreationDate (D:20250705182843-00'00')
+>>
+endobj
+22 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000006129 00000 n 
+0000007954 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000004000 00000 n 
+0000004137 00000 n 
+0000006192 00000 n 
+0000006317 00000 n 
+0000006447 00000 n 
+0000006580 00000 n 
+0000006718 00000 n 
+0000006842 00000 n 
+0000006971 00000 n 
+0000007103 00000 n 
+0000007239 00000 n 
+0000007367 00000 n 
+0000007494 00000 n 
+0000007623 00000 n 
+0000007756 00000 n 
+0000007858 00000 n 
+0000008204 00000 n 
+0000008290 00000 n 
+trailer
+<<
+/Size 23
+/Root 22 0 R
+/Info 21 0 R
+/ID [ <F89BBEA2F4FA6F3540EFDD083B9163F0> <F89BBEA2F4FA6F3540EFDD083B9163F0> ]
+>>
+startxref
+8394
+%%EOF

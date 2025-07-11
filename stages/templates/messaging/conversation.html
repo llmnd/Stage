@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversation avec {{ other_user.get_full_name }}</title>
+    <header class="main-header">
+  <div class="container">
+    <nav class="header-nav">
+      <form action="{% url 'etudiant_dashboard' %}" method="get">
+        <button type="submit" class="header-home-btn">
+          <i class="fas fa-home"></i> Home
+        </button>
+      </form>
+    </nav>
+  </div>
+</header>
     <style>
         :root {
             --whatsapp-green: #25D366;
@@ -155,6 +166,9 @@
             background: rgba(0,0,0,0.2);
             border-radius: 3px;
         }
+
+          /* Header Styles */
+
     </style>
 </head>
 <body>

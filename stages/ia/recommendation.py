@@ -110,7 +110,7 @@ class RecommandationIA:
                 self.extraire_texte_pdf(etudiant.cv)
             ])).strip()
 
-            score = self.calculer_score_spacy(texte_offre, texte_etudiant)
+            score = self.calculer_score_bi_directionnel(texte_offre, texte_etudiant)
 
             if score >= 0.1:
                 resultats.append({
@@ -216,7 +216,7 @@ class RecommandationIA:
                 print(f"Texte étudiant (nettoyé): {self.preprocess_text(texte_etudiant)[:200]}...")
 
             try:
-                score = self.calculer_score_spacy(texte_offre, texte_etudiant)
+                score = self.calculer_score_bi_directionnel(texte_offre, texte_etudiant)
             except Exception as e:
                 if debug:
                     print(f"Erreur calcul score pour offre {offre.id}: {e}")
@@ -296,7 +296,7 @@ class RecommandationIA:
                     self.extraire_texte_pdf(candidature.cv)
                 ])).strip()
 
-                score = self.calculer_score_spacy(texte_offre, texte_etudiant)
+                score = self.calculer_score_bi_directionnel(texte_offre, texte_etudiant)
 
                 Candidature.objects.filter(id=candidature.id).update(
                     score_ia=round(score * 100, 1),
@@ -311,5 +311,25 @@ class RecommandationIA:
             cache.set(cache_key, updated, timeout=getattr(settings, 'RECOMMENDATION_CACHE_TIMEOUT', 43200))
         except Exception:
             pass
-
         return updated
+
+    def calculer_score_bi_directionnel(self, texte1, texte2):
+        """Retourne la moyenne de similarité texte1→texte2 et texte2→texte1"""
+        if not texte1.strip() or not texte2.strip():
+            return 0.0
+
+        texte1 = self.preprocess_text(texte1)
+        texte2 = self.preprocess_text(texte2)
+
+        if not texte1 or not texte2:
+            return 0.0
+
+        try:
+            doc1 = self.nlp(texte1)
+            doc2 = self.nlp(texte2)
+            sim1 = doc1.similarity(doc2)
+            sim2 = doc2.similarity(doc1)
+            return round((sim1 + sim2) / 2, 3)
+        except Exception as e:
+            print(f"Erreur dans le calcul bi-directionnel : {e}")
+            return 0.0

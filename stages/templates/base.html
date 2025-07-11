@@ -13,14 +13,12 @@
         }
         
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #374151;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.5;
-        }
+  font-family: 'Times New Roman', sans-serif;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: #e0e0e0;
+  min-height: 100vh;
+  padding: 6rem 1rem 2rem; /* Augmentez le padding-top pour le header fixe */
+}
         
         /* En-tête */
         header {
@@ -141,55 +139,76 @@
                 align-items: flex-end;
             }
         }
+
+         /* Header Styles */
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background: rgba(15, 12, 41, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 999;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.header-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  background: linear-gradient(to right, var(--primary), var(--primary-light));
+  color: white;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-home-btn:hover {
+  background: linear-gradient(to right, var(--primary-light), var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.header-home-btn i {
+  font-size: 0.9rem;
+}
     </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <header>
-        <div class="header-container">
-            <h1>
-                <a href="{% url 'register_choice' %}" class="logo">MonSite</a>
-            </h1>
-            <nav>
-                {% if user.is_authenticated %}
-                    <span class="welcome-message">Bienvenue</span>
-                    <a href="{% url 'logout' %}" class="nav-link logout-link">Se déconnecter</a>
-                {% else %}
-                    <a href="{% url 'login' %}" class="nav-link">Connexion</a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
-
-    <!-- Messages Django -->
-    {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="message 
-                    {% if message.tags == 'success' %}
-                        message-success
-                    {% elif message.tags == 'error' %}
-                        message-error
-                    {% else %}
-                        message-info
-                    {% endif %}
-                ">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+     <header class="main-header">
+  <div class="container">
+    <nav class="header-nav">
+      <form action="{% url 'etudiant_dashboard' %}" method="get">
+        <button type="submit" class="header-home-btn">
+          <i class="fas fa-home"></i> Home
+        </button>
+      </form>
+    </nav>
+  </div>
+</header>
+  
 
     <!-- Contenu principal -->
     <main>
         {% block content %}{% endblock %}
     </main>
-
-    <!-- Footer -->
-    <footer>
-        &copy; {{ now|date:"Y" }} MonSite — Tous droits réservés.
-    </footer>
 
 </body>
 </html>

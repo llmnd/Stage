@@ -15,14 +15,7 @@
                 <h1>Modifier l'annonce</h1>
                 <p>Modifiez les détails ci-dessous puis validez.</p>
             </div>
-
-            {% if messages %}
-            <div class="alert-container">
-                {% for message in messages %}
-                    <div class="alert {{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-            {% endif %}
+           
 
             <form method="post" enctype="multipart/form-data" class="annonce-form">
                 {% csrf_token %}

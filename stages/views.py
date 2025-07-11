@@ -899,7 +899,7 @@ def post_login_redirect(request):
     elif hasattr(request.user, 'etudiant'):
         return redirect('etudiant_dashboard')
     else:
-        return redirect('dashboard')
+        return redirect('chef_dashboard')
     
 @login_required
 def candidatures_offre(request, offre_id):
@@ -1724,6 +1724,7 @@ def dashboard_chef(request):
         date_debut_reelle__lte=today,
         date_fin_reelle__gte=today
     )
-    return render(request, 'dashboard.html', {
+    return render(request, 'chef/chef_dashboard.html', {
         'stages_en_cours': stages_en_cours
     })
+

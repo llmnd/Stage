@@ -26,10 +26,6 @@
         </a>
         <a href="{% url 'register' %}" class="header-nav-link header-nav-primary">
           <i data-lucide="user-plus"></i> Inscription
-        </a>
-        <a href="{% url 'chatbot' %}" class="header-nav-link">
-          <i class="fas fa-robot"></i> Assistant
-        </a>
       {% endif %}
     </nav>
   </div>
@@ -836,42 +832,58 @@
             </div>
             
             <!-- Section Conventions -->
-            <div style="margin-top: 4rem;">
-                <h2><i class="fas fa-file-signature"></i> Mes conventions de stage</h2>
-                
-                {% if conventions %}
-                    <div style="margin-top: 2rem; display: grid; gap: 1rem;">
-                        {% for convention in conventions %}
-                            <a href="{% url 'detail_convention' convention.id %}" 
-                               style="display: block; background: rgba(255, 255, 255, 0.3); 
-                                      padding: 1.5rem; border-radius: var(--border-radius-sm); 
-                                      text-decoration: none; color: var(--dark); transition: var(--transition);">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <strong>Stage chez {{ convention.entreprise.nom_entreprise }}</strong>
-                                    <span style="font-size: 0.9rem;">Du {{ convention.date_debut }} au {{ convention.date_fin }}</span>
-                                </div>
-                                <div>
-                                    Statut : 
-                                    <span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; 
-                                          font-size: 0.8rem; 
-                                          {% if convention.statut == 'validee' %} background-color: rgba(74, 222, 128, 0.2); color: #16a34a;
-                                          {% elif convention.statut == 'en_attente' %} background-color: rgba(253, 230, 138, 0.3); color: #ca8a04;
-                                          {% elif convention.statut == 'refusee' %} background-color: rgba(248, 113, 113, 0.2); color: #dc2626;
-                                          {% else %} background-color: rgba(156, 163, 175, 0.2); color: #4b5563;{% endif %}">
-                                        {{ convention.get_statut_display }}
-                                    </span>
-                                </div>
-                            </a>
-                        {% endfor %}
+         <!-- Section Conventions -->
+<div style="margin-top: 4rem;">
+    <h2><i class="fas fa-file-signature"></i> Mes conventions de stage</h2>
+    
+    {% if conventions %}
+        <div style="margin-top: 2rem; display: grid; gap: 1rem;">
+            {% for convention in conventions %}
+                <a href="{% url 'detail_convention' convention.id %}" 
+                   style="display: block; background: rgba(255, 255, 255, 0.35); 
+                          padding: 1.5rem; border-radius: 12px; 
+                          text-decoration: none; color: #1f2937; transition: 0.3s ease;">
+                    
+                    <!-- En-tête avec entreprise et dates -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>Stage chez {{ convention.entreprise.nom_entreprise }}</strong>
+                        <span style="font-size: 0.9rem; color: #6b7280;">
+                            Du {{ convention.date_debut }} au {{ convention.date_fin }}
+                        </span>
                     </div>
-                {% else %}
-                    <div class="empty-state" style="margin-top: 2rem;">
-                        <i class="fas fa-file-excel"></i>
-                        <h3>Aucune convention trouvée</h3>
+
+                    <!-- Nom de l'étudiant concerné -->
+                    <div style="margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        👤 Étudiant : <strong>{{ convention.etudiant.nom_complet }}</strong>
                     </div>
-                {% endif %}
-            </div>
+
+                    <!-- Statut -->
+                    <div>
+                        Statut : 
+                        <span style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem;
+                            {% if convention.statut == 'validee' %}
+                                background-color: rgba(74, 222, 128, 0.15); color: #16a34a;
+                            {% elif convention.statut == 'en_attente' %}
+                                background-color: rgba(253, 230, 138, 0.25); color: #ca8a04;
+                            {% elif convention.statut == 'refusee' %}
+                                background-color: rgba(248, 113, 113, 0.2); color: #dc2626;
+                            {% else %}
+                                background-color: rgba(156, 163, 175, 0.2); color: #4b5563;
+                            {% endif %}">
+                            {{ convention.get_statut_display }}
+                        </span>
+                    </div>
+                </a>
+            {% endfor %}
         </div>
+    {% else %}
+        <div class="empty-state" style="margin-top: 2rem; text-align: center; color: #6b7280;">
+            <i class="fas fa-file-excel" style="font-size: 2rem;"></i>
+            <h3>Aucune convention trouvée</h3>
+        </div>
+    {% endif %}
+</div>
+
     </main>
 
     <script>
